@@ -1,7 +1,7 @@
 {
   "name": "react-native-music-library",
   "version": "0.1.0",
-  "description": "Access local music files in React Native, with full metadata.",
+  "description": "Access local music files in React Native with full metadata support.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
