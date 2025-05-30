@@ -1,18 +1,18 @@
 import MusicLibrary from './NativeMusicLibrary';
 import type {
-  IPaginatedQuery,
-  ITrackResult,
-  IAlbumResult,
-  IArtistResult,
-  IGenreResult,
+  AssetsOptions,
+  TrackResult,
+  AlbumResult,
+  ArtistResult,
+  GenreResult,
 } from './NativeMusicLibrary';
 
 export type {
-  IPaginatedQuery,
-  ITrackResult,
-  IAlbumResult,
-  IArtistResult,
-  IGenreResult,
+  AssetsOptions,
+  TrackResult,
+  AlbumResult,
+  ArtistResult,
+  GenreResult,
 };
 
 /**
@@ -20,9 +20,7 @@ export type {
  * @param options - The options for the query.
  * @returns A promise that resolves to an array of track info.
  */
-export function getTracksAsync(
-  options?: IPaginatedQuery
-): Promise<ITrackResult> {
+export function getTracksAsync(options?: AssetsOptions): Promise<TrackResult> {
   return MusicLibrary.getTracksAsync(options);
 }
 
@@ -31,9 +29,7 @@ export function getTracksAsync(
  * @param options - The options for the query.
  * @returns A promise that resolves to an array of album info.
  */
-export function getAlbumsAsync(
-  options?: IPaginatedQuery
-): Promise<IAlbumResult> {
+export function getAlbumsAsync(options?: AssetsOptions): Promise<AlbumResult> {
   return MusicLibrary.getAlbumsAsync(options);
 }
 
@@ -43,8 +39,8 @@ export function getAlbumsAsync(
  * @returns A promise that resolves to an array of artist info.
  */
 export function getArtistsAsync(
-  options?: IPaginatedQuery
-): Promise<IArtistResult> {
+  options?: AssetsOptions
+): Promise<ArtistResult> {
   return MusicLibrary.getArtistsAsync(options);
 }
 
@@ -53,9 +49,7 @@ export function getArtistsAsync(
  * @param options - The options for the query.
  * @returns A promise that resolves to an array of genre info.
  */
-export function getGenresAsync(
-  options?: IPaginatedQuery
-): Promise<IGenreResult> {
+export function getGenresAsync(options?: AssetsOptions): Promise<GenreResult> {
   return MusicLibrary.getGenresAsync(options);
 }
 

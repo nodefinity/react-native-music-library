@@ -25,9 +25,9 @@ export type SortKey =
 export type SortBy = SortKey | [SortKey, boolean];
 
 /**
- * Basic pagination and filtering parameters
+ * Basic assets options
  */
-export interface IPaginatedQuery {
+export interface AssetsOptions {
   /**
    * Cursor for pagination - ID of the last item from previous page
    * @default undefined
@@ -50,7 +50,7 @@ export interface IPaginatedQuery {
    * Sorting configuration
    * @default undefined
    */
-  // sortBy?: SortBy;
+  sortBy?: SortBy;
 
   /**
    * Directory path to search for tracks
@@ -85,7 +85,7 @@ export interface IPaginatedResult<T> {
   totalCount?: number;
 }
 
-export interface ITrack {
+export interface Track {
   id: string;
 
   /**
@@ -137,7 +137,7 @@ export interface ITrack {
   fileSize?: number;
 }
 
-export interface IAlbum {
+export interface Album {
   id: string;
 
   /**
@@ -177,7 +177,7 @@ export interface IAlbum {
   year?: number;
 }
 
-export interface IArtist {
+export interface Artist {
   id: string;
 
   /**
@@ -199,7 +199,7 @@ export interface IArtist {
   trackCount: number;
 }
 
-export interface IGenre {
+export interface Genre {
   id: string;
 
   /**
@@ -215,16 +215,16 @@ export interface IGenre {
   trackCount: number;
 }
 
-export type ITrackResult = IPaginatedResult<ITrack>;
-export type IAlbumResult = IPaginatedResult<IAlbum>;
-export type IArtistResult = IPaginatedResult<IArtist>;
-export type IGenreResult = IPaginatedResult<IGenre>;
+export type TrackResult = IPaginatedResult<Track>;
+export type AlbumResult = IPaginatedResult<Album>;
+export type ArtistResult = IPaginatedResult<Artist>;
+export type GenreResult = IPaginatedResult<Genre>;
 
 export interface Spec extends TurboModule {
-  getTracksAsync(options?: IPaginatedQuery): Promise<ITrackResult>;
-  getAlbumsAsync(options?: IPaginatedQuery): Promise<IAlbumResult>;
-  getArtistsAsync(options?: IPaginatedQuery): Promise<IArtistResult>;
-  getGenresAsync(options?: IPaginatedQuery): Promise<IGenreResult>;
+  getTracksAsync(options?: AssetsOptions): Promise<TrackResult>;
+  getAlbumsAsync(options?: AssetsOptions): Promise<AlbumResult>;
+  getArtistsAsync(options?: AssetsOptions): Promise<ArtistResult>;
+  getGenresAsync(options?: AssetsOptions): Promise<GenreResult>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MusicLibrary');
