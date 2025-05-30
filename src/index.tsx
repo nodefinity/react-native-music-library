@@ -5,7 +5,7 @@ import type {
   IAlbumResult,
   IArtistResult,
   IGenreResult,
-} from './types';
+} from './NativeMusicLibrary';
 
 export type {
   IPaginatedQuery,

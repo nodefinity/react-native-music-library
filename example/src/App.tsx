@@ -15,6 +15,7 @@ import {
   RESULTS,
   type PermissionStatus,
 } from 'react-native-permissions';
+import { getTracksAsync } from 'react-native-music-library';
 
 interface PermissionResponse {
   status: PermissionStatus;
@@ -110,6 +111,16 @@ export default function App() {
     }
   };
 
+  const getAllTracks = async () => {
+    try {
+      const results = await getTracksAsync();
+      console.log(results, 'tracks');
+      Alert.alert('Success', JSON.stringify(results));
+    } catch (e) {
+      console.error(e, 'error');
+    }
+  };
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -148,6 +159,8 @@ export default function App() {
           <Button title="Check Permission" onPress={checkPermissions} />
           <View style={styles.buttonSpacer} />
           <Button title="Request Permission" onPress={requestPermissions} />
+          <View style={styles.buttonSpacer} />
+          <Button title="Get All Tracks" onPress={getAllTracks} />
         </View>
       </View>
     </>
