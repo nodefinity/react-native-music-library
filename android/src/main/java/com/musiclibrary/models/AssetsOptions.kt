@@ -1,7 +1,7 @@
 package com.musiclibrary.models
 
 enum class SortKey {
-  DEFAULT, TITLE, ARTIST, ALBUM, DURATION, CREATED_AT, GENRE, TRACK_COUNT, NAME
+  DEFAULT, ARTIST, ALBUM, DURATION, CREATED_AT, MODIFIED_AT, GENRE, TRACK_COUNT
 }
 
 sealed class SortBy {
@@ -12,7 +12,6 @@ sealed class SortBy {
 data class AssetsOptions(
   val after: String? = null,
   val first: Int = 20,
-  val searchQuery: String? = null,
   val sortBy: SortBy? = null,
   val directory: String? = null,
 )

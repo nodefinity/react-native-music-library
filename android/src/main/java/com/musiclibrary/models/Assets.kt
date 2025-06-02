@@ -10,12 +10,12 @@ data class Track(
   val duration: Double,
   val uri: String,
   val createdAt: Long? = null,
-  val fileSize: Long? = null,
+  val modifiedAt: Long? = null,
 )
 
 data class Album(
   val id: String,
-  val name: String,
+  val title: String,
   val artist: String,
   val artwork: String? = null,
   val trackCount: Int,
@@ -25,13 +25,13 @@ data class Album(
 
 data class Artist(
   val id: String,
-  val name: String,
+  val title: String,
   val albumCount: Int,
   val trackCount: Int,
 )
 
 data class Genre(
   val id: String,
-  val name: String,
+  val title: String,
   val trackCount: Int,
 )
