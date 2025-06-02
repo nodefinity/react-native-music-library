@@ -18,6 +18,7 @@ interface PermissionResponse {
 export default function Permission() {
   const [permissionStatus, setPermissionStatus] =
     useState<PermissionResponse | null>(null);
+  const [isFirstCheck, setIsFirstCheck] = useState(true);
 
   const getAudioPermission = () => {
     if (Platform.OS === 'ios') {
@@ -49,6 +50,12 @@ export default function Permission() {
         canAskAgain:
           result === RESULTS.DENIED || result === RESULTS.UNAVAILABLE,
       };
+
+      setIsFirstCheck(false);
+
+      if (!isFirstCheck) {
+        Alert.alert('Permission Status', JSON.stringify(permissionResponse));
+      }
 
       setPermissionStatus(permissionResponse);
     } catch (error) {
