@@ -4,25 +4,29 @@ import { TurboModuleRegistry } from 'react-native';
 /**
  * Sorting keys for music library items
  */
-export type SortKey =
+export type SortByKey =
   | 'default'
-  | 'title'
   | 'artist'
   | 'album'
   | 'duration'
   | 'createdAt'
+  | 'modifiedAt'
   | 'genre'
-  | 'trackCount'
-  | 'name';
+  | 'trackCount';
+export type SortByValue = [SortByKey, boolean] | SortByKey;
 
-/**
- * Sorting configuration
- * Can be a single key or a tuple of [key, ascending]
- * @example
- * 'title' // Sort by title descending (default)
- * ['title', true] // Sort by title ascending
- */
-export type SortBy = SortKey | [SortKey, boolean];
+export type InternalSortByValue = `${SortByKey} ${'ASC' | 'DESC'}`;
+
+export const SortByObject = {
+  default: 'default',
+  artist: 'artist',
+  album: 'album',
+  duration: 'duration',
+  createdAt: 'createdAt',
+  modifiedAt: 'modifiedAt',
+  genre: 'genre',
+  trackCount: 'trackCount',
+};
 
 /**
  * Basic assets options
@@ -41,21 +45,28 @@ export interface AssetsOptions {
   first?: number;
 
   /**
-   * Search query string
-   * @default undefined
-   */
-  searchQuery?: string;
-
-  /**
    * Sorting configuration
-   * @default undefined
+   * Can be a single key or a tuple of [key, ascending]
+   * @example
+   * 'title' // Sort by title descending (default)
+   * ['title', true] // Sort by title ascending
    */
-  sortBy?: SortBy;
+  sortBy?: SortByValue | SortByValue[];
 
   /**
    * Directory path to search for tracks
    * @default undefined
    */
+  directory?: string;
+}
+
+/**
+ * Internal assets options used by native module
+ */
+export interface InternalAssetsOptions {
+  after?: string;
+  first?: number;
+  sortBy?: InternalSortByValue[];
   directory?: string;
 }
 
@@ -131,6 +142,12 @@ export interface Track {
   createdAt?: number;
 
   /**
+   * Date modified (Unix timestamp, optional)
+   * @default undefined
+   */
+  modifiedAt?: number;
+
+  /**
    * File size in bytes (optional)
    * @default undefined
    */
@@ -144,7 +161,7 @@ export interface Album {
    * Album name
    * @default ''
    */
-  name: string;
+  title: string;
 
   /**
    * Primary artist
@@ -184,7 +201,7 @@ export interface Artist {
    * Artist name
    * @default ''
    */
-  name: string;
+  title: string;
 
   /**
    * Number of albums
@@ -206,7 +223,7 @@ export interface Genre {
    * Genre name
    * @default ''
    */
-  name: string;
+  title: string;
 
   /**
    * Number of tracks in this genre
@@ -221,10 +238,10 @@ export type ArtistResult = IPaginatedResult<Artist>;
 export type GenreResult = IPaginatedResult<Genre>;
 
 export interface Spec extends TurboModule {
-  getTracksAsync(options?: AssetsOptions): Promise<TrackResult>;
-  getAlbumsAsync(options?: AssetsOptions): Promise<AlbumResult>;
-  getArtistsAsync(options?: AssetsOptions): Promise<ArtistResult>;
-  getGenresAsync(options?: AssetsOptions): Promise<GenreResult>;
+  getTracksAsync(options?: InternalAssetsOptions): Promise<TrackResult>;
+  getAlbumsAsync(options?: InternalAssetsOptions): Promise<AlbumResult>;
+  getArtistsAsync(options?: InternalAssetsOptions): Promise<ArtistResult>;
+  getGenresAsync(options?: InternalAssetsOptions): Promise<GenreResult>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MusicLibrary');
