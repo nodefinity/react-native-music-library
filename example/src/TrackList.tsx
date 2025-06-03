@@ -19,6 +19,7 @@ export default function TrackList() {
     try {
       const results = await getTracksAsync();
       setTracks(results.items);
+      Alert.alert('Success', `Found ${results.totalCount} tracks`);
     } catch (e) {
       console.error(e, 'error');
       Alert.alert('Error', 'Failed to fetch tracks');
