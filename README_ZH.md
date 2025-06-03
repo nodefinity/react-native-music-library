@@ -27,13 +27,13 @@
 ## 安装
 
 ```sh
-npm install react-native-music-library
+npm install @nodefinity/react-native-music-library
 ```
 
 或者
 
 ```sh
-yarn add react-native-music-library
+yarn add @nodefinity/react-native-music-library
 ```
 
 ### Android 设置
@@ -85,7 +85,7 @@ iOS 实现尚未完成。现在可以先添加权限到 `Info.plist` 以便将�
 #### 示例
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // 获取前 20 首曲目（默认）
 const result = await getTracksAsync();
@@ -164,7 +164,7 @@ interface TrackResult {
 ### 基本用法
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 const loadMusicLibrary = async () => {
   try {
@@ -184,7 +184,7 @@ const loadMusicLibrary = async () => {
 ### 分页
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 const loadAllTracks = async () => {
   let allTracks = [];
@@ -210,7 +210,7 @@ const loadAllTracks = async () => {
 ### 排序
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // 按艺术家名称排序（降序 - 默认）
 const tracksByArtist = await getTracksAsync({
@@ -235,7 +235,7 @@ const tracksMultiSort = await getTracksAsync({
 ### 目录过滤
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // 从特定目录获取曲目
 const playlistTracks = await getTracksAsync({

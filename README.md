@@ -27,13 +27,13 @@ A powerful React Native library for accessing local music files with full metada
 ## Installation
 
 ```sh
-npm install react-native-music-library
+npm install @nodefinity/react-native-music-library
 ```
 
 or
 
 ```sh
-yarn add react-native-music-library
+yarn add @nodefinity/react-native-music-library
 ```
 
 ### Android Setup
@@ -85,7 +85,7 @@ Promise that resolves to `TrackResult` containing:
 #### Example
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // Get first 20 tracks (default)
 const result = await getTracksAsync();
@@ -164,7 +164,7 @@ interface TrackResult {
 ### Basic Usage
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 const loadMusicLibrary = async () => {
   try {
@@ -184,7 +184,7 @@ const loadMusicLibrary = async () => {
 ### Pagination
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 const loadAllTracks = async () => {
   let allTracks = [];
@@ -210,7 +210,7 @@ const loadAllTracks = async () => {
 ### Sorting
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // Sort by artist name (descending - default)
 const tracksByArtist = await getTracksAsync({
@@ -235,7 +235,7 @@ const tracksMultiSort = await getTracksAsync({
 ### Directory Filtering
 
 ```js
-import { getTracksAsync } from 'react-native-music-library';
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // Get tracks from specific directory
 const playlistTracks = await getTracksAsync({
