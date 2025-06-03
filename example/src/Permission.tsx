@@ -7,6 +7,7 @@ import {
   RESULTS,
   type PermissionStatus,
 } from 'react-native-permissions';
+import { globalStyles } from './styles';
 
 interface PermissionResponse {
   status: PermissionStatus;
@@ -116,10 +117,6 @@ export default function Permission() {
 
   return (
     <>
-      <Text style={styles.subtitle}>
-        Get Audio Permission (using react-native-permissions)
-      </Text>
-
       <View style={styles.statusContainer}>
         <Text style={styles.statusTitle}>Current Permission Status:</Text>
         <View
@@ -143,9 +140,9 @@ export default function Permission() {
         )}
       </View>
 
-      <View style={styles.buttonContainer}>
+      <View style={globalStyles.buttonContainer}>
         <Button title="Check Permission" onPress={checkPermissions} />
-        <View style={styles.buttonSpacer} />
+        <View style={globalStyles.buttonSpacer} />
         <Button title="Request Permission" onPress={requestPermissions} />
       </View>
     </>
@@ -153,17 +150,11 @@ export default function Permission() {
 }
 
 const styles = StyleSheet.create({
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 30,
-    textAlign: 'center',
-  },
   statusContainer: {
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
-    marginBottom: 30,
+    marginBottom: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -194,13 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 5,
-  },
-  buttonContainer: {
-    width: '100%',
-    maxWidth: 300,
-  },
-  buttonSpacer: {
-    height: 15,
   },
   note: {
     fontSize: 12,

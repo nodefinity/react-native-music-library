@@ -65,8 +65,8 @@ export interface AssetsOptions {
  */
 export interface InternalAssetsOptions {
   after?: string;
-  first?: number;
-  sortBy?: InternalSortByValue[];
+  first: number;
+  sortBy: InternalSortByValue[];
   directory?: string;
 }
 
@@ -105,8 +105,8 @@ export interface Track {
    */
   title: string;
 
-  /** Album artwork (base64 encoded image or URL) */
-  artwork: string;
+  /** Track cover (base64 encoded image or URL) */
+  cover: string;
 
   /**
    * Artist name
@@ -238,10 +238,10 @@ export type ArtistResult = IPaginatedResult<Artist>;
 export type GenreResult = IPaginatedResult<Genre>;
 
 export interface Spec extends TurboModule {
-  getTracksAsync(options?: InternalAssetsOptions): Promise<TrackResult>;
-  getAlbumsAsync(options?: InternalAssetsOptions): Promise<AlbumResult>;
-  getArtistsAsync(options?: InternalAssetsOptions): Promise<ArtistResult>;
-  getGenresAsync(options?: InternalAssetsOptions): Promise<GenreResult>;
+  getTracksAsync(options: InternalAssetsOptions): Promise<TrackResult>;
+  getAlbumsAsync(options: InternalAssetsOptions): Promise<AlbumResult>;
+  getArtistsAsync(options: InternalAssetsOptions): Promise<ArtistResult>;
+  getGenresAsync(options: InternalAssetsOptions): Promise<GenreResult>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MusicLibrary');

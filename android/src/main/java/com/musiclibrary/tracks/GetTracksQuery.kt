@@ -1,15 +1,11 @@
-package com.musiclibrary.utils
+package com.musiclibrary.tracks
 
 import android.content.ContentResolver
-import android.content.ContentUris
-import android.database.Cursor
-import android.net.Uri
+import android.media.MediaMetadataRetriever
+import android.os.Build
 import android.provider.MediaStore
 import android.util.Base64
 import com.musiclibrary.models.*
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.io.InputStream
 
 object GetTracksQuery {
 
@@ -44,6 +40,7 @@ object GetTracksQuery {
     val tracks = mutableListOf<Track>()
     var hasNextPage = false
     var endCursor: String? = null
+    val totalCount = cursor.count
 
     cursor.use { c ->
       val idColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
@@ -54,7 +51,6 @@ object GetTracksQuery {
       val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
       val dateAddedColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
       val sizeColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
-      val albumIdColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
       // Jump to the specified start position
       if (options.after != null) {
@@ -83,33 +79,27 @@ object GetTracksQuery {
           val duration = c.getLong(durationColumn) / 1000.0 // Convert to seconds
           val data = c.getString(dataColumn) ?: ""
           val dateAdded = c.getLong(dateAddedColumn)
-          val size = c.getLong(sizeColumn)
-          val albumId = c.getLong(albumIdColumn)
+          val fileSize = c.getLong(sizeColumn)
 
           // Skip invalid data
           if (data.isEmpty()) {
             continue
           }
 
-          // Get album cover (return empty string if failed)
-          val artwork = try {
-            // getAlbumArtwork(contentResolver, albumId)
-            ""
-          } catch (e: Exception) {
-            ""
-          }
+          val meta = getTrackMeta(data)
 
           val track = Track(
             id = id.toString(),
             title = title,
-            artwork = artwork,
+            cover = meta.cover,
             artist = artist,
             album = album,
-            genre = "", // Get genre from MediaStore requires additional query
+            genre = meta.genre,
             duration = duration,
             uri = "file://$data",
             createdAt = dateAdded * 1000, // Convert to milliseconds
             modifiedAt = dateAdded * 1000, // Convert to milliseconds
+            fileSize = fileSize
           )
 
           tracks.add(track)
@@ -129,90 +119,93 @@ object GetTracksQuery {
       items = tracks,
       hasNextPage = hasNextPage,
       endCursor = endCursor,
-      totalCount = null
+      totalCount = totalCount
     )
   }
 
   private fun buildSelection(options: AssetsOptions): String {
     val conditions = mutableListOf<String>()
-    
+
     // Only query audio files
     conditions.add("${MediaStore.Audio.Media.IS_MUSIC} = 1")
-    
+
     // Filter out damaged files
     conditions.add("${MediaStore.Audio.Media.DURATION} > 0")
-    
+
     // Directory
     if (!options.directory.isNullOrEmpty()) {
       conditions.add("${MediaStore.Audio.Media.DATA} LIKE ?")
     }
-    
+
     return conditions.joinToString(" AND ")
   }
 
   private fun buildSelectionArgs(options: AssetsOptions): Array<String>? {
     val args = mutableListOf<String>()
-    
+
     if (!options.directory.isNullOrEmpty()) {
       args.add("${options.directory}%")
     }
-    
+
     return if (args.isEmpty()) null else args.toTypedArray()
   }
 
-  private fun buildSortOrder(sortBy: SortBy?): String {
-    return when (sortBy) {
-      is SortBy.Single -> {
-        val column = getSortColumn(sortBy.key)
-        "$column DESC"
+  private fun buildSortOrder(sortBy: List<String>): String {
+    if (sortBy.isEmpty()) {
+      return "${MediaStore.Audio.Media.DATE_ADDED} DESC"
+    }
+
+    return sortBy.joinToString(", ") { sortOption ->
+      val parts = sortOption.split(" ")
+      require(parts.size == 2) { "sortBy should be 'key order'" }
+
+      val column = when (parts[0].lowercase()) {
+        "default" -> MediaStore.Audio.Media.TITLE
+        "artist" -> MediaStore.Audio.Media.ARTIST
+        "album" -> MediaStore.Audio.Media.ALBUM
+        "duration" -> MediaStore.Audio.Media.DURATION
+        "created_at" -> MediaStore.Audio.Media.DATE_ADDED
+        "modified_at" -> MediaStore.Audio.Media.DATE_MODIFIED
+        "genre" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          MediaStore.Audio.Media.GENRE
+        } else {
+          null
+        }
+
+        "track_count" -> MediaStore.Audio.Media.TRACK
+        else -> throw IllegalArgumentException("Unsupported SortKey: ${parts[0]}")
       }
-      is SortBy.WithOrder -> {
-        val column = getSortColumn(sortBy.key)
-        val order = if (sortBy.ascending) "ASC" else "DESC"
-        "$column $order"
+
+      val order = parts[1].uppercase()
+      require(order == "ASC" || order == "DESC") { "Sort By must be ASC or DESC" }
+
+      if (column == null) {
+        return@joinToString ""
       }
-      null -> "${MediaStore.Audio.Media.DATE_ADDED} DESC"
+
+      "$column $order"
     }
   }
 
-  private fun getSortColumn(sortKey: SortKey): String {
-    return when (sortKey) {
-      SortKey.DEFAULT -> MediaStore.Audio.Media.TITLE
-      SortKey.ARTIST -> MediaStore.Audio.Media.ARTIST
-      SortKey.ALBUM -> MediaStore.Audio.Media.ALBUM
-      SortKey.DURATION -> MediaStore.Audio.Media.DURATION
-      SortKey.CREATED_AT -> MediaStore.Audio.Media.DATE_ADDED
-      SortKey.MODIFIED_AT -> MediaStore.Audio.Media.DATE_MODIFIED
-      SortKey.GENRE -> MediaStore.Audio.Media.GENRE
-      SortKey.TRACK_COUNT -> MediaStore.Audio.Media.TRACK
-      else -> MediaStore.Audio.Media.DATE_ADDED
-    }
-  }
+  private fun getTrackMeta(data: String): TrackMeta {
+    val retriever = MediaMetadataRetriever()
+    try {
+      retriever.setDataSource(data)
 
-  private fun getAlbumArtwork(contentResolver: ContentResolver, albumId: Long): String {
-    val albumArtUri = ContentUris.withAppendedId(
-      Uri.parse("content://media/external/audio/albumart"),
-      albumId
-    )
-    
-    val inputStream = contentResolver.openInputStream(albumArtUri) ?: return ""
-    
-    return inputStream.use { stream ->
-      val buffer = ByteArrayOutputStream()
-      val data = ByteArray(1024)
-      var nRead: Int
-      while (stream.read(data, 0, data.size).also { nRead = it } != -1) {
-        buffer.write(data, 0, nRead)
+      val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE) ?: ""
+
+      val embeddedPicture = retriever.embeddedPicture
+      val cover = if (embeddedPicture != null) {
+        "data:image/jpeg;base64," + Base64.encodeToString(embeddedPicture, Base64.NO_WRAP)
+      } else {
+        ""
       }
-      buffer.flush()
-      val imageBytes = buffer.toByteArray()
-      
-      // Simple size check
-      if (imageBytes.size > 5 * 1024 * 1024) { // 5MB limit
-        return ""
-      }
-      
-      "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.DEFAULT)
+
+      return TrackMeta(cover, genre)
+    } catch (e: Exception) {
+      return TrackMeta("", "")
+    } finally {
+      retriever.release()
     }
   }
-} 
+}

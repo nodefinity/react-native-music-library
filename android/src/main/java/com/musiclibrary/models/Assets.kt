@@ -1,9 +1,14 @@
 package com.musiclibrary.models
 
+data class TrackMeta(
+  val cover: String,
+  val genre: String
+)
+
 data class Track(
   val id: String,
   val title: String,
-  val artwork: String,
+  val cover: String,
   val artist: String,
   val album: String,
   val genre: String,
@@ -11,6 +16,7 @@ data class Track(
   val uri: String,
   val createdAt: Long? = null,
   val modifiedAt: Long? = null,
+  val fileSize: Long,
 )
 
 data class Album(

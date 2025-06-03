@@ -1,18 +1,8 @@
-import { StyleSheet, View, Text, Alert, StatusBar, Button } from 'react-native';
-import { getTracksAsync } from 'react-native-music-library';
+import { StyleSheet, View, Text, StatusBar } from 'react-native';
 import Permission from './Permission';
+import TrackList from './TrackList';
 
 export default function App() {
-  const getAllTracks = async () => {
-    try {
-      const results = await getTracksAsync();
-      console.log(results, 'tracks');
-      Alert.alert('Success', JSON.stringify(results));
-    } catch (e) {
-      console.error(e, 'error');
-    }
-  };
-
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -20,11 +10,7 @@ export default function App() {
         <Text style={styles.title}>React Native Music Library</Text>
 
         <Permission />
-
-        <View style={styles.buttonContainer}>
-          <View style={styles.buttonSpacer} />
-          <Button title="Get All Tracks" onPress={getAllTracks} />
-        </View>
+        <TrackList />
       </View>
     </>
   );
@@ -35,7 +21,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
     backgroundColor: '#f5f5f5',
   },
   title: {
@@ -43,12 +30,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
-  },
-  buttonContainer: {
-    width: '100%',
-    maxWidth: 300,
-  },
-  buttonSpacer: {
-    height: 15,
   },
 });

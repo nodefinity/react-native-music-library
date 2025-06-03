@@ -4,7 +4,6 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.module.annotations.ReactModule
-import com.musiclibrary.models.AssetsOptions
 import com.musiclibrary.utils.ReadableMapMapper.toAssetsOptions
 import com.musiclibrary.utils.ModuleUtils.throwUnlessPermissionsGranted
 import com.musiclibrary.utils.ModuleUtils.withModuleScope
@@ -21,45 +20,37 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     return NAME
   }
 
-  override fun getTracksAsync(options: ReadableMap?, promise: Promise) {
-    val assetsOptions = options?.toAssetsOptions() ?: AssetsOptions()
-    
+  override fun getTracksAsync(options: ReadableMap, promise: Promise) {
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
-        GetTracks(reactApplicationContext, assetsOptions, promise)
+        GetTracks(reactApplicationContext, options.toAssetsOptions(), promise)
           .execute()
       }
     }
   }
 
-  override fun getAlbumsAsync(options: ReadableMap?, promise: Promise) {
-    val assetsOptions = options?.toAssetsOptions() ?: AssetsOptions()
-    
+  override fun getAlbumsAsync(options: ReadableMap, promise: Promise) {
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
-        GetAlbums(reactApplicationContext, assetsOptions, promise)
+        GetAlbums(reactApplicationContext, options.toAssetsOptions(), promise)
           .execute()
       }
     }
   }
 
-  override fun getArtistsAsync(options: ReadableMap?, promise: Promise) {
-    val assetsOptions = options?.toAssetsOptions() ?: AssetsOptions()
-    
+  override fun getArtistsAsync(options: ReadableMap, promise: Promise) {
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
-        GetArtists(reactApplicationContext, assetsOptions, promise)
+        GetArtists(reactApplicationContext, options.toAssetsOptions(), promise)
           .execute()
       }
     }
   }
 
-  override fun getGenresAsync(options: ReadableMap?, promise: Promise) {
-    val assetsOptions = options?.toAssetsOptions() ?: AssetsOptions()
-    
+  override fun getGenresAsync(options: ReadableMap, promise: Promise) {
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
-        GetGenres(reactApplicationContext, assetsOptions, promise)
+        GetGenres(reactApplicationContext, options.toAssetsOptions(), promise)
           .execute()
       }
     }

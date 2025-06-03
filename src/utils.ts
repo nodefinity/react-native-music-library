@@ -86,7 +86,7 @@ export function getOptions(
   }
 
   return {
-    ...assetsOptions,
-    sortBy: arrayize(assetsOptions.sortBy).map(sortByOptionToString),
+    ...options,
+    sortBy: options.sortBy.map(sortByOptionToString),
   };
 }
