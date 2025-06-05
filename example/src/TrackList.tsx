@@ -14,16 +14,45 @@ import type { Track } from '../../src/NativeMusicLibrary';
 
 export default function TrackList() {
   const [tracks, setTracks] = useState<Track[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const getAllTracks = async () => {
     try {
-      const results = await getTracksAsync();
-      setTracks(results.items);
-      Alert.alert('Success', `Found ${results.totalCount} tracks`);
+      setLoading(true);
+      const startTime = Date.now();
+      const results = await loadAllTracks();
+      const endTime = Date.now();
+
+      setTracks(results);
+      Alert.alert(
+        'Success',
+        `Found ${results.length} tracks in ${endTime - startTime}ms`
+      );
     } catch (e) {
       console.error(e, 'error');
       Alert.alert('Error', 'Failed to fetch tracks');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const loadAllTracks = async () => {
+    let allTracks: Track[] = [];
+    let hasMore = true;
+    let cursor;
+
+    while (hasMore) {
+      const result = await getTracksAsync({
+        first: 100,
+        after: cursor,
+      });
+
+      allTracks = [...allTracks, ...result.items];
+      hasMore = result.hasNextPage;
+      cursor = result.endCursor;
+    }
+
+    return allTracks;
   };
 
   const formatDuration = (totalSeconds: number) => {
@@ -51,7 +80,11 @@ export default function TrackList() {
     <>
       <View style={globalStyles.buttonContainer}>
         <View style={globalStyles.buttonSpacer} />
-        <Button title="get the first 20 tracks" onPress={getAllTracks} />
+        <Button
+          title={`${loading ? 'loading...' : ''} get all tracks`}
+          onPress={getAllTracks}
+          disabled={loading}
+        />
       </View>
 
       {tracks.length && (
