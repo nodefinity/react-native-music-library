@@ -1,9 +1,12 @@
 # react-native-music-library
 
+[English Version](./README.md)
+
 一个功能强大的 React Native 库，用于访问本地音乐文件并获取完整的元数据信息。基于 React Native 新架构（TurboModules）构建，性能卓越。
 
 > **注意**：目前仅实现了 Android 平台，iOS 支持即将推出。
 
+[![npm version](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library.svg)](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 特性与路线图
