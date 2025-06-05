@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import { globalStyles } from './styles';
+import { globalStyles } from './Styles';
 import { getTracksAsync } from '@nodefinity/react-native-music-library';
 import { useState } from 'react';
 import type { Track } from '../../src/NativeMusicLibrary';

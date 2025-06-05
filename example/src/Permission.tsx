@@ -7,7 +7,7 @@ import {
   RESULTS,
   type PermissionStatus,
 } from 'react-native-permissions';
-import { globalStyles } from './styles';
+import { globalStyles } from './Styles';
 
 interface PermissionResponse {
   status: PermissionStatus;
