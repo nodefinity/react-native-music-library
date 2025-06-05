@@ -6,7 +6,19 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Base64
 import com.musiclibrary.models.*
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
+/**
+ * GetTracksQuery
+ *
+ * 1. Split the query and metadata extraction of audio files
+ * 2. Use multi-threaded parallel processing of metadata extraction to significantly improve performance
+ * 3. Reasonably control the size of the thread pool to avoid resource waste
+ * 4. Add timeout mechanism to avoid a single file blocking the entire process
+ */
 object GetTracksQuery {
 
   fun getTracks(
@@ -37,7 +49,7 @@ object GetTracksQuery {
       sortOrder
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
 
-    val tracks = mutableListOf<Track>()
+    val basicTracks = mutableListOf<Track>()
     var hasNextPage = false
     var endCursor: String? = null
     val totalCount = cursor.count
@@ -86,15 +98,13 @@ object GetTracksQuery {
             continue
           }
 
-          val meta = getTrackMeta(data)
-
-          val track = Track(
+          val basicTrack = Track(
             id = id.toString(),
             title = title,
-            cover = meta.cover,
+            cover = "",
             artist = artist,
             album = album,
-            genre = meta.genre,
+            genre = "",
             duration = duration,
             uri = "file://$data",
             createdAt = dateAdded * 1000, // Convert to milliseconds
@@ -102,7 +112,7 @@ object GetTracksQuery {
             fileSize = fileSize
           )
 
-          tracks.add(track)
+          basicTracks.add(basicTrack)
           endCursor = id.toString()
           count++
         } catch (e: Exception) {
@@ -114,6 +124,9 @@ object GetTracksQuery {
       // Check if there are more data
       hasNextPage = c.moveToNext()
     }
+
+    // Use multi-threaded parallel processing of metadata extraction
+    val tracks = processTracksMetadata(basicTracks)
 
     return PaginatedResult(
       items = tracks,
@@ -138,6 +151,93 @@ object GetTracksQuery {
     }
 
     return conditions.joinToString(" AND ")
+  }
+
+  /**
+   * Use multi-threaded parallel processing of metadata extraction
+   *
+   * @param basicTracks Track list
+   * @return Track list with complete metadata
+   */
+  private fun processTracksMetadata(basicTracks: List<Track>): List<Track> {
+    if (basicTracks.isEmpty()) {
+      return emptyList()
+    }
+
+    // Create thread pool, optimized for I/O intensive tasks
+    val threadCount = minOf(16, maxOf(4, Runtime.getRuntime().availableProcessors() * 4))
+    val executor = Executors.newFixedThreadPool(threadCount) as ThreadPoolExecutor
+
+    // Pre-warm thread pool
+    executor.prestartAllCoreThreads()
+
+    try {
+      // Create Future task list
+      val futures = mutableListOf<Future<Track>>()
+
+      // Create asynchronous task for each track
+      for (basicTrack in basicTracks) {
+        val future = executor.submit<Track> {
+          try {
+            val meta = getTrackMeta(basicTrack.uri.replace("file://", ""))
+            Track(
+              id = basicTrack.id,
+              title = basicTrack.title,
+              cover = meta.cover,
+              artist = basicTrack.artist,
+              album = basicTrack.album,
+              genre = meta.genre,
+              duration = basicTrack.duration,
+              uri = basicTrack.uri,
+              createdAt = basicTrack.createdAt,
+              modifiedAt = basicTrack.modifiedAt,
+              fileSize = basicTrack.fileSize
+            )
+          } catch (e: Exception) {
+            // If metadata extraction fails, return track without metadata
+            Track(
+              id = basicTrack.id,
+              title = basicTrack.title,
+              cover = "",
+              artist = basicTrack.artist,
+              album = basicTrack.album,
+              genre = "",
+              duration = basicTrack.duration,
+              uri = basicTrack.uri,
+              createdAt = basicTrack.createdAt,
+              modifiedAt = basicTrack.modifiedAt,
+              fileSize = basicTrack.fileSize
+            )
+          }
+        }
+        futures.add(future)
+      }
+
+      // Collect all results
+      val tracks = mutableListOf<Track>()
+      for (future in futures) {
+        try {
+          // Set shorter timeout (maximum 2 seconds per file)
+          val track = future.get(2, TimeUnit.SECONDS)
+          tracks.add(track)
+        } catch (e: Exception) {
+          // If the task times out or fails, skip this track
+          continue
+        }
+      }
+
+      return tracks
+    } finally {
+      // Ensure the thread pool is closed correctly
+      executor.shutdown()
+      try {
+        if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+          executor.shutdownNow()
+        }
+      } catch (e: InterruptedException) {
+        executor.shutdownNow()
+      }
+    }
   }
 
   private fun buildSelectionArgs(options: AssetsOptions): Array<String>? {
@@ -189,7 +289,7 @@ object GetTracksQuery {
 
   private fun getTrackMeta(data: String): TrackMeta {
     val retriever = MediaMetadataRetriever()
-    try {
+    return try {
       retriever.setDataSource(data)
 
       val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE) ?: ""
@@ -201,9 +301,9 @@ object GetTracksQuery {
         ""
       }
 
-      return TrackMeta(cover, genre)
+      TrackMeta(cover, genre)
     } catch (e: Exception) {
-      return TrackMeta("", "")
+      TrackMeta("", "")
     } finally {
       retriever.release()
     }
