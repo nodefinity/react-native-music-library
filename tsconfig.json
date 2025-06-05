@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-music-library": ["./src/index"]
+      "@nodefinity/react-native-music-library": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
