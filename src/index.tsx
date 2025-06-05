@@ -8,13 +8,7 @@ import type {
 } from './NativeMusicLibrary';
 import { getOptions } from './utils';
 
-export type {
-  AssetsOptions,
-  TrackResult,
-  AlbumResult,
-  ArtistResult,
-  GenreResult,
-};
+export * from './NativeMusicLibrary';
 
 /**
  * Get all tracks from the music library.
