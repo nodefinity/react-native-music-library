@@ -105,7 +105,7 @@ export interface Track {
    */
   title: string;
 
-  /** Track cover (base64 encoded image or URL) */
+  /** Track cover (file URI) */
   cover: string;
 
   /**

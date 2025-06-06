@@ -1,11 +1,13 @@
 package com.musiclibrary.tracks
 
 import android.content.ContentResolver
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Base64
 import com.musiclibrary.models.*
+import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.ThreadPoolExecutor
@@ -23,7 +25,8 @@ object GetTracksQuery {
 
   fun getTracks(
     contentResolver: ContentResolver,
-    options: AssetsOptions
+    options: AssetsOptions,
+    context: Context
   ): PaginatedResult<Track> {
     val projection = arrayOf(
       MediaStore.Audio.Media._ID,
@@ -126,7 +129,7 @@ object GetTracksQuery {
     }
 
     // Use multi-threaded parallel processing of metadata extraction
-    val tracks = processTracksMetadata(basicTracks)
+    val tracks = processTracksMetadata(basicTracks, context)
 
     return PaginatedResult(
       items = tracks,
@@ -159,7 +162,7 @@ object GetTracksQuery {
    * @param basicTracks Track list
    * @return Track list with complete metadata
    */
-  private fun processTracksMetadata(basicTracks: List<Track>): List<Track> {
+  private fun processTracksMetadata(basicTracks: List<Track>, context: Context): List<Track> {
     if (basicTracks.isEmpty()) {
       return emptyList()
     }
@@ -170,23 +173,61 @@ object GetTracksQuery {
 
     // Pre-warm thread pool
     executor.prestartAllCoreThreads()
+    
+    // Create a MediaMetadataRetriever instance for each thread
+    val retrievers = Array(threadCount) { MediaMetadataRetriever() }
+    val threadLocalRetriever = ThreadLocal<MediaMetadataRetriever>()
 
     try {
       // Create Future task list
       val futures = mutableListOf<Future<Track>>()
 
       // Create asynchronous task for each track
-      for (basicTrack in basicTracks) {
+      for ((index, basicTrack) in basicTracks.withIndex()) {
         val future = executor.submit<Track> {
+          // Get the retriever for the current thread
+          var retriever = threadLocalRetriever.get()
+          if (retriever == null) {
+            retriever = retrievers[index % threadCount]
+            threadLocalRetriever.set(retriever)
+          }
+          
           try {
-            val meta = getTrackMeta(basicTrack.uri.replace("file://", ""))
+            val data = basicTrack.uri.replace("file://", "")
+            retriever.setDataSource(data)
+            
+            val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE) ?: ""
+            
+            val embeddedPicture = retriever.embeddedPicture
+            val cover = if (embeddedPicture != null) {
+              // Use the application's private directory to store the image
+              val coverDir = File(context.filesDir, "covers")
+              if (!coverDir.exists()) {
+                coverDir.mkdirs()
+              }
+              
+              // Use the hash value of the file path as the file name to avoid duplication
+              val fileName = "cover_${data.hashCode()}.jpg"
+              val coverFile = File(coverDir, fileName)
+              
+              // If the file does not exist, save it
+              if (!coverFile.exists()) {
+                coverFile.writeBytes(embeddedPicture)
+              }
+              
+              // Return the complete file URI
+              "file://${coverFile.absolutePath}"
+            } else {
+              ""
+            }
+
             Track(
               id = basicTrack.id,
               title = basicTrack.title,
-              cover = meta.cover,
+              cover = cover,
               artist = basicTrack.artist,
               album = basicTrack.album,
-              genre = meta.genre,
+              genre = genre,
               duration = basicTrack.duration,
               uri = basicTrack.uri,
               createdAt = basicTrack.createdAt,
@@ -237,6 +278,17 @@ object GetTracksQuery {
       } catch (e: InterruptedException) {
         executor.shutdownNow()
       }
+      
+      // Release all MediaMetadataRetriever instances
+      retrievers.forEach { retriever ->
+        try {
+          retriever.release()
+        } catch (e: Exception) {
+        }
+      }
+      
+      // Clean up ThreadLocal
+      threadLocalRetriever.remove()
     }
   }
 
@@ -284,28 +336,6 @@ object GetTracksQuery {
       }
 
       "$column $order"
-    }
-  }
-
-  private fun getTrackMeta(data: String): TrackMeta {
-    val retriever = MediaMetadataRetriever()
-    return try {
-      retriever.setDataSource(data)
-
-      val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE) ?: ""
-
-      val embeddedPicture = retriever.embeddedPicture
-      val cover = if (embeddedPicture != null) {
-        "data:image/jpeg;base64," + Base64.encodeToString(embeddedPicture, Base64.NO_WRAP)
-      } else {
-        ""
-      }
-
-      TrackMeta(cover, genre)
-    } catch (e: Exception) {
-      TrackMeta("", "")
-    } finally {
-      retriever.release()
     }
   }
 }

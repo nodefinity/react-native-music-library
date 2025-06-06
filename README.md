@@ -112,7 +112,7 @@ console.log('Has more:', customResult.hasNextPage);
 interface Track {
   id: string;
   title: string;           // Track title
-  cover: string;           // Album artwork (base64 encoded)
+  cover: string;           // Cover file URI
   artist: string;          // Artist name
   album: string;           // Album name
   genre: string;           // Music genre
