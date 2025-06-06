@@ -15,7 +15,7 @@ internal class GetTracks(
     try {
       val contentResolver = context.contentResolver
 
-      val result = GetTracksQuery.getTracks(contentResolver, options, context)
+      val result = GetTracksQuery.getTracks(contentResolver, options)
       val writableMap = DataConverter.paginatedResultToWritableMap(result) { track ->
         DataConverter.trackToWritableMap(track)
       }

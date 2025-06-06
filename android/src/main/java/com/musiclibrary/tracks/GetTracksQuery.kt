@@ -1,32 +1,17 @@
 package com.musiclibrary.tracks
 
 import android.content.ContentResolver
-import android.content.Context
-import android.media.MediaMetadataRetriever
+import android.content.ContentUris
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Base64
+import android.net.Uri
 import com.musiclibrary.models.*
-import java.io.File
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
 
-/**
- * GetTracksQuery
- *
- * 1. Split the query and metadata extraction of audio files
- * 2. Use multi-threaded parallel processing of metadata extraction to significantly improve performance
- * 3. Reasonably control the size of the thread pool to avoid resource waste
- * 4. Add timeout mechanism to avoid a single file blocking the entire process
- */
 object GetTracksQuery {
 
   fun getTracks(
     contentResolver: ContentResolver,
     options: AssetsOptions,
-    context: Context
   ): PaginatedResult<Track> {
     val projection = arrayOf(
       MediaStore.Audio.Media._ID,
@@ -37,7 +22,8 @@ object GetTracksQuery {
       MediaStore.Audio.Media.DATA,
       MediaStore.Audio.Media.DATE_ADDED,
       MediaStore.Audio.Media.SIZE,
-      MediaStore.Audio.Media.ALBUM_ID
+      MediaStore.Audio.Media.ALBUM_ID,
+      MediaStore.Audio.Media.GENRE
     )
 
     val selection = buildSelection(options)
@@ -52,7 +38,7 @@ object GetTracksQuery {
       sortOrder
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
 
-    val basicTracks = mutableListOf<Track>()
+    val tracks = mutableListOf<Track>()
     var hasNextPage = false
     var endCursor: String? = null
     val totalCount = cursor.count
@@ -66,6 +52,8 @@ object GetTracksQuery {
       val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
       val dateAddedColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
       val sizeColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+      val genreColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.GENRE)
+      val albumIdColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
       // Jump to the specified start position
       if (options.after != null) {
@@ -95,19 +83,22 @@ object GetTracksQuery {
           val data = c.getString(dataColumn) ?: ""
           val dateAdded = c.getLong(dateAddedColumn)
           val fileSize = c.getLong(sizeColumn)
+          val genre = c.getString(genreColumn) ?: ""
+          val albumId = c.getLong(albumIdColumn)
+          val artworkUri: Uri = Uri.parse("content://media/external/audio/media/${id}/albumart")
 
           // Skip invalid data
           if (data.isEmpty()) {
             continue
           }
 
-          val basicTrack = Track(
+          val track = Track(
             id = id.toString(),
             title = title,
-            cover = "",
+            cover = artworkUri.toString(),
             artist = artist,
             album = album,
-            genre = "",
+            genre = genre,
             duration = duration,
             uri = "file://$data",
             createdAt = dateAdded * 1000, // Convert to milliseconds
@@ -115,7 +106,7 @@ object GetTracksQuery {
             fileSize = fileSize
           )
 
-          basicTracks.add(basicTrack)
+          tracks.add(track)
           endCursor = id.toString()
           count++
         } catch (e: Exception) {
@@ -127,9 +118,6 @@ object GetTracksQuery {
       // Check if there are more data
       hasNextPage = c.moveToNext()
     }
-
-    // Use multi-threaded parallel processing of metadata extraction
-    val tracks = processTracksMetadata(basicTracks, context)
 
     return PaginatedResult(
       items = tracks,
@@ -154,142 +142,6 @@ object GetTracksQuery {
     }
 
     return conditions.joinToString(" AND ")
-  }
-
-  /**
-   * Use multi-threaded parallel processing of metadata extraction
-   *
-   * @param basicTracks Track list
-   * @return Track list with complete metadata
-   */
-  private fun processTracksMetadata(basicTracks: List<Track>, context: Context): List<Track> {
-    if (basicTracks.isEmpty()) {
-      return emptyList()
-    }
-
-    // Create thread pool, optimized for I/O intensive tasks
-    val threadCount = minOf(16, maxOf(4, Runtime.getRuntime().availableProcessors() * 4))
-    val executor = Executors.newFixedThreadPool(threadCount) as ThreadPoolExecutor
-
-    // Pre-warm thread pool
-    executor.prestartAllCoreThreads()
-    
-    // Create a MediaMetadataRetriever instance for each thread
-    val retrievers = Array(threadCount) { MediaMetadataRetriever() }
-    val threadLocalRetriever = ThreadLocal<MediaMetadataRetriever>()
-
-    try {
-      // Create Future task list
-      val futures = mutableListOf<Future<Track>>()
-
-      // Create asynchronous task for each track
-      for ((index, basicTrack) in basicTracks.withIndex()) {
-        val future = executor.submit<Track> {
-          // Get the retriever for the current thread
-          var retriever = threadLocalRetriever.get()
-          if (retriever == null) {
-            retriever = retrievers[index % threadCount]
-            threadLocalRetriever.set(retriever)
-          }
-          
-          try {
-            val data = basicTrack.uri.replace("file://", "")
-            retriever.setDataSource(data)
-            
-            val genre = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE) ?: ""
-            
-            val embeddedPicture = retriever.embeddedPicture
-            val cover = if (embeddedPicture != null) {
-              // Use the application's private directory to store the image
-              val coverDir = File(context.filesDir, "covers")
-              if (!coverDir.exists()) {
-                coverDir.mkdirs()
-              }
-              
-              // Use the hash value of the file path as the file name to avoid duplication
-              val fileName = "cover_${data.hashCode()}.jpg"
-              val coverFile = File(coverDir, fileName)
-              
-              // If the file does not exist, save it
-              if (!coverFile.exists()) {
-                coverFile.writeBytes(embeddedPicture)
-              }
-              
-              // Return the complete file URI
-              "file://${coverFile.absolutePath}"
-            } else {
-              ""
-            }
-
-            Track(
-              id = basicTrack.id,
-              title = basicTrack.title,
-              cover = cover,
-              artist = basicTrack.artist,
-              album = basicTrack.album,
-              genre = genre,
-              duration = basicTrack.duration,
-              uri = basicTrack.uri,
-              createdAt = basicTrack.createdAt,
-              modifiedAt = basicTrack.modifiedAt,
-              fileSize = basicTrack.fileSize
-            )
-          } catch (e: Exception) {
-            // If metadata extraction fails, return track without metadata
-            Track(
-              id = basicTrack.id,
-              title = basicTrack.title,
-              cover = "",
-              artist = basicTrack.artist,
-              album = basicTrack.album,
-              genre = "",
-              duration = basicTrack.duration,
-              uri = basicTrack.uri,
-              createdAt = basicTrack.createdAt,
-              modifiedAt = basicTrack.modifiedAt,
-              fileSize = basicTrack.fileSize
-            )
-          }
-        }
-        futures.add(future)
-      }
-
-      // Collect all results
-      val tracks = mutableListOf<Track>()
-      for (future in futures) {
-        try {
-          // Set shorter timeout (maximum 2 seconds per file)
-          val track = future.get(2, TimeUnit.SECONDS)
-          tracks.add(track)
-        } catch (e: Exception) {
-          // If the task times out or fails, skip this track
-          continue
-        }
-      }
-
-      return tracks
-    } finally {
-      // Ensure the thread pool is closed correctly
-      executor.shutdown()
-      try {
-        if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
-          executor.shutdownNow()
-        }
-      } catch (e: InterruptedException) {
-        executor.shutdownNow()
-      }
-      
-      // Release all MediaMetadataRetriever instances
-      retrievers.forEach { retriever ->
-        try {
-          retriever.release()
-        } catch (e: Exception) {
-        }
-      }
-      
-      // Clean up ThreadLocal
-      threadLocalRetriever.remove()
-    }
   }
 
   private fun buildSelectionArgs(options: AssetsOptions): Array<String>? {
