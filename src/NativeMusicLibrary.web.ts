@@ -1,10 +1,10 @@
 import type {
-  MusicLibraryModule,
+  Spec,
   TrackResult,
   AlbumResult,
   ArtistResult,
   GenreResult,
-} from './types';
+} from './NativeMusicLibrary';
 
 const showWebWarning = () => {
   if (__DEV__) {
@@ -16,7 +16,7 @@ const showWebWarning = () => {
 };
 
 // Web fallback implementation
-const MusicLibrary: MusicLibraryModule = {
+const MusicLibrary: Spec = {
   async getTracksAsync(): Promise<TrackResult> {
     showWebWarning();
     return {
