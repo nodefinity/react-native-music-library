@@ -87,7 +87,7 @@ export default function TrackList() {
         />
       </View>
 
-      {tracks.length && (
+      {tracks.length > 0 && (
         <FlatList
           data={tracks}
           renderItem={renderItem}
