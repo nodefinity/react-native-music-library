@@ -95,7 +95,7 @@ object GetTracksQuery {
           val track = Track(
             id = id.toString(),
             title = title,
-            cover = artworkUri.toString(),
+            artwork = artworkUri.toString(),
             artist = artist,
             album = album,
             genre = genre,

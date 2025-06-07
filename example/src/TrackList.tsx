@@ -63,7 +63,7 @@ export default function TrackList() {
 
   const renderItem = ({ item }: { item: Track }) => (
     <View style={styles.trackItem}>
-      <Image source={{ uri: item.cover }} style={styles.cover} />
+      <Image source={{ uri: item.artwork }} style={styles.cover} />
       <View style={styles.trackInfo}>
         <Text style={styles.trackTitle} numberOfLines={1}>
           {item.title}

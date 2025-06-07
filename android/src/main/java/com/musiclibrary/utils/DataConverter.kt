@@ -10,7 +10,7 @@ object DataConverter {
     val map = Arguments.createMap()
     map.putString("id", track.id)
     map.putString("title", track.title)
-    map.putString("cover", track.cover)
+    map.putString("artwork", track.artwork)
     map.putString("artist", track.artist)
     map.putString("album", track.album)
     map.putString("genre", track.genre)

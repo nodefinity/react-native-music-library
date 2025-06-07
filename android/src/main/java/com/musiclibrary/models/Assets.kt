@@ -1,14 +1,9 @@
 package com.musiclibrary.models
 
-data class TrackMeta(
-  val cover: String,
-  val genre: String
-)
-
 data class Track(
   val id: String,
   val title: String,
-  val cover: String,
+  val artwork: String,
   val artist: String,
   val album: String,
   val genre: String,

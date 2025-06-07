@@ -105,8 +105,8 @@ export interface Track {
    */
   title: string;
 
-  /** Track cover (file URI) */
-  cover: string;
+  /** Track artwork (file URI) */
+  artwork: string;
 
   /**
    * Artist name

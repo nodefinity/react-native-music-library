@@ -112,7 +112,7 @@ console.log('是否还有更多:', customResult.hasNextPage);
 interface Track {
   id: string;
   title: string;           // 曲目标题
-  cover: string;           // 专辑封面 URI
+  artwork: string;         // 专辑封面 URI
   artist: string;          // 艺术家名称
   album: string;           // 专辑名称
   genre: string;           // 音乐类型
