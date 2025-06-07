@@ -1,6 +1,6 @@
 {
   "name": "@nodefinity/react-native-music-library",
-  "version": "0.4.0",
+  "version": "0.4.1-beta.0",
   "description": "Access local music files in React Native with full metadata support.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -105,7 +105,9 @@
       "@commitlint/config-conventional"
     ],
     "rules": {
-      "subject-case": [0]
+      "subject-case": [
+        0
+      ]
     }
   },
   "release-it": {
