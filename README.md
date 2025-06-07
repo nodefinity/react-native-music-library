@@ -39,6 +39,16 @@ or
 yarn add @nodefinity/react-native-music-library
 ```
 
+## Platform Support
+
+This library supports multiple platforms with automatic platform detection:
+
+- **Android**: Full native music library access  
+- **iOS**: Full native music library access (coming soon)
+- **Web**: Fallback implementation with warnings (for React Native Web projects)
+
+The library automatically provides the appropriate implementation based on your platform. On web, all methods will return empty results and show development warnings to help with development and testing.
+
 ### Android Setup
 
 For Android, add the following permission to your `android/app/src/main/AndroidManifest.xml`:

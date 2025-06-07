@@ -1,0 +1,242 @@
+/**
+ * Sorting keys for music library items
+ */
+export type SortByKey =
+  | 'default'
+  | 'artist'
+  | 'album'
+  | 'duration'
+  | 'createdAt'
+  | 'modifiedAt'
+  | 'genre'
+  | 'trackCount';
+export type SortByValue = [SortByKey, boolean] | SortByKey;
+
+export type InternalSortByValue = `${SortByKey} ${'ASC' | 'DESC'}`;
+
+export const SortByObject = {
+  default: 'default',
+  artist: 'artist',
+  album: 'album',
+  duration: 'duration',
+  createdAt: 'createdAt',
+  modifiedAt: 'modifiedAt',
+  genre: 'genre',
+  trackCount: 'trackCount',
+};
+
+/**
+ * Basic assets options
+ */
+export interface AssetsOptions {
+  /**
+   * Cursor for pagination - ID of the last item from previous page
+   * @default undefined
+   */
+  after?: string;
+
+  /**
+   * Maximum number of items to return
+   * @default 20
+   */
+  first?: number;
+
+  /**
+   * Sorting configuration
+   * Can be a single key or a tuple of [key, ascending]
+   * @example
+   * 'title' // Sort by title descending (default)
+   * ['title', true] // Sort by title ascending
+   */
+  sortBy?: SortByValue | SortByValue[];
+
+  /**
+   * Directory path to search for tracks
+   * @default undefined
+   */
+  directory?: string;
+}
+
+/**
+ * Internal assets options used by native module
+ */
+export interface InternalAssetsOptions {
+  after?: string;
+  first: number;
+  sortBy: InternalSortByValue[];
+  directory?: string;
+}
+
+export interface IPaginatedResult<T> {
+  /**
+   * Array of items returned
+   * @default []
+   */
+  items: T[];
+
+  /**
+   * Whether there are more items available
+   * @default false
+   */
+  hasNextPage: boolean;
+
+  /**
+   * Cursor for next page (ID of last item)
+   * @default undefined
+   */
+  endCursor?: string;
+
+  /**
+   * Total count of items (optional, may be expensive to compute)
+   * @default undefined
+   */
+  totalCount?: number;
+}
+
+export interface Track {
+  id: string;
+
+  /**
+   * Track title
+   * @default ''
+   */
+  title: string;
+
+  /** Track artwork (file URI) */
+  artwork: string;
+
+  /**
+   * Artist name
+   * @default ''
+   */
+  artist: string;
+
+  /**
+   * Album name
+   * @default ''
+   */
+  album: string;
+
+  /** Music genre */
+  genre: string;
+
+  /**
+   * Duration in seconds
+   * @default 0
+   */
+  duration: number;
+
+  /**
+   * File URI or path
+   * @default ''
+   */
+  uri: string;
+
+  /**
+   * Date added to library (Unix timestamp, optional)
+   * @default undefined
+   */
+  createdAt?: number;
+
+  /**
+   * Date modified (Unix timestamp, optional)
+   * @default undefined
+   */
+  modifiedAt?: number;
+
+  /**
+   * File size in bytes (optional)
+   * @default undefined
+   */
+  fileSize?: number;
+}
+
+export interface Album {
+  id: string;
+
+  /**
+   * Album name
+   * @default ''
+   */
+  title: string;
+
+  /**
+   * Primary artist
+   * @default ''
+   */
+  artist: string;
+
+  /**
+   * Album artwork (base64 encoded image or URL, optional)
+   * @default undefined
+   */
+  artwork?: string;
+
+  /**
+   * Number of tracks in album
+   * @default 0
+   */
+  trackCount: number;
+
+  /**
+   * Total duration in seconds
+   * @default 0
+   */
+  duration: number;
+
+  /**
+   * Release year (optional)
+   * @default undefined
+   */
+  year?: number;
+}
+
+export interface Artist {
+  id: string;
+
+  /**
+   * Artist name
+   * @default ''
+   */
+  title: string;
+
+  /**
+   * Number of albums
+   * @default 0
+   */
+  albumCount: number;
+
+  /**
+   * Total number of tracks
+   * @default 0
+   */
+  trackCount: number;
+}
+
+export interface Genre {
+  id: string;
+
+  /**
+   * Genre name
+   * @default ''
+   */
+  title: string;
+
+  /**
+   * Number of tracks in this genre
+   * @default 0
+   */
+  trackCount: number;
+}
+
+export type TrackResult = IPaginatedResult<Track>;
+export type AlbumResult = IPaginatedResult<Album>;
+export type ArtistResult = IPaginatedResult<Artist>;
+export type GenreResult = IPaginatedResult<Genre>;
+
+export interface MusicLibraryModule {
+  getTracksAsync(options: InternalAssetsOptions): Promise<TrackResult>;
+  getAlbumsAsync(options: InternalAssetsOptions): Promise<AlbumResult>;
+  getArtistsAsync(options: InternalAssetsOptions): Promise<ArtistResult>;
+  getGenresAsync(options: InternalAssetsOptions): Promise<GenreResult>;
+}

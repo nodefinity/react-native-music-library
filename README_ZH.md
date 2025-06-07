@@ -39,6 +39,16 @@ npm install @nodefinity/react-native-music-library
 yarn add @nodefinity/react-native-music-library
 ```
 
+## 平台支持
+
+此库支持多个平台，具有自动平台检测功能：
+
+- **Android**：完整的原生音乐库访问
+- **iOS**：完整的原生音乐库访问（即将推出）
+- **Web**：回退实现并提供警告（适用于 React Native Web 项目）
+
+该库会根据您的平台自动提供相应的实现。在 web 平台上，所有方法都会返回空结果并显示开发警告，以帮助开发和测试。
+
 ### Android 设置
 
 对于 Android，在 `android/app/src/main/AndroidManifest.xml` 中添加以下权限：
