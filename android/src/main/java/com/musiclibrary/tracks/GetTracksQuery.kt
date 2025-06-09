@@ -57,24 +57,28 @@ object GetTracksQuery {
       val albumIdColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
       // Jump to the specified start position
-      if (options.after != null) {
+      val foundAfter = if (options.after == null) {
+        cursor.moveToFirst() // Move to the first record
+        true
+      } else {
         var found = false
-        while (c.moveToNext()) {
-          val id = c.getLong(idColumn).toString()
-          if (id == options.after) {
-            found = true
-            break
-          }
+        if (cursor.moveToFirst()) {
+          do {
+            val id = cursor.getLong(idColumn).toString()
+            if (id == options.after) {
+              found = true
+              break
+            }
+          } while (cursor.moveToNext())
         }
-        if (!found && c.count > 0) {
-          throw IllegalArgumentException("Invalid cursor position: ${options.after}")
-        }
+        // Move to the next record after the specified after if found
+        found && cursor.moveToNext()
       }
 
       var count = 0
       val maxItems = options.first.coerceAtMost(1000) // Limit the maximum number of queries
 
-      while (c.moveToNext() && count < maxItems) {
+      while (foundAfter && count < maxItems) {
         try {
           val id = c.getLong(idColumn)
           val title = c.getString(titleColumn) ?: ""
@@ -114,10 +118,12 @@ object GetTracksQuery {
           // Continue processing other tracks if a single track fails to parse
           continue
         }
+
+        if (!cursor.moveToNext()) break
       }
 
       // Check if there are more data
-      hasNextPage = c.moveToNext()
+      hasNextPage = !c.isAfterLast
     }
 
     return PaginatedResult(

@@ -104,7 +104,8 @@ export default function TrackList() {
 
       Alert.alert('Success', `Picked ${results.length} tracks from:\n${uri}`);
     } catch (err) {
-      Alert.alert('Error', err as string);
+      console.log(err, 'error');
+      Alert.alert('Error', 'Failed to get tracks from directory');
     } finally {
       setLoading(false);
     }
