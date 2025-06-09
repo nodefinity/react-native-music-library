@@ -1,5 +1,4 @@
 import { StyleSheet, View, Text, StatusBar } from 'react-native';
-import Permission from './Permission';
 import TrackList from './TrackList';
 
 export default function App() {
@@ -9,7 +8,6 @@ export default function App() {
       <View style={styles.container}>
         <Text style={styles.title}>React Native Music Library</Text>
 
-        <Permission />
         <TrackList />
       </View>
     </>
