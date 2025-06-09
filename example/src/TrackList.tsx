@@ -7,17 +7,30 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import { globalStyles } from './Styles';
 import { getTracksAsync } from '@nodefinity/react-native-music-library';
 import { useState } from 'react';
 import type { Track } from '../../src/NativeMusicLibrary';
+import { usePermission } from './usePermission';
+import { pickDirectory } from '@react-native-documents/picker';
 
 export default function TrackList() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(false);
+  const { permissionStatus, requestPermissions } = usePermission();
 
   const getAllTracks = async () => {
     try {
+      if (!permissionStatus?.granted) {
+        const result = await requestPermissions();
+        if (!result.granted) {
+          Alert.alert(
+            'Error',
+            'Can not request permission again, please grant audio permission manually'
+          );
+          return;
+        }
+      }
+
       setLoading(true);
       const startTime = Date.now();
       const results = await loadAllTracks();
@@ -76,13 +89,44 @@ export default function TrackList() {
     </View>
   );
 
+  const getTracksFromPickedDirectory = async () => {
+    try {
+      const { uri } = await pickDirectory({
+        requestLongTermAccess: false,
+      });
+
+      console.log('uri', uri);
+
+      if (!uri) return;
+
+      const results = await getTracksAsync({
+        first: 100,
+        directory: uri,
+      });
+
+      Alert.alert(
+        'Success',
+        `Picked ${results.items.length} tracks from:\n${uri}`
+      );
+    } catch (err) {
+      Alert.alert('Error', err as string);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
-      <View style={globalStyles.buttonContainer}>
-        <View style={globalStyles.buttonSpacer} />
+      <View style={styles.buttonContainer}>
         <Button
           title={`${loading ? 'loading...' : ''} get all tracks`}
           onPress={getAllTracks}
+          disabled={loading}
+        />
+
+        <Button
+          title={`${loading ? 'loading...' : ''} get tracks from directory`}
+          onPress={getTracksFromPickedDirectory}
           disabled={loading}
         />
       </View>
@@ -100,6 +144,11 @@ export default function TrackList() {
 }
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    width: '100%',
+    maxWidth: 300,
+    gap: 10,
+  },
   list: {
     flex: 1,
     width: '100%',
