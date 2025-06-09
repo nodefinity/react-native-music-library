@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { getTracksAsync } from '@nodefinity/react-native-music-library';
 import { useState } from 'react';
-import type { Track } from '../../src/NativeMusicLibrary';
+import type { AssetsOptions, Track } from '../../src/NativeMusicLibrary';
 import { usePermission } from './usePermission';
 import { pickDirectory } from '@react-native-documents/picker';
 
@@ -49,7 +49,7 @@ export default function TrackList() {
     }
   };
 
-  const loadAllTracks = async () => {
+  const loadAllTracks = async (options: AssetsOptions = {}) => {
     let allTracks: Track[] = [];
     let hasMore = true;
     let cursor;
@@ -57,6 +57,7 @@ export default function TrackList() {
     while (hasMore) {
       const result = await getTracksAsync({
         first: 100,
+        ...options,
         after: cursor,
       });
 
@@ -95,19 +96,13 @@ export default function TrackList() {
         requestLongTermAccess: false,
       });
 
-      console.log('uri', uri);
-
       if (!uri) return;
 
-      const results = await getTracksAsync({
-        first: 100,
-        directory: uri,
-      });
+      const results = await loadAllTracks({ directory: uri });
 
-      Alert.alert(
-        'Success',
-        `Picked ${results.items.length} tracks from:\n${uri}`
-      );
+      setTracks(results);
+
+      Alert.alert('Success', `Picked ${results.length} tracks from:\n${uri}`);
     } catch (err) {
       Alert.alert('Error', err as string);
     } finally {

@@ -1,11 +1,12 @@
 package com.musiclibrary.tracks
 
 import android.content.ContentResolver
-import android.content.ContentUris
 import android.os.Build
 import android.provider.MediaStore
 import android.net.Uri
+import android.provider.DocumentsContract
 import com.musiclibrary.models.*
+import androidx.core.net.toUri
 
 object GetTracksQuery {
 
@@ -85,7 +86,7 @@ object GetTracksQuery {
           val fileSize = c.getLong(sizeColumn)
           val genre = c.getString(genreColumn) ?: ""
           val albumId = c.getLong(albumIdColumn)
-          val artworkUri: Uri = Uri.parse("content://media/external/audio/media/${id}/albumart")
+          val artworkUri: Uri = "content://media/external/audio/media/${id}/albumart".toUri()
 
           // Skip invalid data
           if (data.isEmpty()) {
@@ -148,10 +149,32 @@ object GetTracksQuery {
     val args = mutableListOf<String>()
 
     if (!options.directory.isNullOrEmpty()) {
-      args.add("${options.directory}%")
+      val dir = if (options.directory.startsWith("content://")) {
+        uriToFullPath(options.directory.toUri())
+      } else {
+        options.directory
+      }
+
+      if (!dir.isNullOrEmpty()) {
+        args.add("$dir%")
+      }
     }
 
     return if (args.isEmpty()) null else args.toTypedArray()
+  }
+
+  private fun uriToFullPath(treeUri: Uri): String? {
+    val docId = DocumentsContract.getTreeDocumentId(treeUri) // "primary:Music/abc"
+    val parts = docId.split(":")
+    if (parts.size < 2) return null
+
+    val type = parts[0]
+    val relativePath = parts[1]
+
+    return when (type) {
+      "primary" -> "/storage/emulated/0/$relativePath"
+      else -> "/storage/$type/$relativePath"
+    }
   }
 
   private fun buildSortOrder(sortBy: List<String>): String {
