@@ -4,6 +4,7 @@ import {
   type AssetsOptions,
   type InternalAssetsOptions,
   type InternalSortByValue,
+  type SortByKey,
   type SortByValue,
 } from './NativeMusicLibrary';
 
@@ -53,6 +54,32 @@ export function getId(
   return ref ? ref.id : undefined;
 }
 
+/**
+ * Parse sortBy to SortByValue[]
+ * @param sortBy - SortByValue or SortByValue[]
+ * @returns SortByValue[]
+ */
+export function normalizeSortBy(
+  input: SortByValue | SortByValue[] | undefined
+): SortByValue[] {
+  if (!input) return [['default', true]];
+
+  // If input is an array, check if it's a SortByValue[] or [SortByKey, boolean]
+  if (Array.isArray(input)) {
+    const isTuple =
+      input.length === 2 &&
+      typeof input[0] === 'string' &&
+      typeof input[1] === 'boolean';
+    if (isTuple) {
+      return [input as [SortByKey, boolean]];
+    } else {
+      return input as SortByValue[];
+    }
+  }
+
+  return [input];
+}
+
 export function getOptions(
   assetsOptions: AssetsOptions
 ): InternalAssetsOptions {
@@ -62,7 +89,7 @@ export function getOptions(
     after: getId(after),
     first: first == null ? 20 : first,
     directory,
-    sortBy: arrayize(sortBy),
+    sortBy: normalizeSortBy(sortBy),
   };
 
   if (after != null && typeof options.after !== 'string') {

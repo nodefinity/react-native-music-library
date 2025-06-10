@@ -59,6 +59,7 @@ export default function TrackList() {
         first: 100,
         ...options,
         after: cursor,
+        sortBy: ['artist', true],
       });
 
       allTracks = [...allTracks, ...result.items];

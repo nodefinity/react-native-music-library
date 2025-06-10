@@ -185,7 +185,7 @@ object GetTracksQuery {
 
   private fun buildSortOrder(sortBy: List<String>): String {
     if (sortBy.isEmpty()) {
-      return "${MediaStore.Audio.Media.DATE_ADDED} DESC"
+      return "${MediaStore.Audio.Media.DATE_ADDED} ASC"
     }
 
     return sortBy.joinToString(", ") { sortOption ->
