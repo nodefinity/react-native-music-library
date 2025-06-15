@@ -105,7 +105,7 @@ object GetTracksQuery {
             album = album,
             genre = genre,
             duration = duration,
-            uri = "file://$data",
+            url = "file://$data",
             createdAt = dateAdded * 1000, // Convert to milliseconds
             modifiedAt = dateAdded * 1000, // Convert to milliseconds
             fileSize = fileSize

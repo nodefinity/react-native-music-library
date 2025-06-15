@@ -127,7 +127,7 @@ interface Track {
   album: string;           // Album name
   genre: string;           // Music genre
   duration: number;        // Duration in seconds
-  uri: string;             // File URI or path
+  url: string;             // File URL or path
   createdAt?: number;      // Date added (Unix timestamp)
   modifiedAt?: number;     // Date modified (Unix timestamp)
   fileSize?: number;       // File size in bytes
@@ -186,7 +186,7 @@ const loadMusicLibrary = async () => {
     result.items.forEach(track => {
       console.log(`${track.title} by ${track.artist}`);
       console.log(`Duration: ${Math.floor(track.duration / 60)}:${track.duration % 60}`);
-      console.log(`File: ${track.uri}`);
+      console.log(`File: ${track.url}`);
     });
   } catch (error) {
     console.error('Failed to load music library:', error);

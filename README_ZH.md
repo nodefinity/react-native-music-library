@@ -127,7 +127,7 @@ interface Track {
   album: string;           // 专辑名称
   genre: string;           // 音乐类型
   duration: number;        // 持续时间（秒）
-  uri: string;             // 文件 URI 或路径
+  url: string;             // 文件 URL 或路径
   createdAt?: number;      // 添加日期（Unix 时间戳）
   modifiedAt?: number;     // 修改日期（Unix 时间戳）
   fileSize?: number;       // 文件大小（字节）
@@ -186,7 +186,7 @@ const loadMusicLibrary = async () => {
     result.items.forEach(track => {
       console.log(`${track.title} - ${track.artist}`);
       console.log(`时长: ${Math.floor(track.duration / 60)}:${track.duration % 60}`);
-      console.log(`文件: ${track.uri}`);
+      console.log(`文件: ${track.url}`);
     });
   } catch (error) {
     console.error('加载音乐库失败:', error);
