@@ -99,73 +99,44 @@ export interface PaginatedResult<T> {
 export interface Track {
   id: string;
 
-  /**
-   * Track title
-   * @default ''
-   */
+  /** Track title */
   title: string;
 
+  /** Artist name */
+  artist?: string;
+
   /** Track artwork (file URI) */
-  artwork: string;
+  artwork?: string;
 
-  /**
-   * Artist name
-   * @default ''
-   */
-  artist: string;
-
-  /**
-   * Album name
-   * @default ''
-   */
-  album: string;
+  /** Album name */
+  album?: string;
 
   /** Music genre */
-  genre: string;
+  genre?: string;
 
-  /**
-   * Lyrics
-   */
-  lyrics: string | null;
+  /** Lyrics */
+  lyrics?: string;
 
-  /**
-   * Duration in seconds
-   * @default 0
-   */
+  /** Duration in seconds */
   duration: number;
 
-  /**
-   * File URI or path
-   * @default ''
-   */
+  /** File URI or path */
   url: string;
 
-  /**
-   * Date added to library (Unix timestamp, optional)
-   * @default undefined
-   */
+  /** Date added to library (Unix timestamp, optional) */
   createdAt?: number;
 
-  /**
-   * Date modified (Unix timestamp, optional)
-   * @default undefined
-   */
+  /** Date modified (Unix timestamp, optional) */
   modifiedAt?: number;
 
-  /**
-   * File size in bytes (optional)
-   * @default undefined
-   */
-  fileSize?: number;
+  /** File size in bytes */
+  fileSize: number;
 }
 
 export interface Album {
   id: string;
 
-  /**
-   * Album name
-   * @default ''
-   */
+  /** Album name */
   title: string;
 
   /**

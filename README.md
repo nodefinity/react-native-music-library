@@ -11,7 +11,7 @@ A powerful React Native library for accessing local music files with full metada
 
 ## Features & Roadmap
 
-- [x] 🎵 Access local music library with rich metadata
+- [x] 🎵 Access local music library with rich metadata(including lyrics)
 - [x] 🚀 Built with TurboModules for maximum performance
 - [x] 📄 Pagination support for large music collections  
 - [x] 🔍 Flexible sorting and filtering options
@@ -122,10 +122,11 @@ console.log('Has more:', customResult.hasNextPage);
 interface Track {
   id: string;
   title: string;           // Track title
-  artwork: string;         // Artwork file URI
-  artist: string;          // Artist name
-  album: string;           // Album name
-  genre: string;           // Music genre
+  artist?: string;         // Artist name
+  artwork?: string;        // Artwork file URI
+  album?: string;          // Album name
+  genre?: string;          // Music genre
+  lyrics?: string          // Lyrics
   duration: number;        // Duration in seconds
   url: string;             // File URL or path
   createdAt?: number;      // Date added (Unix timestamp)

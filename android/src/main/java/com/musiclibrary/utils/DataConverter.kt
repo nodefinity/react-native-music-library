@@ -10,10 +10,11 @@ object DataConverter {
     val map = Arguments.createMap()
     map.putString("id", track.id)
     map.putString("title", track.title)
-    map.putString("artwork", track.artwork)
-    map.putString("artist", track.artist)
-    map.putString("album", track.album)
-    map.putString("genre", track.genre)
+    track.artist?.let { map.putString("artist", it) }
+    track.artwork?.let { map.putString("artwork", it) }
+    track.album?.let { map.putString("album", it) }
+    track.genre?.let { map.putString("genre", it) }
+    track.lyrics?.let { map.putString("lyrics", it) }
     map.putDouble("duration", track.duration)
     map.putString("url", track.url)
     map.putLong("fileSize", track.fileSize)

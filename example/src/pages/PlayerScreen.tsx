@@ -1,16 +1,11 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import {
-  AudioPro,
-  useAudioPro,
-  type AudioProTrack,
-  AudioProState,
-} from 'react-native-audio-pro';
+import { AudioPro, useAudioPro, AudioProState } from 'react-native-audio-pro';
 import { usePlayer } from '../contexts/PlayerContext';
 import { useEffect, useState } from 'react';
 import Slider from '@react-native-community/slider';
+import LyricsView from '../components/LyricsView';
 
 export default function PlayerScreen() {
-  const { playingTrack } = usePlayer();
   const {
     state: audioProState,
     playingTrack: audioProPlayingTrack,
@@ -21,25 +16,14 @@ export default function PlayerScreen() {
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
-    if (
-      audioProPlayingTrack?.id === playingTrack?.id &&
-      audioProState === AudioProState.PLAYING
-    )
-      return;
-
-    handlePlay();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     if (position !== undefined) {
       setCurrentTime(position);
     }
   }, [position]);
 
   const handlePlay = () => {
-    if (!playingTrack) return;
-    AudioPro.play(playingTrack as unknown as AudioProTrack, { autoPlay: true });
+    if (!audioProPlayingTrack) return;
+    AudioPro.play(audioProPlayingTrack, { autoPlay: true });
   };
 
   const handlePause = () => {
@@ -59,6 +43,11 @@ export default function PlayerScreen() {
     setCurrentTime(value);
   };
 
+  const handleLyricPress = (time: number) => {
+    AudioPro.seekTo(time);
+    setCurrentTime(time);
+  };
+
   const formatTime = (milliseconds: number) => {
     if (!milliseconds) return '0:00';
     const seconds = Math.floor(milliseconds / 1000);
@@ -67,24 +56,30 @@ export default function PlayerScreen() {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  if (!playingTrack) return null;
+  if (!audioProPlayingTrack) return null;
 
   return (
     <View style={styles.container}>
       <Image
         source={
-          playingTrack.artwork
-            ? { uri: playingTrack.artwork.toString() }
+          audioProPlayingTrack.artwork
+            ? { uri: audioProPlayingTrack.artwork.toString() }
             : require('../assets/default_artwork.png')
         }
         style={styles.artwork}
         defaultSource={require('../assets/default_artwork.png')}
       />
       <View style={styles.infoContainer}>
-        <Text style={styles.title}>{playingTrack.title}</Text>
-        <Text style={styles.artist}>{playingTrack.artist}</Text>
-        <Text style={styles.album}>{playingTrack.album}</Text>
+        <Text style={styles.title}>{audioProPlayingTrack.title}</Text>
+        <Text style={styles.artist}>{audioProPlayingTrack.artist}</Text>
+        <Text style={styles.album}>{audioProPlayingTrack.album}</Text>
       </View>
+
+      <LyricsView
+        lyrics={audioProPlayingTrack.lyrics as string}
+        currentTime={currentTime}
+        onLyricPress={handleLyricPress}
+      />
 
       <View style={styles.progressContainer}>
         <Slider
@@ -143,17 +138,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f5f5f5',
-    padding: 20,
   },
   artwork: {
-    width: 300,
-    height: 300,
+    width: 260,
+    height: 260,
     borderRadius: 10,
     marginBottom: 30,
   },
   infoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,

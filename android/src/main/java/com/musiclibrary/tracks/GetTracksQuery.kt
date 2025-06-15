@@ -7,8 +7,30 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import com.musiclibrary.models.*
 import androidx.core.net.toUri
+import java.io.File
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 object GetTracksQuery {
+  // Create a thread pool
+  private val executor = Executors.newFixedThreadPool(4)
+
+  private fun getAudioTagInfo(filePath: String): Pair<String?, String?> {
+    return try {
+      val audioFile = AudioFileIO.read(File(filePath))
+      val tag = audioFile.tag
+      
+      // Try to read the genre and lyrics from the tag
+      val genre = tag?.getFirst(FieldKey.GENRE)
+      val lyrics = tag?.getFirst(FieldKey.LYRICS)
+      
+      Pair(genre, lyrics)
+    } catch (e: Exception) {
+      Pair(null, null)
+    }
+  }
 
   fun getTracks(
     contentResolver: ContentResolver,
@@ -23,8 +45,7 @@ object GetTracksQuery {
       MediaStore.Audio.Media.DATA,
       MediaStore.Audio.Media.DATE_ADDED,
       MediaStore.Audio.Media.SIZE,
-      MediaStore.Audio.Media.ALBUM_ID,
-      MediaStore.Audio.Media.GENRE
+      MediaStore.Audio.Media.ALBUM_ID
     )
 
     val selection = buildSelection(options)
@@ -53,8 +74,6 @@ object GetTracksQuery {
       val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
       val dateAddedColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
       val sizeColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
-      val genreColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.GENRE)
-      val albumIdColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
 
       // Jump to the specified start position
       val foundAfter = if (options.after == null) {
@@ -78,48 +97,78 @@ object GetTracksQuery {
       var count = 0
       val maxItems = options.first.coerceAtMost(1000) // Limit the maximum number of queries
 
+      val trackPaths = mutableListOf<Pair<String, String>>() // (id, path) pairs
+
       while (foundAfter && count < maxItems) {
         try {
           val id = c.getLong(idColumn)
-          val title = c.getString(titleColumn) ?: ""
-          val artist = c.getString(artistColumn) ?: "Unknown Artist"
-          val album = c.getString(albumColumn) ?: "Unknown Album"
-          val duration = c.getLong(durationColumn) / 1000.0 // Convert to seconds
           val data = c.getString(dataColumn) ?: ""
-          val dateAdded = c.getLong(dateAddedColumn)
-          val fileSize = c.getLong(sizeColumn)
-          val genre = c.getString(genreColumn) ?: ""
-          val albumId = c.getLong(albumIdColumn)
-          val artworkUri: Uri = "content://media/external/audio/media/${id}/albumart".toUri()
 
           // Skip invalid data
           if (data.isEmpty()) {
             continue
           }
 
+          val title = c.getString(titleColumn) ?: ""
+          val artist = c.getString(artistColumn)
+          val album = c.getString(albumColumn)
+          val duration = c.getLong(durationColumn) / 1000.0 // Convert to seconds
+          val dateAdded = c.getLong(dateAddedColumn)
+          val fileSize = c.getLong(sizeColumn)
+          val artworkUri: Uri = "content://media/external/audio/media/${id}/albumart".toUri()
+
+          // Create a Track without lyrics and genre
           val track = Track(
             id = id.toString(),
             title = title,
-            artwork = artworkUri.toString(),
             artist = artist,
+            artwork = artworkUri.toString(),
             album = album,
-            genre = genre,
+            genre = null,
             duration = duration,
             url = "file://$data",
             createdAt = dateAdded * 1000, // Convert to milliseconds
             modifiedAt = dateAdded * 1000, // Convert to milliseconds
-            fileSize = fileSize
+            fileSize = fileSize,
+            lyrics = null
           )
 
           tracks.add(track)
+          trackPaths.add(id.toString() to data)
           endCursor = id.toString()
           count++
         } catch (e: Exception) {
-          // Continue processing other tracks if a single track fails to parse
           continue
         }
 
         if (!cursor.moveToNext()) break
+      }
+
+      // Batch process tag information loading
+      val futures = trackPaths.map { (id, path) ->
+        executor.submit<Pair<String, Pair<String?, String?>>> {
+          val tagInfo = getAudioTagInfo(path)
+          Pair(id, tagInfo)
+        }
+      }
+
+      // Wait for all tag information to be loaded
+      futures.forEach { future ->
+        try {
+          val result = future.get(5, TimeUnit.SECONDS)
+          val id = result.first
+          val (genre, lyrics) = result.second
+          val index = tracks.indexOfFirst { it.id == id }
+          if (index != -1) {
+            val track = tracks[index]
+            tracks[index] = track.copy(
+              genre = genre,
+              lyrics = lyrics
+            )
+          }
+        } catch (e: Exception) {
+          // If the loading times out or fails, keep the original value
+        }
       }
 
       // Check if there are more data
@@ -199,12 +248,6 @@ object GetTracksQuery {
         "duration" -> MediaStore.Audio.Media.DURATION
         "created_at" -> MediaStore.Audio.Media.DATE_ADDED
         "modified_at" -> MediaStore.Audio.Media.DATE_MODIFIED
-        "genre" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-          MediaStore.Audio.Media.GENRE
-        } else {
-          null
-        }
-
         "track_count" -> MediaStore.Audio.Media.TRACK
         else -> throw IllegalArgumentException("Unsupported SortKey: ${parts[0]}")
       }

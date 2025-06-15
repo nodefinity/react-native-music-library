@@ -7,12 +7,7 @@ import {
 } from 'react-native-audio-pro';
 import { usePlayer } from '../contexts/PlayerContext';
 
-type TrackCallback = () => {
-  currentTrackId: string | null;
-  playList: AudioProTrack[];
-};
-
-let getTrackStateCallback: TrackCallback | null = null;
+let playList: AudioProTrack[] = [];
 
 // setup audio pro outside react native lifecycle
 export function setupAudioPro(): void {
@@ -26,22 +21,36 @@ export function setupAudioPro(): void {
 
   // Set up event listeners that persist for the app's lifetime
   AudioPro.addEventListener((event: AudioProEvent) => {
-    if (!getTrackStateCallback) return;
-
     switch (event.type) {
       case AudioProEventType.TRACK_ENDED:
         // Auto-play next track when current track ends
-        playNextTrack(getTrackStateCallback);
+        const currentTrack = AudioPro.getPlayingTrack();
+        if (currentTrack) {
+          const currentIndex = playList.findIndex(
+            (track) => track.id === currentTrack.id
+          );
+          const nextIndex = (currentIndex + 1) % playList.length;
+          const nextTrack = playList[nextIndex];
+          if (nextTrack) {
+            AudioPro.play(nextTrack);
+          }
+        }
         break;
 
       case AudioProEventType.REMOTE_NEXT:
         // Handle next button press from lock screen/notification
-        playNextTrack(getTrackStateCallback);
+        const nextTrack = AudioPro.getPlayingTrack();
+        if (nextTrack) {
+          AudioPro.play(nextTrack);
+        }
         break;
 
       case AudioProEventType.REMOTE_PREV:
         // Handle previous button press from lock screen/notification
-        playPreviousTrack(getTrackStateCallback);
+        const prevTrack = AudioPro.getPlayingTrack();
+        if (prevTrack) {
+          AudioPro.play(prevTrack);
+        }
         break;
 
       case AudioProEventType.PLAYBACK_ERROR:
@@ -51,51 +60,16 @@ export function setupAudioPro(): void {
   });
 }
 
-function playNextTrack(
-  getTrackState: TrackCallback,
-  autoPlay: boolean = true
-): void {
-  const { currentTrackId, playList } = getTrackState();
-
-  if (playList.length === 0) return;
-
-  const currentIndex = playList.findIndex(
-    (track) => track.id === currentTrackId
-  );
-  const nextIndex = (currentIndex + 1) % playList.length;
-  const nextTrack = playList[nextIndex];
-
-  AudioPro.play(nextTrack!, { autoPlay });
-}
-
-function playPreviousTrack(
-  getTrackState: TrackCallback,
-  autoPlay: boolean = true
-): void {
-  const { currentTrackId, playList } = getTrackState();
-
-  if (playList.length === 0) return;
-
-  const currentIndex = playList.findIndex(
-    (track) => track.id === currentTrackId
-  );
-  const prevIndex = currentIndex > 0 ? currentIndex - 1 : playList.length - 1;
-  const prevTrack = playList[prevIndex];
-
-  AudioPro.play(prevTrack!, { autoPlay });
-}
-
 // setup audio pro inside react native lifecycle
 export function useSetupAudioPro(): void {
-  const { playlist, playingTrack } = usePlayer();
+  const { playlist } = usePlayer();
 
-  // Update the callback function
+  // Update playlist when it changes
   useEffect(() => {
-    getTrackStateCallback = () => ({
-      currentTrackId: playingTrack?.id ?? null,
-      playList: playlist as unknown as AudioProTrack[],
-    });
-  }, [playlist, playingTrack]);
+    if (playlist.length > 0) {
+      playList = playlist as unknown as AudioProTrack[];
+    }
+  }, [playlist]);
 }
 
 export function getProgressInterval(): number {

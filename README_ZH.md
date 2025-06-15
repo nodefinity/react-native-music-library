@@ -11,7 +11,7 @@
 
 ## 特性与路线图
 
-- [x] 🎵 访问本地音乐库并获取丰富的元数据
+- [x] 🎵 访问本地音乐库并获取丰富的元数据（包括歌词）
 - [x] 🚀 基于 TurboModules 构建，性能卓越
 - [x] 📄 支持大型音乐集合的分页功能
 - [x] 🔍 灵活的排序和过滤选项
@@ -122,10 +122,11 @@ console.log('是否还有更多:', customResult.hasNextPage);
 interface Track {
   id: string;
   title: string;           // 曲目标题
-  artwork: string;         // 专辑封面 URI
-  artist: string;          // 艺术家名称
-  album: string;           // 专辑名称
-  genre: string;           // 音乐类型
+  artist?: string;         // 艺术家名称
+  artwork?: string;        // 专辑封面 URI
+  album?: string;          // 专辑名称
+  genre?: string;          // 音乐流派
+  lyrics?: string;         // 歌词
   duration: number;        // 持续时间（秒）
   url: string;             // 文件 URL 或路径
   createdAt?: number;      // 添加日期（Unix 时间戳）

@@ -20,6 +20,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePlayer } from '../contexts/PlayerContext';
+import { AudioPro, type AudioProTrack } from 'react-native-audio-pro';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Index'>;
 
@@ -27,7 +28,7 @@ export default function IndexScreen({ navigation }: Props) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(false);
   const { permissionStatus, requestPermissions } = usePermission();
-  const { setPlaylist, setPlayingTrack } = usePlayer();
+  const { setPlaylist } = usePlayer();
 
   const getAllTracks = async () => {
     try {
@@ -92,7 +93,7 @@ export default function IndexScreen({ navigation }: Props) {
       style={styles.trackItem}
       onPress={() => {
         setPlaylist(tracks);
-        setPlayingTrack(item);
+        AudioPro.play(item as unknown as AudioProTrack);
         console.log('item', item);
         navigation.navigate('Player');
       }}

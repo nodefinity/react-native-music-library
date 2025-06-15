@@ -6,8 +6,6 @@ import { AudioPro } from 'react-native-audio-pro';
 interface PlayerContextType {
   playlist: Track[];
   setPlaylist: (tracks: Track[]) => void;
-  playingTrack: Track | null;
-  setPlayingTrack: (track: Track) => void;
   playNext: () => void;
   playPrevious: () => void;
 }
@@ -16,33 +14,32 @@ const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [playlist, setPlaylist] = useState<Track[]>([]);
-  const [playingTrack, setPlayingTrack] = useState<Track | null>(null);
 
   const playNext = useCallback(() => {
-    if (!playingTrack || playlist.length === 0) return;
+    if (playlist.length === 0) return;
+    const currentTrack = AudioPro.getPlayingTrack();
     const currentIndex = playlist.findIndex(
-      (track) => track.id === playingTrack.id
+      (track) => track.id === currentTrack?.id
     );
     const nextIndex = (currentIndex + 1) % playlist.length;
     const nextTrack = playlist[nextIndex];
     if (nextTrack) {
       AudioPro.play(nextTrack as unknown as AudioProTrack);
-      setPlayingTrack(nextTrack);
     }
-  }, [playingTrack, playlist]);
+  }, [playlist]);
 
   const playPrevious = useCallback(() => {
-    if (!playingTrack || playlist.length === 0) return;
+    if (playlist.length === 0) return;
+    const currentTrack = AudioPro.getPlayingTrack();
     const currentIndex = playlist.findIndex(
-      (track) => track.id === playingTrack.id
+      (track) => track.id === currentTrack?.id
     );
     const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
     const prevTrack = playlist[prevIndex];
     if (prevTrack) {
       AudioPro.play(prevTrack as unknown as AudioProTrack);
-      setPlayingTrack(prevTrack);
     }
-  }, [playingTrack, playlist]);
+  }, [playlist]);
 
   return (
     <PlayerContext.Provider
@@ -51,8 +48,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setPlaylist,
         playNext,
         playPrevious,
-        playingTrack,
-        setPlayingTrack,
       }}
     >
       {children}
