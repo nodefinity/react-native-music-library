@@ -70,7 +70,7 @@ export interface InternalAssetsOptions {
   directory?: string;
 }
 
-export interface IPaginatedResult<T> {
+export interface PaginatedResult<T> {
   /**
    * Array of items returned
    * @default []
@@ -124,6 +124,11 @@ export interface Track {
   genre: string;
 
   /**
+   * Lyrics
+   */
+  lyrics: string | null;
+
+  /**
    * Duration in seconds
    * @default 0
    */
@@ -133,7 +138,7 @@ export interface Track {
    * File URI or path
    * @default ''
    */
-  uri: string;
+  url: string;
 
   /**
    * Date added to library (Unix timestamp, optional)
@@ -232,10 +237,10 @@ export interface Genre {
   trackCount: number;
 }
 
-export type TrackResult = IPaginatedResult<Track>;
-export type AlbumResult = IPaginatedResult<Album>;
-export type ArtistResult = IPaginatedResult<Artist>;
-export type GenreResult = IPaginatedResult<Genre>;
+export type TrackResult = PaginatedResult<Track>;
+export type AlbumResult = PaginatedResult<Album>;
+export type ArtistResult = PaginatedResult<Artist>;
+export type GenreResult = PaginatedResult<Genre>;
 
 export interface Spec extends TurboModule {
   getTracksAsync(options: InternalAssetsOptions): Promise<TrackResult>;

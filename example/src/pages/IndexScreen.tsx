@@ -6,17 +6,28 @@ import {
   Text,
   StyleSheet,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import { getTracksAsync } from '@nodefinity/react-native-music-library';
 import { useState } from 'react';
-import type { AssetsOptions, Track } from '../../src/NativeMusicLibrary';
-import { usePermission } from './usePermission';
+import type {
+  AssetsOptions,
+  Track,
+} from '@nodefinity/react-native-music-library';
+import { usePermission } from '../hooks/usePermission';
 import { pickDirectory } from '@react-native-documents/picker';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePlayer } from '../contexts/PlayerContext';
 
-export default function TrackList() {
+type Props = NativeStackScreenProps<RootStackParamList, 'Index'>;
+
+export default function IndexScreen({ navigation }: Props) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(false);
   const { permissionStatus, requestPermissions } = usePermission();
+  const { setPlaylist, setPlayingTrack } = usePlayer();
 
   const getAllTracks = async () => {
     try {
@@ -77,8 +88,26 @@ export default function TrackList() {
   };
 
   const renderItem = ({ item }: { item: Track }) => (
-    <View style={styles.trackItem}>
-      <Image source={{ uri: item.artwork }} style={styles.cover} />
+    <TouchableOpacity
+      style={styles.trackItem}
+      onPress={() => {
+        setPlaylist(tracks);
+        setPlayingTrack(item);
+        console.log('item', item);
+        navigation.navigate('Player');
+      }}
+    >
+      <Image
+        source={
+          item.artwork
+            ? {
+                uri: item.artwork,
+              }
+            : require('../assets/default_artwork.png')
+        }
+        style={styles.cover}
+        defaultSource={require('../assets/default_artwork.png')}
+      />
       <View style={styles.trackInfo}>
         <Text style={styles.trackTitle} numberOfLines={1}>
           {item.title}
@@ -88,7 +117,7 @@ export default function TrackList() {
         </Text>
       </View>
       <Text style={styles.duration}>{formatDuration(item.duration)}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   const getTracksFromPickedDirectory = async () => {
@@ -113,7 +142,8 @@ export default function TrackList() {
   };
 
   return (
-    <>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>React Native Music Library</Text>
       <View style={styles.buttonContainer}>
         <Button
           title={`${loading ? 'loading...' : ''} get all tracks`}
@@ -136,14 +166,23 @@ export default function TrackList() {
           style={styles.list}
         />
       )}
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   buttonContainer: {
     width: '100%',
-    maxWidth: 300,
     gap: 10,
   },
   list: {

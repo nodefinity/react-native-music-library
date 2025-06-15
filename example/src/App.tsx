@@ -1,32 +1,26 @@
-import { StyleSheet, View, Text, StatusBar } from 'react-native';
-import TrackList from './TrackList';
+import { StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Navigation from './navigation';
+import { PlayerProvider } from './contexts/PlayerContext';
+import { useSetupAudioPro } from './hooks/useSetupAudio';
 
-export default function App() {
+function AppContent() {
+  useSetupAudioPro();
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <View style={styles.container}>
-        <Text style={styles.title}>React Native Music Library</Text>
-
-        <TrackList />
-      </View>
+      <Navigation />
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-    paddingHorizontal: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-});
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <PlayerProvider>
+        <AppContent />
+      </PlayerProvider>
+    </SafeAreaProvider>
+  );
+}
