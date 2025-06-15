@@ -24,33 +24,17 @@ export function setupAudioPro(): void {
     switch (event.type) {
       case AudioProEventType.TRACK_ENDED:
         // Auto-play next track when current track ends
-        const currentTrack = AudioPro.getPlayingTrack();
-        if (currentTrack) {
-          const currentIndex = playList.findIndex(
-            (track) => track.id === currentTrack.id
-          );
-          const nextIndex = (currentIndex + 1) % playList.length;
-          const nextTrack = playList[nextIndex];
-          if (nextTrack) {
-            AudioPro.play(nextTrack);
-          }
-        }
+        playNextOrPrev(true);
         break;
 
       case AudioProEventType.REMOTE_NEXT:
         // Handle next button press from lock screen/notification
-        const nextTrack = AudioPro.getPlayingTrack();
-        if (nextTrack) {
-          AudioPro.play(nextTrack);
-        }
+        playNextOrPrev(true);
         break;
 
       case AudioProEventType.REMOTE_PREV:
         // Handle previous button press from lock screen/notification
-        const prevTrack = AudioPro.getPlayingTrack();
-        if (prevTrack) {
-          AudioPro.play(prevTrack);
-        }
+        playNextOrPrev(false);
         break;
 
       case AudioProEventType.PLAYBACK_ERROR:
@@ -58,6 +42,22 @@ export function setupAudioPro(): void {
         break;
     }
   });
+}
+
+function playNextOrPrev(isNext: boolean): void {
+  const currentTrack = AudioPro.getPlayingTrack();
+  if (currentTrack) {
+    const currentIndex = playList.findIndex(
+      (track) => track.id === currentTrack.id
+    );
+    const nextIndex = isNext
+      ? (currentIndex + 1) % playList.length
+      : (currentIndex - 1 + playList.length) % playList.length;
+    const nextTrack = playList[nextIndex];
+    if (nextTrack) {
+      AudioPro.play(nextTrack);
+    }
+  }
 }
 
 // setup audio pro inside react native lifecycle
