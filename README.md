@@ -112,25 +112,25 @@ interface TrackMetadata {
   id: string;              // Track ID
 
   // audio header
-  duration?: number;       // Duration in seconds
-  bitrate?: number;        // Bitrate in kbps
-  sampleRate?: number;     // Sample rate in Hz
-  channels?: number;       // Number of channels
-  format?: string;         // Audio format
+  duration: number;       // Duration in seconds
+  bitrate: number;        // Bitrate in kbps
+  sampleRate: number;     // Sample rate in Hz
+  channels: number;       // Number of channels
+  format: string;         // Audio format
 
   // tag info
-  title?: string;          // Track title
-  artist?: string;         // Artist name
-  album?: string;          // Album name
-  year?: number;           // Release year
-  genre?: string;          // Music genre
-  track?: number;          // Track number
-  disc?: number;           // Disc number
-  composer?: string;       // Composer
-  lyricist?: string;       // Lyricist
-  lyrics?: string;         // Lyrics content
-  albumArtist?: string;    // Album artist
-  comment?: string;        // Comment
+  title: string;          // Track title
+  artist: string;         // Artist name
+  album: string;          // Album name
+  year: number;           // Release year
+  genre: string;          // Music genre
+  track: number;          // Track number
+  disc: number;           // Disc number
+  composer: string;       // Composer
+  lyricist: string;       // Lyricist
+  lyrics: string;         // Lyrics content
+  albumArtist: string;    // Album artist
+  comment: string;        // Comment
 }
 ```
 
@@ -152,16 +152,15 @@ console.log('Additional metadata:', metadata.additionalMetadata);
 ```typescript
 interface Track {
   id: string;
-  title: string;           // Track title
-  artist?: string;         // Artist name
-  artwork?: string;        // Artwork file URI
-  album?: string;          // Album name
-  lyrics?: string          // Lyrics
-  duration: number;        // Duration in seconds
-  url: string;             // File URL or path
-  createdAt?: number;      // Date added (Unix timestamp)
-  modifiedAt?: number;     // Date modified (Unix timestamp)
-  fileSize?: number;       // File size in bytes
+  title: string;          // Track title
+  artist: string;         // Artist name
+  artwork: string;        // Artwork file URI
+  album: string;          // Album name
+  duration: number;       // Duration in seconds
+  url: string;            // File URL or path
+  createdAt: number;      // Date added (Unix timestamp)
+  modifiedAt: number;     // Date modified (Unix timestamp)
+  fileSize: number;       // File size in bytes
 }
 ```
 

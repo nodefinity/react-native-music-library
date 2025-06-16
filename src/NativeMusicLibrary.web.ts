@@ -62,6 +62,23 @@ const MusicLibrary: Spec = {
     showWebWarning();
     return {
       id: trackId,
+      duration: 0,
+      bitrate: 0,
+      sampleRate: 0,
+      channels: 0,
+      format: '',
+      title: '',
+      artist: '',
+      album: '',
+      year: 0,
+      genre: '',
+      track: 0,
+      disc: 0,
+      composer: '',
+      lyricist: '',
+      lyrics: '',
+      albumArtist: '',
+      comment: '',
     };
   },
 };

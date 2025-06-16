@@ -101,13 +101,13 @@ export interface Track {
   title: string;
 
   /** Artist name */
-  artist?: string;
+  artist: string;
 
   /** Track artwork (file URI) */
-  artwork?: string;
+  artwork: string;
 
   /** Album name */
-  album?: string;
+  album: string;
 
   /** Duration in seconds */
   duration: number;
@@ -116,10 +116,10 @@ export interface Track {
   url: string;
 
   /** Date added to library (Unix timestamp, optional) */
-  createdAt?: number;
+  createdAt: number;
 
   /** Date modified (Unix timestamp, optional) */
-  modifiedAt?: number;
+  modifiedAt: number;
 
   /** File size in bytes */
   fileSize: number;
@@ -130,25 +130,25 @@ export interface TrackMetadata {
   id: string;
 
   /** Audio header */
-  duration?: number;
-  bitrate?: number;
-  sampleRate?: number;
-  channels?: number;
-  format?: string;
+  duration: number; // in seconds
+  bitrate: number; // in kbps
+  sampleRate: number; // in Hz
+  channels: number;
+  format: string;
 
   /** Tag info */
-  title?: string;
-  artist?: string;
-  album?: string;
-  year?: number;
-  genre?: string;
-  track?: number;
-  disc?: number;
-  composer?: string;
-  lyricist?: string;
-  lyrics?: string;
-  albumArtist?: string;
-  comment?: string;
+  title: string;
+  artist: string;
+  album: string;
+  year: number;
+  genre: string;
+  track: number;
+  disc: number;
+  composer: string;
+  lyricist: string;
+  lyrics: string;
+  albumArtist: string;
+  comment: string;
 }
 
 export interface Album {

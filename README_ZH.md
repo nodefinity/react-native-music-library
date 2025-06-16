@@ -112,25 +112,25 @@ interface TrackMetadata {
   id: string;              // 曲目 ID
 
   // audio header
-  duration?: number;       // 持续时间（秒）
-  bitrate?: number;        // 比特率（kbps）
-  sampleRate?: number;     // 采样率（Hz）
-  channels?: number;       // 通道数
-  format?: string;         // 音频格式
+  duration: number;       // 持续时间（秒）
+  bitrate: number;        // 比特率（kbps）
+  sampleRate: number;     // 采样率（Hz）
+  channels: number;       // 通道数
+  format: string;         // 音频格式
 
   // tag info
-  title?: string;          // 曲目标题
-  artist?: string;         // 艺术家名称
-  album?: string;          // 专辑名称
-  year?: number;           // 发行年份
-  genre?: string;          // 音乐流派
-  track?: number;          // 曲目编号
-  disc?: number;           // 碟片编号
-  composer?: string;       // 作曲家
-  lyricist?: string;       // 作词家
-  lyrics?: string;         // 歌词内容
-  albumArtist?: string;    // 专辑艺术家
-  comment?: string;        // 注释
+  title: string;          // 曲目标题
+  artist: string;         // 艺术家名称
+  album: string;          // 专辑名称
+  year: number;           // 发行年份
+  genre: string;          // 音乐流派
+  track: number;          // 曲目编号
+  disc: number;           // 碟片编号
+  composer: string;       // 作曲家
+  lyricist: string;       // 作词家
+  lyrics: string;         // 歌词内容
+  albumArtist: string;    // 专辑艺术家
+  comment: string;        // 注释
 }
 ```
 
@@ -152,15 +152,15 @@ console.log('额外元数据:', metadata.additionalMetadata);
 ```typescript
 interface Track {
   id: string;
-  title: string;           // 曲目标题
-  artist?: string;         // 艺术家名称
-  artwork?: string;        // 专辑封面 URI
-  album?: string;          // 专辑名称
-  duration: number;        // 持续时间（秒）
-  url: string;             // 文件 URL 或路径
-  createdAt?: number;      // 添加日期（Unix 时间戳）
-  modifiedAt?: number;     // 修改日期（Unix 时间戳）
-  fileSize?: number;       // 文件大小（字节）
+  title: string;          // 曲目标题
+  artist: string;         // 艺术家名称
+  artwork: string;        // 专辑封面 URI
+  album: string;          // 专辑名称
+  duration: number;       // 持续时间（秒）
+  url: string;            // 文件 URL 或路径
+  createdAt: number;      // 添加日期（Unix 时间戳）
+  modifiedAt: number;     // 修改日期（Unix 时间戳）
+  fileSize: number;       // 文件大小（字节）
 }
 ```
 
