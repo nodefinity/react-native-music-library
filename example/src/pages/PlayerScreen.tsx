@@ -4,6 +4,7 @@ import { usePlayer } from '../contexts/PlayerContext';
 import { useEffect, useState } from 'react';
 import Slider from '@react-native-community/slider';
 import LyricsView from '../components/LyricsView';
+import MusicLibrary from '@nodefinity/react-native-music-library';
 
 export default function PlayerScreen() {
   const {
@@ -14,6 +15,21 @@ export default function PlayerScreen() {
   } = useAudioPro();
   const { playNext, playPrevious } = usePlayer();
   const [currentTime, setCurrentTime] = useState(0);
+  const [lyrics, setLyrics] = useState<string>();
+
+  useEffect(() => {
+    if (audioProPlayingTrack) {
+      MusicLibrary.getTrackMetadataAsync(audioProPlayingTrack.id)
+        .then((metadata) => {
+          console.log('metadata', metadata);
+          setLyrics(metadata.lyrics || undefined);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch lyrics:', error);
+          setLyrics(undefined);
+        });
+    }
+  }, [audioProPlayingTrack]);
 
   useEffect(() => {
     if (position !== undefined) {
@@ -76,7 +92,7 @@ export default function PlayerScreen() {
       </View>
 
       <LyricsView
-        lyrics={audioProPlayingTrack.lyrics as string}
+        lyrics={lyrics}
         currentTime={currentTime}
         onLyricPress={handleLyricPress}
       />

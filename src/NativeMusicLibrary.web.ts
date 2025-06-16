@@ -4,6 +4,7 @@ import type {
   AlbumResult,
   ArtistResult,
   GenreResult,
+  TrackMetadata,
 } from './NativeMusicLibrary';
 
 const showWebWarning = () => {
@@ -54,6 +55,13 @@ const MusicLibrary: Spec = {
       hasNextPage: false,
       endCursor: undefined,
       totalCount: 0,
+    };
+  },
+
+  async getTrackMetadataAsync(trackId: string): Promise<TrackMetadata> {
+    showWebWarning();
+    return {
+      id: trackId,
     };
   },
 };

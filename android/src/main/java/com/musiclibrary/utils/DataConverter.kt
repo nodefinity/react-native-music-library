@@ -13,8 +13,6 @@ object DataConverter {
     track.artist?.let { map.putString("artist", it) }
     track.artwork?.let { map.putString("artwork", it) }
     track.album?.let { map.putString("album", it) }
-    track.genre?.let { map.putString("genre", it) }
-    track.lyrics?.let { map.putString("lyrics", it) }
     map.putDouble("duration", track.duration)
     map.putString("url", track.url)
     map.putLong("fileSize", track.fileSize)
@@ -73,6 +71,29 @@ object DataConverter {
     result.endCursor?.let { map.putString("endCursor", it) }
     result.totalCount?.let { map.putInt("totalCount", it) }
 
+    return map
+  }
+
+  fun trackMetadataToWritableMap(metadata: TrackMetadata): WritableMap {
+    val map = Arguments.createMap()
+    map.putString("id", metadata.id)
+    metadata.duration?.let { map.putDouble("duration", it) }
+    metadata.bitrate?.let { map.putLong("bitrate", it) }
+    metadata.sampleRate?.let { map.putInt("sampleRate", it) }
+    metadata.channels?.let { map.putString("channels", it) }
+    metadata.format?.let { map.putString("format", it) }
+    metadata.title?.let { map.putString("title", it) }
+    metadata.artist?.let { map.putString("artist", it) }
+    metadata.album?.let { map.putString("album", it) }
+    metadata.year?.let { map.putInt("year", it) }
+    metadata.genre?.let { map.putString("genre", it) }
+    metadata.track?.let { map.putInt("track", it) }
+    metadata.disc?.let { map.putInt("disc", it) }
+    metadata.composer?.let { map.putString("composer", it) }
+    metadata.lyricist?.let { map.putString("lyricist", it) }
+    metadata.lyrics?.let { map.putString("lyrics", it) }
+    metadata.albumArtist?.let { map.putString("albumArtist", it) }
+    metadata.comment?.let { map.putString("comment", it) }
     return map
   }
 }

@@ -5,6 +5,7 @@ import type {
   AlbumResult,
   ArtistResult,
   GenreResult,
+  TrackMetadata,
 } from './NativeMusicLibrary';
 import { getOptions } from './utils';
 
@@ -52,6 +53,15 @@ export function getGenresAsync(
   assetsOptions: AssetsOptions = {}
 ): Promise<GenreResult> {
   return MusicLibrary.getGenresAsync(getOptions(assetsOptions));
+}
+
+/**
+ * Get the metadata of a track.
+ * @param trackId - The ID of the track.
+ * @returns A promise that resolves to the metadata of the track.
+ */
+export function getTrackMetadataAsync(trackId: string): Promise<TrackMetadata> {
+  return MusicLibrary.getTrackMetadataAsync(trackId);
 }
 
 export default MusicLibrary;

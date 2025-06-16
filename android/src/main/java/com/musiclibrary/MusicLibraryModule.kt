@@ -3,6 +3,7 @@ package com.musiclibrary
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.module.annotations.ReactModule
 import com.musiclibrary.utils.ReadableMapMapper.toAssetsOptions
 import com.musiclibrary.utils.ModuleUtils.throwUnlessPermissionsGranted
@@ -11,6 +12,7 @@ import com.musiclibrary.tracks.GetTracks
 import com.musiclibrary.albums.GetAlbums
 import com.musiclibrary.artists.GetArtists
 import com.musiclibrary.genres.GetGenres
+import com.musiclibrary.tracks.GetTrackMetadataQuery
 
 @ReactModule(name = MusicLibraryModule.NAME)
 class MusicLibraryModule(reactContext: ReactApplicationContext) :
@@ -51,6 +53,15 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
         GetGenres(reactApplicationContext, options.toAssetsOptions(), promise)
+          .execute()
+      }
+    }
+  }
+
+  override fun getTrackMetadataAsync(trackId: String, promise: Promise) {
+    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
+      withModuleScope(promise) {
+        GetTrackMetadataQuery(reactApplicationContext, trackId, promise)
           .execute()
       }
     }

@@ -1,37 +1,13 @@
 package com.musiclibrary.tracks
 
 import android.content.ContentResolver
-import android.os.Build
 import android.provider.MediaStore
 import android.net.Uri
 import android.provider.DocumentsContract
 import com.musiclibrary.models.*
 import androidx.core.net.toUri
-import java.io.File
-import org.jaudiotagger.audio.AudioFileIO
-import org.jaudiotagger.tag.FieldKey
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 object GetTracksQuery {
-  // Create a thread pool
-  private val executor = Executors.newFixedThreadPool(4)
-
-  private fun getAudioTagInfo(filePath: String): Pair<String?, String?> {
-    return try {
-      val audioFile = AudioFileIO.read(File(filePath))
-      val tag = audioFile.tag
-      
-      // Try to read the genre and lyrics from the tag
-      val genre = tag?.getFirst(FieldKey.GENRE)
-      val lyrics = tag?.getFirst(FieldKey.LYRICS)
-      
-      Pair(genre, lyrics)
-    } catch (e: Exception) {
-      Pair(null, null)
-    }
-  }
-
   fun getTracks(
     contentResolver: ContentResolver,
     options: AssetsOptions,
@@ -97,8 +73,6 @@ object GetTracksQuery {
       var count = 0
       val maxItems = options.first.coerceAtMost(1000) // Limit the maximum number of queries
 
-      val trackPaths = mutableListOf<Pair<String, String>>() // (id, path) pairs
-
       while (foundAfter && count < maxItems) {
         try {
           val id = c.getLong(idColumn)
@@ -117,24 +91,21 @@ object GetTracksQuery {
           val fileSize = c.getLong(sizeColumn)
           val artworkUri: Uri = "content://media/external/audio/media/${id}/albumart".toUri()
 
-          // Create a Track without lyrics and genre
+          // Create a Track
           val track = Track(
             id = id.toString(),
             title = title,
             artist = artist,
             artwork = artworkUri.toString(),
             album = album,
-            genre = null,
             duration = duration,
             url = "file://$data",
             createdAt = dateAdded * 1000, // Convert to milliseconds
             modifiedAt = dateAdded * 1000, // Convert to milliseconds
-            fileSize = fileSize,
-            lyrics = null
+            fileSize = fileSize
           )
 
           tracks.add(track)
-          trackPaths.add(id.toString() to data)
           endCursor = id.toString()
           count++
         } catch (e: Exception) {
@@ -142,33 +113,6 @@ object GetTracksQuery {
         }
 
         if (!cursor.moveToNext()) break
-      }
-
-      // Batch process tag information loading
-      val futures = trackPaths.map { (id, path) ->
-        executor.submit<Pair<String, Pair<String?, String?>>> {
-          val tagInfo = getAudioTagInfo(path)
-          Pair(id, tagInfo)
-        }
-      }
-
-      // Wait for all tag information to be loaded
-      futures.forEach { future ->
-        try {
-          val result = future.get(5, TimeUnit.SECONDS)
-          val id = result.first
-          val (genre, lyrics) = result.second
-          val index = tracks.indexOfFirst { it.id == id }
-          if (index != -1) {
-            val track = tracks[index]
-            tracks[index] = track.copy(
-              genre = genre,
-              lyrics = lyrics
-            )
-          }
-        } catch (e: Exception) {
-          // If the loading times out or fails, keep the original value
-        }
       }
 
       // Check if there are more data

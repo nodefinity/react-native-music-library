@@ -95,23 +95,54 @@ Promise that resolves to `TrackResult` containing:
 - `endCursor`: String cursor for pagination
 - `totalCount`: Total number of tracks (optional)
 
+### getTrackMetadataAsync(trackId)
+
+Retrieves detailed metadata for a specific track, including lyrics and additional metadata from JAudioTagger.
+
+#### Parameters
+
+- `trackId`: string - The ID of the track to get metadata for
+
+#### Returns
+
+Promise that resolves to `TrackMetadata` containing:
+
+```typescript
+interface TrackMetadata {
+  id: string;              // Track ID
+
+  // audio header
+  duration?: number;       // Duration in seconds
+  bitrate?: number;        // Bitrate in kbps
+  sampleRate?: number;     // Sample rate in Hz
+  channels?: number;       // Number of channels
+  format?: string;         // Audio format
+
+  // tag info
+  title?: string;          // Track title
+  artist?: string;         // Artist name
+  album?: string;          // Album name
+  year?: number;           // Release year
+  genre?: string;          // Music genre
+  track?: number;          // Track number
+  disc?: number;           // Disc number
+  composer?: string;       // Composer
+  lyricist?: string;       // Lyricist
+  lyrics?: string;         // Lyrics content
+  albumArtist?: string;    // Album artist
+  comment?: string;        // Comment
+}
+```
+
 #### Example
 
 ```js
-import { getTracksAsync } from '@nodefinity/react-native-music-library';
+import { getTrackMetadataAsync } from '@nodefinity/react-native-music-library';
 
-// Get first 20 tracks (default)
-const result = await getTracksAsync();
-
-// Get tracks with custom options
-const customResult = await getTracksAsync({
-  first: 50,
-  sortBy: ['title', true], // Sort by title ascending
-  directory: '/Music/Favorites'
-});
-
-console.log('Tracks:', customResult.items);
-console.log('Has more:', customResult.hasNextPage);
+// Get metadata for a specific track
+const metadata = await getTrackMetadataAsync('track-id-123');
+console.log('Lyrics:', metadata.lyrics);
+console.log('Additional metadata:', metadata.additionalMetadata);
 ```
 
 ## Type Definitions
@@ -125,7 +156,6 @@ interface Track {
   artist?: string;         // Artist name
   artwork?: string;        // Artwork file URI
   album?: string;          // Album name
-  genre?: string;          // Music genre
   lyrics?: string          // Lyrics
   duration: number;        // Duration in seconds
   url: string;             // File URL or path
@@ -158,7 +188,6 @@ type SortByKey =
   | 'duration'
   | 'createdAt'
   | 'modifiedAt'
-  | 'genre'
   | 'trackCount';
 ```
 

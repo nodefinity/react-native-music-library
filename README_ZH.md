@@ -74,7 +74,7 @@ iOS 实现尚未完成。现在可以先添加权限到 `Info.plist` 以便将�
 在使用此库之前，你需要请求访问音乐库的权限。我们推荐使用以下库之一：
 
 - [react-native-permissions](https://github.com/zoontek/react-native-permissions)
-- [expo-media-library](https://docs.expo.dev/versions/latest/sdk/media-library/)（用于 Expo 项目）
+- [expo-media-library](https://docs.expo.dev/versions/latest/sdk/media-library/)
 
 ## API 参考
 
@@ -95,23 +95,54 @@ iOS 实现尚未完成。现在可以先添加权限到 `Info.plist` 以便将�
 - `endCursor`：用于分页的字符串游标
 - `totalCount`：曲目总数（可选）
 
+### getTrackMetadataAsync(trackId)
+
+获取特定曲目的详细元数据，包括歌词和来自 JAudioTagger 的额外元数据。
+
+#### 参数
+
+- `trackId`：string - 要获取元数据的曲目 ID
+
+#### 返回值
+
+返回一个 Promise，解析为包含以下内容的 `TrackMetadata`：
+
+```typescript
+interface TrackMetadata {
+  id: string;              // 曲目 ID
+
+  // audio header
+  duration?: number;       // 持续时间（秒）
+  bitrate?: number;        // 比特率（kbps）
+  sampleRate?: number;     // 采样率（Hz）
+  channels?: number;       // 通道数
+  format?: string;         // 音频格式
+
+  // tag info
+  title?: string;          // 曲目标题
+  artist?: string;         // 艺术家名称
+  album?: string;          // 专辑名称
+  year?: number;           // 发行年份
+  genre?: string;          // 音乐流派
+  track?: number;          // 曲目编号
+  disc?: number;           // 碟片编号
+  composer?: string;       // 作曲家
+  lyricist?: string;       // 作词家
+  lyrics?: string;         // 歌词内容
+  albumArtist?: string;    // 专辑艺术家
+  comment?: string;        // 注释
+}
+```
+
 #### 示例
 
 ```js
-import { getTracksAsync } from '@nodefinity/react-native-music-library';
+import { getTrackMetadataAsync } from '@nodefinity/react-native-music-library';
 
-// 获取前 20 首曲目（默认）
-const result = await getTracksAsync();
-
-// 使用自定义选项获取曲目
-const customResult = await getTracksAsync({
-  first: 50,
-  sortBy: ['title', true], // 按标题升序排序
-  directory: '/Music/Favorites'
-});
-
-console.log('曲目:', customResult.items);
-console.log('是否还有更多:', customResult.hasNextPage);
+// 获取特定曲目的元数据
+const metadata = await getTrackMetadataAsync('track-id-123');
+console.log('歌词:', metadata.lyrics);
+console.log('额外元数据:', metadata.additionalMetadata);
 ```
 
 ## 类型定义
@@ -125,8 +156,6 @@ interface Track {
   artist?: string;         // 艺术家名称
   artwork?: string;        // 专辑封面 URI
   album?: string;          // 专辑名称
-  genre?: string;          // 音乐流派
-  lyrics?: string;         // 歌词
   duration: number;        // 持续时间（秒）
   url: string;             // 文件 URL 或路径
   createdAt?: number;      // 添加日期（Unix 时间戳）
@@ -158,7 +187,6 @@ type SortByKey =
   | 'duration'
   | 'createdAt'
   | 'modifiedAt'
-  | 'genre'
   | 'trackCount';
 ```
 
