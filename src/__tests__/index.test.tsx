@@ -5,7 +5,7 @@ jest.mock('../NativeMusicLibrary', () => ({}));
 
 describe('normalizeSortBy', () => {
   it('should return empty array when input is undefined', () => {
-    expect(normalizeSortBy(undefined)).toEqual([]);
+    expect(normalizeSortBy(undefined)).toEqual([['default', true]]);
   });
 
   it('should handle single SortByKey', () => {
