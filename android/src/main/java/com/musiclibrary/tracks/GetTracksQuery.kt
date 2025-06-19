@@ -130,16 +130,38 @@ object GetTracksQuery {
   private fun buildSelection(options: AssetsOptions): String {
     val conditions = mutableListOf<String>()
 
-    // Only query audio files
-    conditions.add("${MediaStore.Audio.Media.IS_MUSIC} = 1")
+    // 移除 IS_MUSIC 限制，因为一些第三方应用的音乐文件可能没有正确设置这个标志
+    // conditions.add("${MediaStore.Audio.Media.IS_MUSIC} = 1")
 
-    // Filter out damaged files
+    // 过滤掉损坏的文件
     conditions.add("${MediaStore.Audio.Media.DURATION} > 0")
 
-    // Directory
-    if (!options.directory.isNullOrEmpty()) {
-      conditions.add("${MediaStore.Audio.Media.DATA} LIKE ?")
+    // 支持多个目录 - 如果不是全局扫描才应用目录过滤
+    if (!options.scanGlobal && !options.directory.isNullOrEmpty()) {
+      val dirs = options.directory.split(",").filter { it.isNotEmpty() }
+      if (dirs.isNotEmpty()) {
+        val dirConditions = dirs.map { "${MediaStore.Audio.Media.DATA} LIKE ?" }
+        conditions.add("(${dirConditions.joinToString(" OR ")})")
+      }
     }
+
+    // 添加文件类型过滤 - 支持自定义扩展名
+    val extensions = if (!options.extensions.isNullOrEmpty()) {
+      options.extensions
+    } else {
+      // 默认支持的音频格式
+      listOf(".mp3", ".m4a", ".wav", ".flac", ".aac", ".ogg", ".opus")
+    }
+
+    if (extensions.isNotEmpty()) {
+      val extensionConditions = extensions.map { ext ->
+        "${MediaStore.Audio.Media.DATA} LIKE '%$ext'"
+      }
+      conditions.add("(${extensionConditions.joinToString(" OR ")})")
+    }
+
+    // 添加文件大小过滤，避免扫描到缓存文件
+    conditions.add("${MediaStore.Audio.Media.SIZE} > 1024") // 大于1KB的文件
 
     return conditions.joinToString(" AND ")
   }
@@ -147,15 +169,19 @@ object GetTracksQuery {
   private fun buildSelectionArgs(options: AssetsOptions): Array<String>? {
     val args = mutableListOf<String>()
 
-    if (!options.directory.isNullOrEmpty()) {
-      val dir = if (options.directory.startsWith("content://")) {
-        uriToFullPath(options.directory.toUri())
-      } else {
-        options.directory
-      }
-
-      if (!dir.isNullOrEmpty()) {
-        args.add("$dir%")
+    // 只有在非全局扫描模式下才处理目录参数
+    if (!options.scanGlobal && !options.directory.isNullOrEmpty()) {
+      val dirs = options.directory.split(",").filter { it.isNotEmpty() }
+      for (dir in dirs) {
+        val processedDir = when {
+          dir.startsWith("content://") -> uriToFullPath(dir.toUri())
+          dir.startsWith("/") -> dir
+          else -> "/storage/emulated/0/$dir"
+        }
+        
+        if (!processedDir.isNullOrEmpty()) {
+          args.add("$processedDir%")
+        }
       }
     }
 

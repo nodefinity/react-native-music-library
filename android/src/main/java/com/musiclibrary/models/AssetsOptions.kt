@@ -5,4 +5,6 @@ data class AssetsOptions(
   val first: Int,
   val sortBy: List<String>,
   val directory: String? = null,
+  val extensions: List<String>? = null,
+  val scanGlobal: Boolean = false,
 )

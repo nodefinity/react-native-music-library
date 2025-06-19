@@ -109,28 +109,28 @@ iOS 实现尚未完成。现在可以先添加权限到 `Info.plist` 以便将�
 
 ```typescript
 interface TrackMetadata {
-  id: string;              // 曲目 ID
+  id: string; // 曲目 ID
 
   // audio header
-  duration: number;       // 持续时间（秒）
-  bitrate: number;        // 比特率（kbps）
-  sampleRate: number;     // 采样率（Hz）
-  channels: number;       // 通道数
-  format: string;         // 音频格式
+  duration: number; // 持续时间（秒）
+  bitrate: number; // 比特率（kbps）
+  sampleRate: number; // 采样率（Hz）
+  channels: number; // 通道数
+  format: string; // 音频格式
 
   // tag info
-  title: string;          // 曲目标题
-  artist: string;         // 艺术家名称
-  album: string;          // 专辑名称
-  year: number;           // 发行年份
-  genre: string;          // 音乐流派
-  track: number;          // 曲目编号
-  disc: number;           // 碟片编号
-  composer: string;       // 作曲家
-  lyricist: string;       // 作词家
-  lyrics: string;         // 歌词内容
-  albumArtist: string;    // 专辑艺术家
-  comment: string;        // 注释
+  title: string; // 曲目标题
+  artist: string; // 艺术家名称
+  album: string; // 专辑名称
+  year: number; // 发行年份
+  genre: string; // 音乐流派
+  track: number; // 曲目编号
+  disc: number; // 碟片编号
+  composer: string; // 作曲家
+  lyricist: string; // 作词家
+  lyrics: string; // 歌词内容
+  albumArtist: string; // 专辑艺术家
+  comment: string; // 注释
 }
 ```
 
@@ -152,15 +152,15 @@ console.log('额外元数据:', metadata.additionalMetadata);
 ```typescript
 interface Track {
   id: string;
-  title: string;          // 曲目标题
-  artist: string;         // 艺术家名称
-  artwork: string;        // 专辑封面 URI
-  album: string;          // 专辑名称
-  duration: number;       // 持续时间（秒）
-  url: string;            // 文件 URL 或路径
-  createdAt: number;      // 添加日期（Unix 时间戳）
-  modifiedAt: number;     // 修改日期（Unix 时间戳）
-  fileSize: number;       // 文件大小（字节）
+  title: string; // 曲目标题
+  artist: string; // 艺术家名称
+  artwork: string; // 专辑封面 URI
+  album: string; // 专辑名称
+  duration: number; // 持续时间（秒）
+  url: string; // 文件 URL 或路径
+  createdAt: number; // 添加日期（Unix 时间戳）
+  modifiedAt: number; // 修改日期（Unix 时间戳）
+  fileSize: number; // 文件大小（字节）
 }
 ```
 
@@ -168,10 +168,12 @@ interface Track {
 
 ```typescript
 interface AssetsOptions {
-  after?: string;          // 分页游标
-  first?: number;          // 返回的最大项目数（默认：20）
-  sortBy?: SortByValue | SortByValue[];  // 排序配置
-  directory?: string;      // 搜索的目录路径
+  after?: string; // 分页游标
+  first?: number; // 返回的最大项目数（默认：20）
+  sortBy?: SortByValue | SortByValue[]; // 排序配置
+  directory?: string; // 搜索的目录路径，支持逗号分隔多个目录
+  extensions?: string[]; // 文件扩展名过滤，如 ['.flac', '.wav']
+  scanGlobal?: boolean; // 是否扫描全局存储（默认：false）
 }
 ```
 
@@ -180,9 +182,9 @@ interface AssetsOptions {
 ```typescript
 type SortByValue = SortByKey | [SortByKey, boolean];
 
-type SortByKey = 
+type SortByKey =
   | 'default'
-  | 'artist' 
+  | 'artist'
   | 'album'
   | 'duration'
   | 'createdAt'
@@ -194,10 +196,10 @@ type SortByKey =
 
 ```typescript
 interface TrackResult {
-  items: Track[];          // 曲目数组
-  hasNextPage: boolean;    // 是否有更多项目？
-  endCursor?: string;      // 下一页的游标
-  totalCount?: number;     // 总数（可选）
+  items: Track[]; // 曲目数组
+  hasNextPage: boolean; // 是否有更多项目？
+  endCursor?: string; // 下一页的游标
+  totalCount?: number; // 总数（可选）
 }
 ```
 
@@ -211,10 +213,12 @@ import { getTracksAsync } from '@nodefinity/react-native-music-library';
 const loadMusicLibrary = async () => {
   try {
     const result = await getTracksAsync();
-    
-    result.items.forEach(track => {
+
+    result.items.forEach((track) => {
       console.log(`${track.title} - ${track.artist}`);
-      console.log(`时长: ${Math.floor(track.duration / 60)}:${track.duration % 60}`);
+      console.log(
+        `时长: ${Math.floor(track.duration / 60)}:${track.duration % 60}`
+      );
       console.log(`文件: ${track.url}`);
     });
   } catch (error) {
@@ -232,18 +236,18 @@ const loadAllTracks = async () => {
   let allTracks = [];
   let hasMore = true;
   let cursor;
-  
+
   while (hasMore) {
     const result = await getTracksAsync({
       first: 100,
-      after: cursor
+      after: cursor,
     });
-    
+
     allTracks = [...allTracks, ...result.items];
     hasMore = result.hasNextPage;
     cursor = result.endCursor;
   }
-  
+
   console.log(`总共加载了 ${allTracks.length} 首曲目`);
   return allTracks;
 };
@@ -256,21 +260,17 @@ import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // 按艺术家名称排序（降序 - 默认）
 const tracksByArtist = await getTracksAsync({
-  sortBy: 'artist'
+  sortBy: 'artist',
 });
 
 // 按艺术家名称升序排序
 const tracksByArtistAsc = await getTracksAsync({
-  sortBy: ['artist', true]
+  sortBy: ['artist', true],
 });
 
 // 多个排序条件
 const tracksMultiSort = await getTracksAsync({
-  sortBy: [
-    ['artist', true],
-    ['album', true],
-    'duration'
-  ]
+  sortBy: [['artist', true], ['album', true], 'duration'],
 });
 ```
 
@@ -281,8 +281,88 @@ import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
 // 从特定目录获取曲目
 const playlistTracks = await getTracksAsync({
-  directory: '/Music/Playlists/Favorites'
+  directory: '/Music/Playlists/Favorites',
 });
+```
+
+## 高级扫描功能
+
+### 扫描特定文件格式
+
+你可以指定要扫描的文件扩展名：
+
+```js
+import { getTracksAsync } from '@nodefinity/react-native-music-library';
+
+// 只扫描 FLAC 格式文件
+const flacTracks = await getTracksAsync({
+  extensions: ['.flac'],
+});
+
+// 扫描多种格式
+const highQualityTracks = await getTracksAsync({
+  extensions: ['.flac', '.wav', '.dsd'],
+});
+```
+
+### 全局扫描
+
+扫描整个设备存储，不限制目录：
+
+```js
+// 扫描全局所有 FLAC 文件
+const allFlacFiles = await getTracksAsync({
+  scanGlobal: true,
+  extensions: ['.flac'],
+});
+```
+
+### 扫描特定目录
+
+扫描指定目录下的音乐文件：
+
+```js
+// 扫描下载目录
+const downloadTracks = await getTracksAsync({
+  directory: 'Download',
+});
+
+// 扫描酷狗音乐目录
+const kugouTracks = await getTracksAsync({
+  directory: 'Android/data/com.kugou.android/files/music',
+});
+
+// 同时扫描多个目录
+const multipleDirTracks = await getTracksAsync({
+  directory: 'Download,Android/data/com.kugou.android/files/music',
+});
+```
+
+### 组合使用
+
+```js
+// 在特定目录中只扫描 FLAC 文件
+const specificFlacTracks = await getTracksAsync({
+  directory: 'Download',
+  extensions: ['.flac'],
+  first: 50, // 限制返回数量
+});
+
+// 全局扫描所有高质量音频文件
+const allHighQualityTracks = await getTracksAsync({
+  scanGlobal: true,
+  extensions: ['.flac', '.wav', '.ape', '.dsd'],
+  sortBy: ['artist', true],
+});
+```
+
+### 权限注意事项
+
+对于 Android 11 (API 30) 及以上版本，访问第三方应用目录（如酷狗音乐）需要用户授予 `MANAGE_EXTERNAL_STORAGE` 权限。这是一个特殊权限，需要用户手动在系统设置中开启。
+
+```xml
+<!-- 在 AndroidManifest.xml 中添加 -->
+<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 ```
 
 ## 贡献

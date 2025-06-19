@@ -53,9 +53,29 @@ export interface AssetsOptions {
 
   /**
    * Directory path to search for tracks
+   * Can be a single path or comma-separated paths
+   * @example
+   * 'Download' // Search in Download folder
+   * 'Download,Android/data/com.kugou.android/files/music' // Search in multiple folders
    * @default undefined
    */
   directory?: string;
+
+  /**
+   * File extensions to filter by
+   * @example
+   * ['.flac'] // Only FLAC files
+   * ['.mp3', '.flac', '.wav'] // Multiple formats
+   * @default ['.mp3', '.m4a', '.wav', '.flac', '.aac', '.ogg', '.opus']
+   */
+  extensions?: string[];
+
+  /**
+   * Whether to scan the entire device storage
+   * When true, ignores directory parameter and scans globally
+   * @default false
+   */
+  scanGlobal?: boolean;
 }
 
 /**
@@ -66,6 +86,8 @@ export interface InternalAssetsOptions {
   first: number;
   sortBy: InternalSortByValue[];
   directory?: string;
+  extensions?: string[];
+  scanGlobal?: boolean;
 }
 
 export interface PaginatedResult<T> {

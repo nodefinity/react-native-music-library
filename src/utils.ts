@@ -83,12 +83,15 @@ export function normalizeSortBy(
 export function getOptions(
   assetsOptions: AssetsOptions
 ): InternalAssetsOptions {
-  const { after, first, sortBy, directory } = assetsOptions;
+  const { after, first, sortBy, directory, extensions, scanGlobal } =
+    assetsOptions;
 
   const options = {
     after: getId(after),
     first: first == null ? 20 : first,
     directory,
+    extensions,
+    scanGlobal: scanGlobal || false,
     sortBy: normalizeSortBy(sortBy),
   };
 
@@ -99,7 +102,16 @@ export function getOptions(
     throw new Error('Option "first" must be a number!');
   }
   if (directory != null && typeof options.directory !== 'string') {
-    throw new Error('Option "album" must be a string!');
+    throw new Error('Option "directory" must be a string!');
+  }
+  if (extensions != null && !Array.isArray(extensions)) {
+    throw new Error('Option "extensions" must be an array of strings!');
+  }
+  if (extensions != null && extensions.some((ext) => typeof ext !== 'string')) {
+    throw new Error('Option "extensions" must be an array of strings!');
+  }
+  if (scanGlobal != null && typeof scanGlobal !== 'boolean') {
+    throw new Error('Option "scanGlobal" must be a boolean!');
   }
   if (
     after != null &&

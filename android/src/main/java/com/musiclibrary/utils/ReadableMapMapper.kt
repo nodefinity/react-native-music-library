@@ -22,6 +22,25 @@ object ReadableMapMapper {
     val directory =
       if (hasKey("directory") && !isNull("directory")) getString("directory") else null
 
-    return AssetsOptions(after, first, sortBy, directory)
+    // 解析文件扩展名列表
+    val extensions = if (hasKey("extensions") && !isNull("extensions")) {
+      val array = getArray("extensions")
+      if (array != null && array.size() > 0) {
+        (0 until array.size()).mapNotNull { 
+          val ext = array.getString(it)
+          // 确保扩展名以点开头
+          if (ext != null && ext.isNotEmpty()) {
+            if (ext.startsWith(".")) ext else ".$ext"
+          } else null
+        }
+      } else null
+    } else null
+
+    // 解析是否扫描全局
+    val scanGlobal = if (hasKey("scanGlobal") && !isNull("scanGlobal")) {
+      getBoolean("scanGlobal")
+    } else false
+
+    return AssetsOptions(after, first, sortBy, directory, extensions, scanGlobal)
   }
 }
