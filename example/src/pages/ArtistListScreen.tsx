@@ -21,7 +21,7 @@ import type { RootStackParamList } from '../navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ArtistList'>;
 
-export default function ArtistListScreen({ navigation: _navigation }: Props) {
+export default function ArtistListScreen({ navigation }: Props) {
   const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(false);
   const { permissionStatus, requestPermissions } = usePermission();
@@ -102,11 +102,11 @@ export default function ArtistListScreen({ navigation: _navigation }: Props) {
   const handleArtistPress = async (artist: Artist) => {
     try {
       console.log('Artist selected:', artist.title);
-      // TODO: Navigate to artist details page when implemented
-      Alert.alert(
-        'Artist Selected',
-        `${artist.title}\n${artist.albumCount} albums • ${artist.trackCount} tracks`
-      );
+
+      // Navigate to artist album and track list
+      navigation.navigate('ArtistAlbumAndTrackList', {
+        artist: artist,
+      });
     } catch (error) {
       console.error('Failed to handle artist selection:', error);
       Alert.alert('Error', 'Failed to handle artist selection');

@@ -11,6 +11,7 @@ import com.musiclibrary.utils.ModuleUtils.withModuleScope
 import com.musiclibrary.tracks.GetTracks
 import com.musiclibrary.tracks.GetTracksByAlbum
 import com.musiclibrary.albums.GetAlbums
+import com.musiclibrary.albums.GetAlbumsByArtist
 import com.musiclibrary.artists.GetArtists
 import com.musiclibrary.tracks.GetTrackMetadataQuery
 
@@ -31,7 +32,7 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     }
   }
 
-    override fun getTrackMetadataAsync(trackId: String, promise: Promise) {
+  override fun getTrackMetadataAsync(trackId: String, promise: Promise) {
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
         GetTrackMetadataQuery(reactApplicationContext, trackId, promise)
@@ -53,6 +54,15 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
         GetAlbums(reactApplicationContext, options.toAssetsOptions(), promise)
+          .execute()
+      }
+    }
+  }
+
+  override fun getAlbumsByArtistAsync(artistId: String, promise: Promise) {
+    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
+      withModuleScope(promise) {
+        GetAlbumsByArtist(reactApplicationContext, artistId, promise)
           .execute()
       }
     }

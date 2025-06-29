@@ -6,7 +6,8 @@ import PlayerScreen from '../pages/PlayerScreen';
 import AlbumListScreen from '../pages/AlbumListScreen';
 import AlbumTrackListScreen from '../pages/AlbumTrackListScreen';
 import ArtistListScreen from '../pages/ArtistListScreen';
-import type { Album } from '@nodefinity/react-native-music-library';
+import ArtistAlbumAndTrackListScreen from '../pages/ArtistAlbumAndTrackListScreen';
+import type { Album, Artist } from '@nodefinity/react-native-music-library';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -14,6 +15,7 @@ export type RootStackParamList = {
   AlbumList: undefined;
   AlbumTrackList: { album: Album };
   ArtistList: undefined;
+  ArtistAlbumAndTrackList: { artist: Artist };
   Player: undefined;
 };
 
@@ -57,6 +59,14 @@ export default function Navigation() {
           component={ArtistListScreen}
           options={{
             title: 'Artist List',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          name="ArtistAlbumAndTrackList"
+          component={ArtistAlbumAndTrackListScreen}
+          options={{
+            title: 'Artist Albums',
             headerBackTitle: 'Back',
           }}
         />

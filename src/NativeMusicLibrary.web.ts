@@ -5,6 +5,7 @@ import type {
   ArtistResult,
   TrackMetadata,
   Track,
+  Album,
 } from './NativeMusicLibrary';
 
 const showWebWarning = () => {
@@ -19,26 +20,6 @@ const showWebWarning = () => {
 // Web fallback implementation
 const MusicLibrary: Spec = {
   async getTracksAsync(): Promise<TrackResult> {
-    showWebWarning();
-    return {
-      items: [],
-      hasNextPage: false,
-      endCursor: undefined,
-      totalCount: 0,
-    };
-  },
-
-  async getAlbumsAsync(): Promise<AlbumResult> {
-    showWebWarning();
-    return {
-      items: [],
-      hasNextPage: false,
-      endCursor: undefined,
-      totalCount: 0,
-    };
-  },
-
-  async getArtistsAsync(): Promise<ArtistResult> {
     showWebWarning();
     return {
       items: [],
@@ -76,6 +57,32 @@ const MusicLibrary: Spec = {
     console.log('getTracksByAlbumAsync', albumId);
     showWebWarning();
     return [];
+  },
+
+  async getAlbumsAsync(): Promise<AlbumResult> {
+    showWebWarning();
+    return {
+      items: [],
+      hasNextPage: false,
+      endCursor: undefined,
+      totalCount: 0,
+    };
+  },
+
+  async getAlbumsByArtistAsync(artistId: string): Promise<Album[]> {
+    console.log('getAlbumsByArtistAsync', artistId);
+    showWebWarning();
+    return [];
+  },
+
+  async getArtistsAsync(): Promise<ArtistResult> {
+    showWebWarning();
+    return {
+      items: [],
+      hasNextPage: false,
+      endCursor: undefined,
+      totalCount: 0,
+    };
   },
 };
 
