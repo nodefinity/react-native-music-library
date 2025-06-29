@@ -43,7 +43,16 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "music",
+    "library",
+    "music-library",
+    "react-native-music-library",
+    "track",
+    "song",
+    "metadata",
+    "retrieve",
+    "tag"
   ],
   "repository": {
     "type": "git",
