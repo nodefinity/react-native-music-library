@@ -1,4 +1,4 @@
-package com.musiclibrary.albums
+package com.musiclibrary.tracks
 
 import android.content.Context
 import com.facebook.react.bridge.Promise

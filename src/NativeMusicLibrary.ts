@@ -227,13 +227,18 @@ export type AlbumResult = PaginatedResult<Album>;
 export type ArtistResult = PaginatedResult<Artist>;
 export type GenreResult = PaginatedResult<Genre>;
 
+export interface ArtistWithAlbumsAndTracks {
+  albums: Album[];
+  tracks: Track[];
+}
+
 export interface Spec extends TurboModule {
   getTracksAsync(options: InternalAssetsOptions): Promise<TrackResult>;
+  getTrackMetadataAsync(trackId: string): Promise<TrackMetadata>;
   getAlbumsAsync(options: InternalAssetsOptions): Promise<AlbumResult>;
+  getTracksByAlbumAsync(albumId: string): Promise<Track[]>;
   getArtistsAsync(options: InternalAssetsOptions): Promise<ArtistResult>;
   getGenresAsync(options: InternalAssetsOptions): Promise<GenreResult>;
-  getTrackMetadataAsync(trackId: string): Promise<TrackMetadata>;
-  getTracksByAlbumAsync(albumId: string): Promise<Track[]>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MusicLibrary');

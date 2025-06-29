@@ -9,11 +9,11 @@ import com.musiclibrary.utils.ReadableMapMapper.toAssetsOptions
 import com.musiclibrary.utils.ModuleUtils.throwUnlessPermissionsGranted
 import com.musiclibrary.utils.ModuleUtils.withModuleScope
 import com.musiclibrary.tracks.GetTracks
+import com.musiclibrary.tracks.GetTracksByAlbum
 import com.musiclibrary.albums.GetAlbums
 import com.musiclibrary.artists.GetArtists
 import com.musiclibrary.genres.GetGenres
 import com.musiclibrary.tracks.GetTrackMetadataQuery
-import com.musiclibrary.albums.GetTracksByAlbum
 
 @ReactModule(name = MusicLibraryModule.NAME)
 class MusicLibraryModule(reactContext: ReactApplicationContext) :

@@ -18,4 +18,4 @@ internal class GetArtists(
       promise.reject("QUERY_ERROR", "Failed to query artists: ${e.message}", e)
     }
   }
-} 
+}
