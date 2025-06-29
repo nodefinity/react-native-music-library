@@ -5,6 +5,7 @@ import type {
   ArtistResult,
   GenreResult,
   TrackMetadata,
+  Track,
 } from './NativeMusicLibrary';
 
 const showWebWarning = () => {
@@ -80,6 +81,12 @@ const MusicLibrary: Spec = {
       albumArtist: '',
       comment: '',
     };
+  },
+
+  async getTracksByAlbumAsync(albumId: string): Promise<Track[]> {
+    console.log('getTracksByAlbumAsync', albumId);
+    showWebWarning();
+    return [];
   },
 };
 

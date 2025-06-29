@@ -13,6 +13,7 @@ import com.musiclibrary.albums.GetAlbums
 import com.musiclibrary.artists.GetArtists
 import com.musiclibrary.genres.GetGenres
 import com.musiclibrary.tracks.GetTrackMetadataQuery
+import com.musiclibrary.albums.GetTracksByAlbum
 
 @ReactModule(name = MusicLibraryModule.NAME)
 class MusicLibraryModule(reactContext: ReactApplicationContext) :
@@ -62,6 +63,15 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
         GetTrackMetadataQuery(reactApplicationContext, trackId, promise)
+          .execute()
+      }
+    }
+  }
+
+  override fun getTracksByAlbumAsync(albumId: String, promise: Promise) {
+    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
+      withModuleScope(promise) {
+        GetTracksByAlbum(reactApplicationContext, albumId, promise)
           .execute()
       }
     }

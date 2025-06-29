@@ -17,8 +17,12 @@ import type {
 import { usePermission } from '../hooks/usePermission';
 import { pickDirectory } from '@react-native-documents/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation';
 
-export default function AlbumListScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'AlbumList'>;
+
+export default function AlbumListScreen({ navigation }: Props) {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(false);
   const { permissionStatus, requestPermissions } = usePermission();
@@ -96,12 +100,24 @@ export default function AlbumListScreen() {
     }
   };
 
+  const handleAlbumPress = async (album: Album) => {
+    try {
+      console.log('Loading album tracks for:', album.title);
+
+      // Navigate to album track list with only album info
+      navigation.navigate('AlbumTrackList', {
+        album: album,
+      });
+    } catch (error) {
+      console.error('Failed to load album tracks:', error);
+      Alert.alert('Error', 'Failed to load album tracks');
+    }
+  };
+
   const renderAlbum = ({ item }: { item: Album }) => (
     <TouchableOpacity
       style={styles.albumItem}
-      onPress={() => {
-        console.log('item', item);
-      }}
+      onPress={() => handleAlbumPress(item)}
     >
       <Image
         source={
@@ -120,7 +136,8 @@ export default function AlbumListScreen() {
           {item.artist}
         </Text>
         <Text style={styles.albumDetails}>
-          {item.trackCount} tracks, year: {item.year ? `${item.year}` : '-'}
+          {item.trackCount} tracks
+          {item.year && ` • ${item.year}`}
         </Text>
       </View>
     </TouchableOpacity>

@@ -1,13 +1,4 @@
-import {
-  Alert,
-  Button,
-  View,
-  FlatList,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import { Alert, Button, View, FlatList, Text, StyleSheet } from 'react-native';
 import { getTracksAsync } from '@nodefinity/react-native-music-library';
 import { useState } from 'react';
 import type {
@@ -21,6 +12,7 @@ import type { RootStackParamList } from '../navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePlayer } from '../contexts/PlayerContext';
 import { AudioPro, type AudioProTrack } from 'react-native-audio-pro';
+import TrackItem from '../components/TrackItem';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TrackList'>;
 
@@ -82,45 +74,6 @@ export default function TrackListScreen({ navigation }: Props) {
     return allTracks;
   };
 
-  const formatDuration = (totalSeconds: number) => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = Math.floor(totalSeconds % 60);
-    return `${minutes}:${seconds.toString()}`;
-  };
-
-  const renderItem = ({ item }: { item: Track }) => (
-    <TouchableOpacity
-      style={styles.trackItem}
-      onPress={() => {
-        setPlaylist(tracks);
-        AudioPro.play(item as unknown as AudioProTrack);
-        console.log('item', item);
-        navigation.navigate('Player');
-      }}
-    >
-      <Image
-        source={
-          item.artwork
-            ? {
-                uri: item.artwork,
-              }
-            : require('../assets/default_artwork.png')
-        }
-        style={styles.cover}
-        defaultSource={require('../assets/default_artwork.png')}
-      />
-      <View style={styles.trackInfo}>
-        <Text style={styles.trackTitle} numberOfLines={1}>
-          {item.title}
-        </Text>
-        <Text style={styles.trackArtist} numberOfLines={1}>
-          {item.artist} - {item.album}
-        </Text>
-      </View>
-      <Text style={styles.duration}>{formatDuration(item.duration)}</Text>
-    </TouchableOpacity>
-  );
-
   const getTracksFromPickedDirectory = async () => {
     try {
       const { uri } = await pickDirectory({
@@ -141,6 +94,17 @@ export default function TrackListScreen({ navigation }: Props) {
       setLoading(false);
     }
   };
+
+  const handleTrackPress = (track: Track) => {
+    setPlaylist(tracks);
+    AudioPro.play(track as unknown as AudioProTrack);
+    console.log('Playing track:', track.title);
+    navigation.navigate('Player');
+  };
+
+  const renderItem = ({ item }: { item: Track }) => (
+    <TrackItem track={item} onPress={handleTrackPress} />
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -190,36 +154,5 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     marginTop: 20,
-  },
-  trackItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  cover: {
-    width: 50,
-    height: 50,
-    borderRadius: 4,
-    marginRight: 12,
-  },
-  trackInfo: {
-    flex: 1,
-    marginRight: 8,
-  },
-  trackTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  trackArtist: {
-    fontSize: 14,
-    color: '#666',
-  },
-  duration: {
-    fontSize: 14,
-    color: '#666',
-    marginLeft: 8,
   },
 });

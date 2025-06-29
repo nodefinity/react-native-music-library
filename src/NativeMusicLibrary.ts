@@ -233,6 +233,7 @@ export interface Spec extends TurboModule {
   getArtistsAsync(options: InternalAssetsOptions): Promise<ArtistResult>;
   getGenresAsync(options: InternalAssetsOptions): Promise<GenreResult>;
   getTrackMetadataAsync(trackId: string): Promise<TrackMetadata>;
+  getTracksByAlbumAsync(albumId: string): Promise<Track[]>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MusicLibrary');
