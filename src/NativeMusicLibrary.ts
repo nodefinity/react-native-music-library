@@ -11,7 +11,8 @@ export type SortByKey =
   | 'duration'
   | 'createdAt'
   | 'modifiedAt'
-  | 'trackCount';
+  | 'trackCount'
+  | 'year';
 export type SortByValue = [SortByKey, boolean] | SortByKey;
 
 export type InternalSortByValue = `${SortByKey} ${'ASC' | 'DESC'}`;
@@ -24,6 +25,7 @@ export const SortByObject = {
   createdAt: 'createdAt',
   modifiedAt: 'modifiedAt',
   trackCount: 'trackCount',
+  year: 'year',
 };
 
 /**
@@ -174,12 +176,6 @@ export interface Album {
    * @default 0
    */
   trackCount: number;
-
-  /**
-   * Total duration in seconds
-   * @default 0
-   */
-  duration: number;
 
   /**
    * Release year (optional)

@@ -1,4 +1,4 @@
-package com.musiclibrary.tracks
+package com.musiclibrary.albums
 
 import android.content.ContentResolver
 import android.provider.MediaStore
@@ -7,21 +7,17 @@ import android.provider.DocumentsContract
 import com.musiclibrary.models.*
 import androidx.core.net.toUri
 
-object GetTracksQuery {
-  fun getTracks(
+object GetAlbumsQuery {
+  fun getAlbums(
     contentResolver: ContentResolver,
     options: AssetsOptions,
-  ): PaginatedResult<Track> {
+  ): PaginatedResult<Album> {
     val projection = arrayOf(
-      MediaStore.Audio.Media._ID,
-      MediaStore.Audio.Media.TITLE,
-      MediaStore.Audio.Media.ARTIST,
-      MediaStore.Audio.Media.ALBUM,
-      MediaStore.Audio.Media.DURATION,
-      MediaStore.Audio.Media.DATA,
-      MediaStore.Audio.Media.DATE_ADDED,
-      MediaStore.Audio.Media.SIZE,
-      MediaStore.Audio.Media.ALBUM_ID
+      MediaStore.Audio.Albums._ID,
+      MediaStore.Audio.Albums.ALBUM,
+      MediaStore.Audio.Albums.ARTIST,
+      MediaStore.Audio.Albums.NUMBER_OF_SONGS,
+      MediaStore.Audio.Albums.FIRST_YEAR,
     )
 
     val selection = buildSelection(options)
@@ -29,27 +25,24 @@ object GetTracksQuery {
     val sortOrder = buildSortOrder(options.sortBy)
 
     val cursor = contentResolver.query(
-      MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+      MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
       projection,
       selection,
       selectionArgs,
       sortOrder
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
 
-    val tracks = mutableListOf<Track>()
+    val albums = mutableListOf<Album>()
     var hasNextPage: Boolean
     var endCursor: String? = null
     val totalCount = cursor.count
 
     cursor.use { c ->
-      val idColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-      val titleColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-      val artistColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-      val albumColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-      val durationColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-      val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-      val dateAddedColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
-      val sizeColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+      val idColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
+      val albumColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM)
+      val artistColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
+      val trackCountColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS)
+      val firstYearColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.FIRST_YEAR)
 
       // Jump to the specified start position
       val foundAfter = if (options.after == null) {
@@ -76,36 +69,30 @@ object GetTracksQuery {
       while (foundAfter && count < maxItems) {
         try {
           val id = c.getLong(idColumn)
-          val data = c.getString(dataColumn) ?: ""
+          val albumTitle = c.getString(albumColumn) ?: ""
+          val artist = c.getString(artistColumn) ?: ""
+          val trackCount = c.getInt(trackCountColumn)
+          val firstYear = c.getInt(firstYearColumn)
 
-          // Skip invalid data
-          if (data.isEmpty()) {
+          // Skip invalid albums
+          if (albumTitle.isEmpty() || trackCount == 0) {
             continue
           }
 
-          val title = c.getString(titleColumn) ?: ""
-          val artist = c.getString(artistColumn)
-          val album = c.getString(albumColumn)
-          val duration = c.getLong(durationColumn) / 1000.0 // Convert to seconds
-          val dateAdded = c.getLong(dateAddedColumn)
-          val fileSize = c.getLong(sizeColumn)
-          val artworkUri: Uri = "content://media/external/audio/media/${id}/albumart".toUri()
+          // Get artwork URI
+          val artworkUri: Uri = "content://media/external/audio/albumart/${id}".toUri()
 
-          // Create a Track
-          val track = Track(
+          // Create an Album
+          val album = Album(
             id = id.toString(),
-            title = title,
+            title = albumTitle,
             artist = artist,
             artwork = artworkUri.toString(),
-            album = album,
-            duration = duration,
-            url = "file://$data",
-            createdAt = dateAdded * 1000, // Convert to milliseconds
-            modifiedAt = dateAdded * 1000, // Convert to milliseconds
-            fileSize = fileSize
+            trackCount = trackCount,
+            year = if (firstYear > 0) firstYear else null
           )
 
-          tracks.add(track)
+          albums.add(album)
           endCursor = id.toString()
           count++
         } catch (e: Exception) {
@@ -120,7 +107,7 @@ object GetTracksQuery {
     }
 
     return PaginatedResult(
-      items = tracks,
+      items = albums,
       hasNextPage = hasNextPage,
       endCursor = endCursor,
       totalCount = totalCount
@@ -130,15 +117,14 @@ object GetTracksQuery {
   private fun buildSelection(options: AssetsOptions): String {
     val conditions = mutableListOf<String>()
 
-    // Only query audio files
-    conditions.add("${MediaStore.Audio.Media.IS_MUSIC} = 1")
+    // Only query albums that have tracks
+    conditions.add("${MediaStore.Audio.Albums.NUMBER_OF_SONGS} > 0")
 
-    // Filter out damaged files
-    conditions.add("${MediaStore.Audio.Media.DURATION} > 0")
-
-    // Directory
+    // Directory filtering for albums is more complex since albums don't have direct path
+    // We'll need to filter based on tracks in the album
     if (!options.directory.isNullOrEmpty()) {
-      conditions.add("${MediaStore.Audio.Media.DATA} LIKE ?")
+      // Filter albums that have tracks in the specified directory
+      conditions.add("EXISTS (SELECT 1 FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI} WHERE ${MediaStore.Audio.Media.ALBUM_ID} = ${MediaStore.Audio.Albums._ID} AND ${MediaStore.Audio.Media.DATA} LIKE ?)")
     }
 
     return conditions.joinToString(" AND ")
@@ -178,7 +164,7 @@ object GetTracksQuery {
 
   private fun buildSortOrder(sortBy: List<String>): String {
     if (sortBy.isEmpty()) {
-      return "${MediaStore.Audio.Media.DATE_ADDED} ASC"
+      return "${MediaStore.Audio.Albums.ALBUM} ASC"
     }
 
     return sortBy.joinToString(", ") { sortOption ->
@@ -186,13 +172,11 @@ object GetTracksQuery {
       require(parts.size == 2) { "sortBy should be 'key order'" }
 
       val column = when (parts[0].lowercase()) {
-        "default" -> MediaStore.Audio.Media.TITLE
-        "artist" -> MediaStore.Audio.Media.ARTIST
-        "album" -> MediaStore.Audio.Media.ALBUM
-        "duration" -> MediaStore.Audio.Media.DURATION
-        "created_at" -> MediaStore.Audio.Media.DATE_ADDED
-        "modified_at" -> MediaStore.Audio.Media.DATE_MODIFIED
-        "track_count" -> MediaStore.Audio.Media.TRACK
+        "default" -> MediaStore.Audio.Albums.ALBUM
+        "artist" -> MediaStore.Audio.Albums.ARTIST
+        "album" -> MediaStore.Audio.Albums.ALBUM
+        "track_count" -> MediaStore.Audio.Albums.NUMBER_OF_SONGS
+        "year" -> MediaStore.Audio.Albums.FIRST_YEAR
         else -> throw IllegalArgumentException("Unsupported SortKey: ${parts[0]}")
       }
 

@@ -3,10 +3,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../pages/HomeScreen';
 import TrackListScreen from '../pages/TrackListScreen';
 import PlayerScreen from '../pages/PlayerScreen';
+import AlbumListScreen from '../pages/AlbumListScreen';
 
 export type RootStackParamList = {
   Home: undefined;
   TrackList: undefined;
+  AlbumList: undefined;
   Player: undefined;
 };
 
@@ -26,6 +28,14 @@ export default function Navigation() {
           component={TrackListScreen}
           options={{
             title: 'Track List',
+            headerBackTitle: 'Back',
+          }}
+        />
+        <Stack.Screen
+          name="AlbumList"
+          component={AlbumListScreen}
+          options={{
+            title: 'Album List',
             headerBackTitle: 'Back',
           }}
         />

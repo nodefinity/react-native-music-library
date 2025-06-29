@@ -30,7 +30,6 @@ object DataConverter {
     map.putString("artist", album.artist)
     album.artwork?.let { map.putString("artwork", it) }
     map.putInt("trackCount", album.trackCount)
-    map.putDouble("duration", album.duration)
     album.year?.let { map.putInt("year", it) }
 
     return map

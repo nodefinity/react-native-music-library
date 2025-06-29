@@ -27,6 +27,16 @@ export default function HomeScreen({ navigation }: Props) {
               Browse and manage your music
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('AlbumList')}
+          >
+            <Text style={styles.buttonText}>Album List</Text>
+            <Text style={styles.buttonSubtext}>
+              Browse and manage your albums
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

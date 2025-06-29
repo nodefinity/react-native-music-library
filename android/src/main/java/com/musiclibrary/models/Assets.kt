@@ -44,7 +44,6 @@ data class Album(
   val artist: String,
   val artwork: String? = null,
   val trackCount: Int,
-  val duration: Double,
   val year: Int? = null,
 )
 
