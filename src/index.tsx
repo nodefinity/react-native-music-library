@@ -4,7 +4,6 @@ import type {
   TrackResult,
   AlbumResult,
   ArtistResult,
-  GenreResult,
   TrackMetadata,
   Track,
 } from './NativeMusicLibrary';
@@ -43,17 +42,6 @@ export function getArtistsAsync(
   assetsOptions: AssetsOptions = {}
 ): Promise<ArtistResult> {
   return MusicLibrary.getArtistsAsync(getOptions(assetsOptions));
-}
-
-/**
- * Get all genres from the music library.
- * @param options - The options for the query.
- * @returns A promise that resolves to an array of genre info.
- */
-export function getGenresAsync(
-  assetsOptions: AssetsOptions = {}
-): Promise<GenreResult> {
-  return MusicLibrary.getGenresAsync(getOptions(assetsOptions));
 }
 
 /**

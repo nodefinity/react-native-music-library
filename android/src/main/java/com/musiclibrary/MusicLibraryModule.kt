@@ -12,7 +12,6 @@ import com.musiclibrary.tracks.GetTracks
 import com.musiclibrary.tracks.GetTracksByAlbum
 import com.musiclibrary.albums.GetAlbums
 import com.musiclibrary.artists.GetArtists
-import com.musiclibrary.genres.GetGenres
 import com.musiclibrary.tracks.GetTrackMetadataQuery
 
 @ReactModule(name = MusicLibraryModule.NAME)
@@ -32,6 +31,24 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     }
   }
 
+    override fun getTrackMetadataAsync(trackId: String, promise: Promise) {
+    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
+      withModuleScope(promise) {
+        GetTrackMetadataQuery(reactApplicationContext, trackId, promise)
+          .execute()
+      }
+    }
+  }
+
+  override fun getTracksByAlbumAsync(albumId: String, promise: Promise) {
+    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
+      withModuleScope(promise) {
+        GetTracksByAlbum(reactApplicationContext, albumId, promise)
+          .execute()
+      }
+    }
+  }
+
   override fun getAlbumsAsync(options: ReadableMap, promise: Promise) {
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
@@ -45,33 +62,6 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
         GetArtists(reactApplicationContext, options.toAssetsOptions(), promise)
-          .execute()
-      }
-    }
-  }
-
-  override fun getGenresAsync(options: ReadableMap, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
-        GetGenres(reactApplicationContext, options.toAssetsOptions(), promise)
-          .execute()
-      }
-    }
-  }
-
-  override fun getTrackMetadataAsync(trackId: String, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
-        GetTrackMetadataQuery(reactApplicationContext, trackId, promise)
-          .execute()
-      }
-    }
-  }
-
-  override fun getTracksByAlbumAsync(albumId: String, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
-        GetTracksByAlbum(reactApplicationContext, albumId, promise)
           .execute()
       }
     }

@@ -12,6 +12,7 @@ export type SortByKey =
   | 'createdAt'
   | 'modifiedAt'
   | 'trackCount'
+  | 'albumCount'
   | 'year';
 export type SortByValue = [SortByKey, boolean] | SortByKey;
 
@@ -25,6 +26,7 @@ export const SortByObject = {
   createdAt: 'createdAt',
   modifiedAt: 'modifiedAt',
   trackCount: 'trackCount',
+  albumCount: 'albumCount',
   year: 'year',
 };
 
@@ -206,26 +208,9 @@ export interface Artist {
   trackCount: number;
 }
 
-export interface Genre {
-  id: string;
-
-  /**
-   * Genre name
-   * @default ''
-   */
-  title: string;
-
-  /**
-   * Number of tracks in this genre
-   * @default 0
-   */
-  trackCount: number;
-}
-
 export type TrackResult = PaginatedResult<Track>;
 export type AlbumResult = PaginatedResult<Album>;
 export type ArtistResult = PaginatedResult<Artist>;
-export type GenreResult = PaginatedResult<Genre>;
 
 export interface ArtistWithAlbumsAndTracks {
   albums: Album[];
@@ -235,10 +220,9 @@ export interface ArtistWithAlbumsAndTracks {
 export interface Spec extends TurboModule {
   getTracksAsync(options: InternalAssetsOptions): Promise<TrackResult>;
   getTrackMetadataAsync(trackId: string): Promise<TrackMetadata>;
-  getAlbumsAsync(options: InternalAssetsOptions): Promise<AlbumResult>;
   getTracksByAlbumAsync(albumId: string): Promise<Track[]>;
+  getAlbumsAsync(options: InternalAssetsOptions): Promise<AlbumResult>;
   getArtistsAsync(options: InternalAssetsOptions): Promise<ArtistResult>;
-  getGenresAsync(options: InternalAssetsOptions): Promise<GenreResult>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MusicLibrary');

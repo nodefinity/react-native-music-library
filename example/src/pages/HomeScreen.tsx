@@ -15,7 +15,10 @@ export default function HomeScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>React Native Music Library</Text>
-        <Text style={styles.subtitle}>Get your music library</Text>
+        <Text style={styles.subtitle}>
+          A powerful React Native library for accessing local music files with
+          full metadata support.
+        </Text>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -24,7 +27,7 @@ export default function HomeScreen({ navigation }: Props) {
           >
             <Text style={styles.buttonText}>Track List</Text>
             <Text style={styles.buttonSubtext}>
-              Browse and manage your music
+              Browse and manage your tracks
             </Text>
           </TouchableOpacity>
 
@@ -35,6 +38,16 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={styles.buttonText}>Album List</Text>
             <Text style={styles.buttonSubtext}>
               Browse and manage your albums
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('ArtistList')}
+          >
+            <Text style={styles.buttonText}>Artist List</Text>
+            <Text style={styles.buttonSubtext}>
+              Browse and manage your artists
             </Text>
           </TouchableOpacity>
         </View>

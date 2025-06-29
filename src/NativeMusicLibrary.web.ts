@@ -3,7 +3,6 @@ import type {
   TrackResult,
   AlbumResult,
   ArtistResult,
-  GenreResult,
   TrackMetadata,
   Track,
 } from './NativeMusicLibrary';
@@ -40,16 +39,6 @@ const MusicLibrary: Spec = {
   },
 
   async getArtistsAsync(): Promise<ArtistResult> {
-    showWebWarning();
-    return {
-      items: [],
-      hasNextPage: false,
-      endCursor: undefined,
-      totalCount: 0,
-    };
-  },
-
-  async getGenresAsync(): Promise<GenreResult> {
     showWebWarning();
     return {
       items: [],
