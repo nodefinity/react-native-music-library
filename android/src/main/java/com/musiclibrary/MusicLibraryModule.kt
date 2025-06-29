@@ -10,6 +10,7 @@ import com.musiclibrary.utils.ModuleUtils.throwUnlessPermissionsGranted
 import com.musiclibrary.utils.ModuleUtils.withModuleScope
 import com.musiclibrary.tracks.GetTracks
 import com.musiclibrary.tracks.GetTracksByAlbum
+import com.musiclibrary.tracks.GetTracksByArtist
 import com.musiclibrary.albums.GetAlbums
 import com.musiclibrary.albums.GetAlbumsByArtist
 import com.musiclibrary.artists.GetArtists
@@ -45,6 +46,15 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
     throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
       withModuleScope(promise) {
         GetTracksByAlbum(reactApplicationContext, albumId, promise)
+          .execute()
+      }
+    }
+  }
+
+  override fun getTracksByArtistAsync(artistId: String, options: ReadableMap, promise: Promise) {
+    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
+      withModuleScope(promise) {
+        GetTracksByArtist(reactApplicationContext, artistId, options, promise)
           .execute()
       }
     }

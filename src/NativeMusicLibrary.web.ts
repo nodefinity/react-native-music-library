@@ -59,6 +59,16 @@ const MusicLibrary: Spec = {
     return [];
   },
 
+  async getTracksByArtistAsync(): Promise<TrackResult> {
+    showWebWarning();
+    return {
+      items: [],
+      hasNextPage: false,
+      endCursor: undefined,
+      totalCount: 0,
+    };
+  },
+
   async getAlbumsAsync(): Promise<AlbumResult> {
     showWebWarning();
     return {

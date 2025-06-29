@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,40 +9,79 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { getAlbumsByArtistAsync } from '@nodefinity/react-native-music-library';
-import type { Album } from '@nodefinity/react-native-music-library';
+import {
+  getAlbumsByArtistAsync,
+  getTracksByArtistAsync,
+} from '@nodefinity/react-native-music-library';
+import type { Album, Track } from '@nodefinity/react-native-music-library';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
+import TrackItem from '../components/TrackItem';
+import { usePlayer } from '../contexts/PlayerContext';
 
 type Props = NativeStackScreenProps<
   RootStackParamList,
   'ArtistAlbumAndTrackList'
 >;
 
+type SectionData = {
+  type: 'albums' | 'tracks';
+  title: string;
+  data: (Album | Track)[];
+};
+
 export default function ArtistAlbumAndTrackListScreen({
   route,
   navigation,
 }: Props) {
   const { artist } = route.params;
-  const [albums, setAlbums] = useState<Album[]>([]);
+  const [sections, setSections] = useState<SectionData[]>([]);
   const [loading, setLoading] = useState(false);
+  const { setPlaylist } = usePlayer();
+
+  const loadArtistData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Load albums and tracks in parallel
+      const [albums, tracksResult] = await Promise.all([
+        getAlbumsByArtistAsync(artist.id),
+        getTracksByArtistAsync(artist.id, { first: 50 }), // Load first 50 tracks
+      ]);
+
+      const newSections: SectionData[] = [];
+
+      // Add albums section if there are albums
+      if (albums.length > 0) {
+        newSections.push({
+          type: 'albums',
+          title: `Albums (${albums.length})`,
+          data: albums,
+        });
+      }
+
+      // Add tracks section if there are tracks
+      if (tracksResult.items.length > 0) {
+        newSections.push({
+          type: 'tracks',
+          title: `Tracks (${tracksResult.totalCount || tracksResult.items.length})`,
+          data: tracksResult.items,
+        });
+      }
+
+      setSections(newSections);
+    } catch (error) {
+      console.error('Failed to load artist data:', error);
+      Alert.alert('Error', 'Failed to load artist data');
+    } finally {
+      setLoading(false);
+    }
+  }, [artist.id]);
 
   useEffect(() => {
-    // Load artist albums when component mounts
-    setLoading(true);
-    getAlbumsByArtistAsync(artist.id)
-      .then((artistAlbums) => {
-        setAlbums(artistAlbums);
-      })
-      .catch((error) => {
-        console.error('Failed to load artist albums:', error);
-        Alert.alert('Error', 'Failed to load artist albums');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [artist.id]);
+    loadArtistData();
+  }, [loadArtistData]);
 
   const handleAlbumPress = async (album: Album) => {
     try {
@@ -55,6 +94,16 @@ export default function ArtistAlbumAndTrackListScreen({
     } catch (error) {
       console.error('Failed to load album tracks:', error);
       Alert.alert('Error', 'Failed to load album tracks');
+    }
+  };
+
+  const handleTrackPress = (track: Track) => {
+    try {
+      console.log('Playing track:', track.title);
+      setPlaylist([track]);
+    } catch (error) {
+      console.error('Failed to play track:', error);
+      Alert.alert('Error', 'Failed to play track');
     }
   };
 
@@ -84,12 +133,36 @@ export default function ArtistAlbumAndTrackListScreen({
     </TouchableOpacity>
   );
 
+  const renderTrack = ({ item }: { item: Track }) => (
+    <TrackItem track={item} onPress={() => handleTrackPress(item)} />
+  );
+
+  const renderSectionHeader = ({ section }: { section: SectionData }) => (
+    <View style={styles.sectionHeader}>
+      <Text style={styles.sectionTitle}>{section.title}</Text>
+    </View>
+  );
+
+  const renderItem = ({
+    item,
+    section,
+  }: {
+    item: Album | Track;
+    section: SectionData;
+  }) => {
+    if (section.type === 'albums') {
+      return renderAlbum({ item: item as Album });
+    } else {
+      return renderTrack({ item: item as Track });
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading albums...</Text>
+          <Text style={styles.loadingText}>Loading artist data...</Text>
         </View>
       </SafeAreaView>
     );
@@ -99,28 +172,35 @@ export default function ArtistAlbumAndTrackListScreen({
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.artistName}>{artist.title}</Text>
-        <Text style={styles.albumCount}>
-          {albums.length} album{albums.length !== 1 ? 's' : ''}
+        <Text style={styles.artistStats}>
+          {artist.albumCount} albums • {artist.trackCount} tracks
         </Text>
       </View>
 
-      <Text style={styles.title}>Albums</Text>
-
-      {albums.length > 0 ? (
+      {sections.length > 0 ? (
         <FlatList
-          data={albums}
-          renderItem={renderAlbum}
-          keyExtractor={(item) => item.id}
+          data={sections}
+          renderItem={({ item: section }) => (
+            <View>
+              {renderSectionHeader({ section })}
+              <FlatList
+                data={section.data}
+                renderItem={({ item }) => renderItem({ item, section })}
+                keyExtractor={(item) => item.id}
+                scrollEnabled={false}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
+          )}
+          keyExtractor={(item) => item.type}
           style={styles.list}
           showsVerticalScrollIndicator={false}
         />
       ) : (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No albums found</Text>
+          <Text style={styles.emptyText}>No data found</Text>
         </View>
       )}
-
-      <Text style={styles.title}>Tracks</Text>
     </SafeAreaView>
   );
 }
@@ -128,15 +208,11 @@ export default function ArtistAlbumAndTrackListScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    paddingHorizontal: 20,
+    backgroundColor: '#f5f5f5',
   },
   header: {
     padding: 20,
+    backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
@@ -146,7 +222,7 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 4,
   },
-  albumCount: {
+  artistStats: {
     fontSize: 16,
     color: '#666',
   },
@@ -162,15 +238,33 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+  },
+  sectionHeader: {
     paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: '#f5f5f5',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
   },
   albumItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    padding: 16,
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    marginVertical: 4,
     borderRadius: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   albumArtwork: {
     width: 60,

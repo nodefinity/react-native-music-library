@@ -221,6 +221,10 @@ export interface Spec extends TurboModule {
   getTracksAsync(options: InternalAssetsOptions): Promise<TrackResult>;
   getTrackMetadataAsync(trackId: string): Promise<TrackMetadata>;
   getTracksByAlbumAsync(albumId: string): Promise<Track[]>;
+  getTracksByArtistAsync(
+    artistId: string,
+    options: InternalAssetsOptions
+  ): Promise<TrackResult>;
   getAlbumsAsync(options: InternalAssetsOptions): Promise<AlbumResult>;
   getAlbumsByArtistAsync(artistId: string): Promise<Album[]>;
   getArtistsAsync(options: InternalAssetsOptions): Promise<ArtistResult>;

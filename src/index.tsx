@@ -42,6 +42,22 @@ export function getTracksByAlbumAsync(albumId: string): Promise<Track[]> {
 }
 
 /**
+ * Get all tracks from a specific artist with pagination.
+ * @param artistId - The ID of the artist.
+ * @param assetsOptions - The options for the query (pagination, etc.).
+ * @returns A promise that resolves to a paginated result of tracks by the artist.
+ */
+export function getTracksByArtistAsync(
+  artistId: string,
+  assetsOptions: AssetsOptions = {}
+): Promise<TrackResult> {
+  return MusicLibrary.getTracksByArtistAsync(
+    artistId,
+    getOptions(assetsOptions)
+  );
+}
+
+/**
  * Get all albums from the music library.
  * @param options - The options for the query.
  * @returns A promise that resolves to an array of album info.
