@@ -1,10 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import IndexScreen from '../pages/IndexScreen';
+import HomeScreen from '../pages/HomeScreen';
+import TrackListScreen from '../pages/TrackListScreen';
 import PlayerScreen from '../pages/PlayerScreen';
 
 export type RootStackParamList = {
-  Index: undefined;
+  Home: undefined;
+  TrackList: undefined;
   Player: undefined;
 };
 
@@ -13,18 +15,26 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function Navigation() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="Home">
         <Stack.Screen
-          name="Index"
-          component={IndexScreen}
+          name="Home"
+          component={HomeScreen}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TrackList"
+          component={TrackListScreen}
+          options={{
+            title: 'Track List',
+            headerBackTitle: 'Back',
+          }}
         />
         <Stack.Screen
           name="Player"
           component={PlayerScreen}
           options={{
-            title: '正在播放',
-            headerBackTitle: '返回',
+            title: 'Player',
+            headerBackTitle: 'Back',
           }}
         />
       </Stack.Navigator>

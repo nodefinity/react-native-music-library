@@ -22,9 +22,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePlayer } from '../contexts/PlayerContext';
 import { AudioPro, type AudioProTrack } from 'react-native-audio-pro';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Index'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'TrackList'>;
 
-export default function IndexScreen({ navigation }: Props) {
+export default function TrackListScreen({ navigation }: Props) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(false);
   const { permissionStatus, requestPermissions } = usePermission();
