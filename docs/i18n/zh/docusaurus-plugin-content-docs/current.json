@@ -1,0 +1,22 @@
+{
+  "version.label": {
+    "message": "最新",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.doc.Introduction": {
+    "message": "介绍",
+    "description": "The label for the doc item Introduction in sidebar tutorialSidebar, linking to the doc intro"
+  },
+  "sidebar.tutorialSidebar.doc.Getting Started": {
+    "message": "快速开始",
+    "description": "The label for the doc item Getting Started in sidebar tutorialSidebar, linking to the doc getting-started"
+  },
+  "sidebar.tutorialSidebar.doc.API Reference": {
+    "message": "API 参考",
+    "description": "The label for the doc item API Reference in sidebar tutorialSidebar, linking to the doc api"
+  },
+  "sidebar.tutorialSidebar.doc.Examples": {
+    "message": "示例",
+    "description": "The label for the doc item Examples in sidebar tutorialSidebar, linking to the doc examples"
+  }
+}

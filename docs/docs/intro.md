@@ -1,11 +1,10 @@
-# react-native-music-library
+---
+sidebar_position: 1
+---
 
-[中文版](./README_ZH.md) | [📖 Documentation](./docs/)
+# Introduction
 
-A powerful React Native library for accessing local music files with full metadata support. Built with React Native's New Architecture (TurboModules) for optimal performance.
-
-[![npm version](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library.svg)](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+React Native Music Library is a powerful library for accessing local music files with full metadata support. Built with React Native's New Architecture (TurboModules) for optimal performance.
 
 ## ✨ Features
 
@@ -56,17 +55,8 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
 
-## 📖 Documentation
+## 📖 What's Next?
 
-- [📚 Full API Documentation](./docs/)
-- [🎯 Getting Started](./docs/getting-started)
-- [🔧 API Reference](./docs/api)
-- [💡 Examples](./docs/examples)
-
-## 🤝 Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
+- [Getting Started](./getting-started) - Learn how to set up and use the library
+- [API Reference](./api) - Complete API documentation
+- [Examples](./examples) - Practical usage examples
