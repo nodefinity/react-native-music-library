@@ -10,7 +10,7 @@ import androidx.core.net.toUri
 object GetTracksQuery {
   fun getTracks(
     contentResolver: ContentResolver,
-    options: AssetsOptions,
+    options: TrackOptions,
   ): PaginatedResult<Track> {
     val projection = arrayOf(
       MediaStore.Audio.Media._ID,
@@ -127,7 +127,7 @@ object GetTracksQuery {
     )
   }
 
-  private fun buildSelection(options: AssetsOptions): String {
+  private fun buildSelection(options: TrackOptions): String {
     val conditions = mutableListOf<String>()
 
     // Only query audio files
@@ -144,7 +144,7 @@ object GetTracksQuery {
     return conditions.joinToString(" AND ")
   }
 
-  private fun buildSelectionArgs(options: AssetsOptions): Array<String>? {
+  private fun buildSelectionArgs(options: TrackOptions): Array<String>? {
     val args = mutableListOf<String>()
 
     if (!options.directory.isNullOrEmpty()) {
@@ -178,7 +178,7 @@ object GetTracksQuery {
 
   private fun buildSortOrder(sortBy: List<String>): String {
     if (sortBy.isEmpty()) {
-      return "${MediaStore.Audio.Media.DATE_ADDED} ASC"
+      return "${MediaStore.Audio.Media.TITLE} ASC"
     }
 
     return sortBy.joinToString(", ") { sortOption ->
@@ -187,13 +187,14 @@ object GetTracksQuery {
 
       val column = when (parts[0].lowercase()) {
         "default" -> MediaStore.Audio.Media.TITLE
+        "title" -> MediaStore.Audio.Media.TITLE
         "artist" -> MediaStore.Audio.Media.ARTIST
         "album" -> MediaStore.Audio.Media.ALBUM
         "duration" -> MediaStore.Audio.Media.DURATION
-        "created_at" -> MediaStore.Audio.Media.DATE_ADDED
-        "modified_at" -> MediaStore.Audio.Media.DATE_MODIFIED
-        "track_count" -> MediaStore.Audio.Media.TRACK
-        else -> throw IllegalArgumentException("Unsupported SortKey: ${parts[0]}")
+        "createdat" -> MediaStore.Audio.Media.DATE_ADDED
+        "modifiedat" -> MediaStore.Audio.Media.DATE_MODIFIED
+        "filesize" -> MediaStore.Audio.Media.SIZE
+        else -> throw IllegalArgumentException("Unsupported SortKey for tracks: ${parts[0]}")
       }
 
       val order = parts[1].uppercase()

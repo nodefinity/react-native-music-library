@@ -1,6 +1,8 @@
 import MusicLibrary from './NativeMusicLibrary';
 import type {
-  AssetsOptions,
+  TrackOptions,
+  AlbumOptions,
+  ArtistOptions,
   TrackResult,
   AlbumResult,
   ArtistResult,
@@ -8,19 +10,19 @@ import type {
   Track,
   Album,
 } from './NativeMusicLibrary';
-import { getOptions } from './utils';
+import { getTrackOptions, getAlbumOptions, getArtistOptions } from './utils';
 
 export * from './NativeMusicLibrary';
 
 /**
  * Get all tracks from the music library.
- * @param assetsOptions - The options for the query.
+ * @param trackOptions - The options for the query.
  * @returns A promise that resolves to an array of track info.
  */
 export async function getTracksAsync(
-  assetsOptions: AssetsOptions = {}
+  trackOptions: TrackOptions = {}
 ): Promise<TrackResult> {
-  return MusicLibrary.getTracksAsync(getOptions(assetsOptions));
+  return MusicLibrary.getTracksAsync(getTrackOptions(trackOptions));
 }
 
 /**
@@ -44,28 +46,28 @@ export function getTracksByAlbumAsync(albumId: string): Promise<Track[]> {
 /**
  * Get all tracks from a specific artist with pagination.
  * @param artistId - The ID of the artist.
- * @param assetsOptions - The options for the query (pagination, etc.).
+ * @param trackOptions - The options for the query (pagination, etc.).
  * @returns A promise that resolves to a paginated result of tracks by the artist.
  */
 export function getTracksByArtistAsync(
   artistId: string,
-  assetsOptions: AssetsOptions = {}
+  trackOptions: TrackOptions = {}
 ): Promise<TrackResult> {
   return MusicLibrary.getTracksByArtistAsync(
     artistId,
-    getOptions(assetsOptions)
+    getTrackOptions(trackOptions)
   );
 }
 
 /**
  * Get all albums from the music library.
- * @param options - The options for the query.
+ * @param albumOptions - The options for the query.
  * @returns A promise that resolves to an array of album info.
  */
 export function getAlbumsAsync(
-  assetsOptions: AssetsOptions = {}
+  albumOptions: AlbumOptions = {}
 ): Promise<AlbumResult> {
-  return MusicLibrary.getAlbumsAsync(getOptions(assetsOptions));
+  return MusicLibrary.getAlbumsAsync(getAlbumOptions(albumOptions));
 }
 
 /**
@@ -79,13 +81,13 @@ export function getAlbumsByArtistAsync(artistId: string): Promise<Album[]> {
 
 /**
  * Get all artists from the music library.
- * @param options - The options for the query.
+ * @param artistOptions - The options for the query.
  * @returns A promise that resolves to an array of artist info.
  */
 export function getArtistsAsync(
-  assetsOptions: AssetsOptions = {}
+  artistOptions: ArtistOptions = {}
 ): Promise<ArtistResult> {
-  return MusicLibrary.getArtistsAsync(getOptions(assetsOptions));
+  return MusicLibrary.getArtistsAsync(getArtistOptions(artistOptions));
 }
 
 export default MusicLibrary;

@@ -8,7 +8,7 @@ object GetTracksByArtistQuery {
   fun getTracksByArtist(
     contentResolver: ContentResolver,
     artistId: String,
-    options: AssetsOptions,
+    options: TrackOptions,
   ): PaginatedResult<Track> {
     val projection = arrayOf(
       MediaStore.Audio.Media._ID,
@@ -24,7 +24,7 @@ object GetTracksByArtistQuery {
 
     val selection = "${MediaStore.Audio.Media.ARTIST_ID} = ? AND ${MediaStore.Audio.Media.IS_MUSIC} = 1 AND ${MediaStore.Audio.Media.DURATION} > 0"
     val selectionArgs = arrayOf(artistId)
-    val sortOrder = "${MediaStore.Audio.Media.ALBUM} ASC, ${MediaStore.Audio.Media.TRACK} ASC, ${MediaStore.Audio.Media.TITLE} ASC"
+    val sortOrder = buildSortOrder(options.sortBy)
 
     val cursor = contentResolver.query(
       MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -124,4 +124,32 @@ object GetTracksByArtistQuery {
       totalCount = totalCount
     )
   }
-} 
+
+  private fun buildSortOrder(sortBy: List<String>): String {
+    if (sortBy.isEmpty()) {
+      return "${MediaStore.Audio.Media.TITLE} ASC"
+    }
+
+    return sortBy.joinToString(", ") { sortOption ->
+      val parts = sortOption.split(" ")
+      require(parts.size == 2) { "sortBy should be 'key order'" }
+
+      val column = when (parts[0].lowercase()) {
+        "default" -> MediaStore.Audio.Media.TITLE
+        "title" -> MediaStore.Audio.Media.TITLE
+        "artist" -> MediaStore.Audio.Media.ARTIST
+        "album" -> MediaStore.Audio.Media.ALBUM
+        "duration" -> MediaStore.Audio.Media.DURATION
+        "createdat" -> MediaStore.Audio.Media.DATE_ADDED
+        "modifiedat" -> MediaStore.Audio.Media.DATE_MODIFIED
+        "filesize" -> MediaStore.Audio.Media.SIZE
+        else -> throw IllegalArgumentException("Unsupported SortKey for tracks: ${parts[0]}")
+      }
+
+      val order = parts[1].uppercase()
+      require(order == "ASC" || order == "DESC") { "Sort By must be ASC or DESC" }
+
+      "$column $order"
+    }
+  }
+}

@@ -1,12 +1,19 @@
 import { Platform } from 'react-native';
 import {
-  SortByObject,
-  type AssetsOptions,
-  type InternalAssetsOptions,
+  TrackSortByObject,
+  AlbumSortByObject,
+  ArtistSortByObject,
+  type TrackOptions,
+  type AlbumOptions,
+  type ArtistOptions,
+  type InternalTrackOptions,
+  type InternalAlbumOptions,
+  type InternalArtistOptions,
   type InternalSortByValue,
-  type SortByKey,
   type SortByValue,
 } from './NativeMusicLibrary';
+
+type SortByType = 'track' | 'album' | 'artist';
 
 export function arrayize<T>(item: T | T[]): T[] {
   if (Array.isArray(item)) {
@@ -15,9 +22,12 @@ export function arrayize<T>(item: T | T[]): T[] {
   return item ? [item] : [];
 }
 
-export function checkSortBy(sortBy: unknown): asserts sortBy is SortByValue {
+export function checkSortBy(
+  sortBy: unknown,
+  type: SortByType
+): asserts sortBy is SortByValue<any> {
   if (Array.isArray(sortBy)) {
-    checkSortByKey(sortBy[0]);
+    checkSortByKey(sortBy[0], type);
 
     if (typeof sortBy[1] !== 'boolean') {
       throw new Error(
@@ -25,20 +35,28 @@ export function checkSortBy(sortBy: unknown): asserts sortBy is SortByValue {
       );
     }
   } else {
-    checkSortByKey(sortBy);
+    checkSortByKey(sortBy, type);
   }
 }
 
-export function checkSortByKey(sortBy: any): void {
-  if (Object.values(SortByObject).indexOf(sortBy) === -1) {
+export function checkSortByKey(sortBy: any, type: SortByType): void {
+  const validKeys = Object.values(
+    type === 'track'
+      ? TrackSortByObject
+      : type === 'album'
+        ? AlbumSortByObject
+        : ArtistSortByObject
+  );
+  if (validKeys.indexOf(sortBy) === -1) {
     throw new Error(`Invalid sortBy key: ${sortBy}`);
   }
 }
 
 export function sortByOptionToString(
-  sortBy: SortByValue | undefined
+  sortBy: SortByValue<any> | undefined,
+  type: SortByType
 ): InternalSortByValue {
-  checkSortBy(sortBy);
+  checkSortBy(sortBy, type);
   if (Array.isArray(sortBy)) {
     return `${sortBy[0]} ${sortBy[1] ? 'ASC' : 'DESC'}`;
   }
@@ -59,10 +77,10 @@ export function getId(
  * @param sortBy - SortByValue or SortByValue[]
  * @returns SortByValue[]
  */
-export function normalizeSortBy(
-  input: SortByValue | SortByValue[] | undefined
-): SortByValue[] {
-  if (!input) return [['default', true]];
+export function normalizeSortBy<T extends string>(
+  input: SortByValue<T> | SortByValue<T>[] | undefined
+): SortByValue<T>[] {
+  if (!input) return [['default', true] as SortByValue<T>];
 
   // If input is an array, check if it's a SortByValue[] or [SortByKey, boolean]
   if (Array.isArray(input)) {
@@ -71,19 +89,19 @@ export function normalizeSortBy(
       typeof input[0] === 'string' &&
       typeof input[1] === 'boolean';
     if (isTuple) {
-      return [input as [SortByKey, boolean]];
+      return [input as SortByValue<T>];
     } else {
-      return input as SortByValue[];
+      return input as SortByValue<T>[];
     }
   }
 
   return [input];
 }
 
-export function getOptions(
-  assetsOptions: AssetsOptions
-): InternalAssetsOptions {
-  const { after, first, sortBy, directory } = assetsOptions;
+export function getTrackOptions(
+  trackOptions: TrackOptions
+): InternalTrackOptions {
+  const { after, first, sortBy, directory } = trackOptions;
 
   const options = {
     after: getId(after),
@@ -92,28 +110,70 @@ export function getOptions(
     sortBy: normalizeSortBy(sortBy),
   };
 
-  if (after != null && typeof options.after !== 'string') {
-    throw new Error('Option "after" must be a string!');
-  }
-  if (first != null && typeof options.first !== 'number') {
-    throw new Error('Option "first" must be a number!');
-  }
-  if (directory != null && typeof options.directory !== 'string') {
-    throw new Error('Option "album" must be a string!');
-  }
-  if (
-    after != null &&
-    Platform.OS === 'android' &&
-    isNaN(parseInt(getId(after) as string, 10))
-  ) {
-    throw new Error('Option "after" must be a valid ID!');
-  }
-  if (first != null && first < 0) {
-    throw new Error('Option "first" must be a positive integer!');
-  }
+  validateOptions(options);
 
   return {
     ...options,
-    sortBy: options.sortBy.map(sortByOptionToString),
+    sortBy: options.sortBy.map((t) => sortByOptionToString(t, 'track')),
   };
+}
+
+export function getAlbumOptions(
+  albumOptions: AlbumOptions
+): InternalAlbumOptions {
+  const { after, first, sortBy } = albumOptions;
+
+  const options = {
+    after: getId(after),
+    first: first == null ? 20 : first,
+    sortBy: normalizeSortBy(sortBy),
+  };
+
+  validateOptions(options);
+
+  return {
+    ...options,
+    sortBy: options.sortBy.map((t) => sortByOptionToString(t, 'album')),
+  };
+}
+
+export function getArtistOptions(
+  artistOptions: ArtistOptions
+): InternalArtistOptions {
+  const { after, first, sortBy } = artistOptions;
+
+  const options = {
+    after: getId(after),
+    first: first == null ? 20 : first,
+    sortBy: normalizeSortBy(sortBy),
+  };
+
+  validateOptions(options);
+
+  return {
+    ...options,
+    sortBy: options.sortBy.map((t) => sortByOptionToString(t, 'artist')),
+  };
+}
+
+function validateOptions(options: any): void {
+  if (options.after != null && typeof options.after !== 'string') {
+    throw new Error('Option "after" must be a string!');
+  }
+  if (options.first != null && typeof options.first !== 'number') {
+    throw new Error('Option "first" must be a number!');
+  }
+  if (options.directory != null && typeof options.directory !== 'string') {
+    throw new Error('Option "directory" must be a string!');
+  }
+  if (
+    options.after != null &&
+    Platform.OS === 'android' &&
+    isNaN(parseInt(getId(options.after) as string, 10))
+  ) {
+    throw new Error('Option "after" must be a valid ID!');
+  }
+  if (options.first != null && options.first < 0) {
+    throw new Error('Option "first" must be a positive integer!');
+  }
 }

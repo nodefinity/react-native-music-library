@@ -12,10 +12,9 @@ import {
 import { getAlbumsAsync } from '@nodefinity/react-native-music-library';
 import type {
   Album,
-  AssetsOptions,
+  AlbumOptions,
 } from '@nodefinity/react-native-music-library';
 import { usePermission } from '../hooks/usePermission';
-import { pickDirectory } from '@react-native-documents/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
@@ -58,7 +57,7 @@ export default function AlbumListScreen({ navigation }: Props) {
     }
   };
 
-  const loadAllAlbums = async (options: AssetsOptions = {}) => {
+  const loadAllAlbums = async (options: AlbumOptions = {}) => {
     let allAlbums: Album[] = [];
     let hasMore = true;
     let cursor;
@@ -68,7 +67,7 @@ export default function AlbumListScreen({ navigation }: Props) {
         first: 100,
         ...options,
         after: cursor,
-        sortBy: ['album', true],
+        sortBy: ['title', true],
       });
 
       allAlbums = [...allAlbums, ...result.items];
@@ -77,27 +76,6 @@ export default function AlbumListScreen({ navigation }: Props) {
     }
 
     return allAlbums;
-  };
-
-  const getAlbumsFromPickedDirectory = async () => {
-    try {
-      const { uri } = await pickDirectory({
-        requestLongTermAccess: false,
-      });
-
-      if (!uri) return;
-
-      const results = await loadAllAlbums({ directory: uri });
-
-      setAlbums(results);
-
-      Alert.alert('Success', `Picked ${results.length} albums from:\n${uri}`);
-    } catch (err) {
-      console.log(err, 'error');
-      Alert.alert('Error', 'Failed to get albums from directory');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleAlbumPress = async (album: Album) => {
@@ -150,12 +128,6 @@ export default function AlbumListScreen({ navigation }: Props) {
         <Button
           title={`${loading ? 'loading...' : ''} get all albums`}
           onPress={getAllAlbums}
-          disabled={loading}
-        />
-
-        <Button
-          title={`${loading ? 'loading...' : ''} get albums from directory`}
-          onPress={getAlbumsFromPickedDirectory}
           disabled={loading}
         />
       </View>

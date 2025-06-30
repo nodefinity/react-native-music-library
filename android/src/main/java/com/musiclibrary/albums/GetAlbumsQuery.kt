@@ -10,7 +10,7 @@ import androidx.core.net.toUri
 object GetAlbumsQuery {
   fun getAlbums(
     contentResolver: ContentResolver,
-    options: AssetsOptions,
+    options: AlbumOptions,
   ): PaginatedResult<Album> {
     val projection = arrayOf(
       MediaStore.Audio.Albums._ID,
@@ -114,38 +114,17 @@ object GetAlbumsQuery {
     )
   }
 
-  private fun buildSelection(options: AssetsOptions): String {
+  private fun buildSelection(options: AlbumOptions): String {
     val conditions = mutableListOf<String>()
 
     // Only query albums that have tracks
     conditions.add("${MediaStore.Audio.Albums.NUMBER_OF_SONGS} > 0")
 
-    // Directory filtering for albums is more complex since albums don't have direct path
-    // We'll need to filter based on tracks in the album
-    if (!options.directory.isNullOrEmpty()) {
-      // Filter albums that have tracks in the specified directory
-      conditions.add("EXISTS (SELECT 1 FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI} WHERE ${MediaStore.Audio.Media.ALBUM_ID} = ${MediaStore.Audio.Albums._ID} AND ${MediaStore.Audio.Media.DATA} LIKE ?)")
-    }
-
     return conditions.joinToString(" AND ")
   }
 
-  private fun buildSelectionArgs(options: AssetsOptions): Array<String>? {
-    val args = mutableListOf<String>()
-
-    if (!options.directory.isNullOrEmpty()) {
-      val dir = if (options.directory.startsWith("content://")) {
-        uriToFullPath(options.directory.toUri())
-      } else {
-        options.directory
-      }
-
-      if (!dir.isNullOrEmpty()) {
-        args.add("$dir%")
-      }
-    }
-
-    return if (args.isEmpty()) null else args.toTypedArray()
+  private fun buildSelectionArgs(options: AlbumOptions): Array<String>? {
+    return null
   }
 
   private fun uriToFullPath(treeUri: Uri): String? {
@@ -173,11 +152,11 @@ object GetAlbumsQuery {
 
       val column = when (parts[0].lowercase()) {
         "default" -> MediaStore.Audio.Albums.ALBUM
+        "title" -> MediaStore.Audio.Albums.ALBUM
         "artist" -> MediaStore.Audio.Albums.ARTIST
-        "album" -> MediaStore.Audio.Albums.ALBUM
-        "track_count" -> MediaStore.Audio.Albums.NUMBER_OF_SONGS
+        "trackcount" -> MediaStore.Audio.Albums.NUMBER_OF_SONGS
         "year" -> MediaStore.Audio.Albums.FIRST_YEAR
-        else -> throw IllegalArgumentException("Unsupported SortKey: ${parts[0]}")
+        else -> throw IllegalArgumentException("Unsupported SortKey for albums: ${parts[0]}")
       }
 
       val order = parts[1].uppercase()

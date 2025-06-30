@@ -10,7 +10,7 @@ import androidx.core.net.toUri
 object GetArtistsQuery {
   fun getArtists(
     contentResolver: ContentResolver,
-    options: AssetsOptions,
+    options: ArtistOptions,
   ): PaginatedResult<Artist> {
     val projection = arrayOf(
       MediaStore.Audio.Artists._ID,
@@ -106,52 +106,17 @@ object GetArtistsQuery {
     )
   }
 
-  private fun buildSelection(options: AssetsOptions): String {
+  private fun buildSelection(options: ArtistOptions): String {
     val conditions = mutableListOf<String>()
 
     // Only query artists that have tracks
     conditions.add("${MediaStore.Audio.Artists.NUMBER_OF_TRACKS} > 0")
 
-    // Directory filtering for artists is more complex since artists don't have direct path
-    // We'll need to filter based on tracks by the artist
-    if (!options.directory.isNullOrEmpty()) {
-      // Filter artists that have tracks in the specified directory
-      conditions.add("EXISTS (SELECT 1 FROM ${MediaStore.Audio.Media.EXTERNAL_CONTENT_URI} WHERE ${MediaStore.Audio.Media.ARTIST_ID} = ${MediaStore.Audio.Artists._ID} AND ${MediaStore.Audio.Media.DATA} LIKE ?)")
-    }
-
     return conditions.joinToString(" AND ")
   }
 
-  private fun buildSelectionArgs(options: AssetsOptions): Array<String>? {
-    val args = mutableListOf<String>()
-
-    if (!options.directory.isNullOrEmpty()) {
-      val dir = if (options.directory.startsWith("content://")) {
-        uriToFullPath(options.directory.toUri())
-      } else {
-        options.directory
-      }
-
-      if (!dir.isNullOrEmpty()) {
-        args.add("$dir%")
-      }
-    }
-
-    return if (args.isEmpty()) null else args.toTypedArray()
-  }
-
-  private fun uriToFullPath(treeUri: Uri): String? {
-    val docId = DocumentsContract.getTreeDocumentId(treeUri) // "primary:Music/abc"
-    val parts = docId.split(":")
-    if (parts.size < 2) return null
-
-    val type = parts[0]
-    val relativePath = parts[1]
-
-    return when (type) {
-      "primary" -> "/storage/emulated/0/$relativePath"
-      else -> "/storage/$type/$relativePath"
-    }
+  private fun buildSelectionArgs(options: ArtistOptions): Array<String>? {
+    return null
   }
 
   private fun buildSortOrder(sortBy: List<String>): String {
@@ -165,10 +130,10 @@ object GetArtistsQuery {
 
       val column = when (parts[0].lowercase()) {
         "default" -> MediaStore.Audio.Artists.ARTIST
-        "artist" -> MediaStore.Audio.Artists.ARTIST
-        "album_count" -> MediaStore.Audio.Artists.NUMBER_OF_ALBUMS
-        "track_count" -> MediaStore.Audio.Artists.NUMBER_OF_TRACKS
-        else -> throw IllegalArgumentException("Unsupported SortKey: ${parts[0]}")
+        "title" -> MediaStore.Audio.Artists.ARTIST
+        "trackcount" -> MediaStore.Audio.Artists.NUMBER_OF_TRACKS
+        "albumcount" -> MediaStore.Audio.Artists.NUMBER_OF_ALBUMS
+        else -> throw IllegalArgumentException("Unsupported SortKey for artists: ${parts[0]}")
       }
 
       val order = parts[1].uppercase()

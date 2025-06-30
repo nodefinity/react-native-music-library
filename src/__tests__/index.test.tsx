@@ -1,3 +1,4 @@
+import type { TrackSortByKey } from '../NativeMusicLibrary';
 import { normalizeSortBy } from '../utils';
 
 // Mock the native module
@@ -24,7 +25,7 @@ describe('normalizeSortBy', () => {
       'artist',
     ]);
     expect(
-      normalizeSortBy([
+      normalizeSortBy<TrackSortByKey>([
         ['default', true],
         ['artist', false],
       ])

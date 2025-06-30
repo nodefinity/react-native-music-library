@@ -2,38 +2,61 @@ import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
 /**
- * Sorting keys for music library items
+ * Sorting keys for different entity types
  */
-export type SortByKey =
+export type TrackSortByKey =
   | 'default'
+  | 'title'
   | 'artist'
   | 'album'
   | 'duration'
   | 'createdAt'
   | 'modifiedAt'
+  | 'fileSize';
+
+export type AlbumSortByKey =
+  | 'default'
+  | 'title'
+  | 'artist'
   | 'trackCount'
-  | 'albumCount'
   | 'year';
-export type SortByValue = [SortByKey, boolean] | SortByKey;
 
-export type InternalSortByValue = `${SortByKey} ${'ASC' | 'DESC'}`;
+export type ArtistSortByKey = 'default' | 'title' | 'trackCount' | 'albumCount';
 
-export const SortByObject = {
+export type SortByValue<T extends string> = [T, boolean] | T;
+
+export type InternalSortByValue = `${string} ${'ASC' | 'DESC'}`;
+
+export const TrackSortByObject = {
   default: 'default',
+  title: 'title',
   artist: 'artist',
   album: 'album',
   duration: 'duration',
   createdAt: 'createdAt',
   modifiedAt: 'modifiedAt',
+  fileSize: 'fileSize',
+} as const;
+
+export const AlbumSortByObject = {
+  default: 'default',
+  title: 'title',
+  artist: 'artist',
+  trackCount: 'trackCount',
+  year: 'year',
+} as const;
+
+export const ArtistSortByObject = {
+  default: 'default',
+  title: 'title',
   trackCount: 'trackCount',
   albumCount: 'albumCount',
-  year: 'year',
-};
+} as const;
 
 /**
- * Basic assets options
+ * Base options interface
  */
-export interface AssetsOptions {
+export interface BaseOptions {
   /**
    * Cursor for pagination - ID of the last item from previous page
    * @default undefined
@@ -45,15 +68,19 @@ export interface AssetsOptions {
    * @default 20
    */
   first?: number;
+}
 
+/**
+ * Track-specific options
+ */
+export interface TrackOptions extends BaseOptions {
   /**
-   * Sorting configuration
-   * Can be a single key or a tuple of [key, ascending]
+   * Sorting configuration for tracks
    * @example
    * 'title' // Sort by title descending (default)
    * ['title', true] // Sort by title ascending
    */
-  sortBy?: SortByValue | SortByValue[];
+  sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
 
   /**
    * Directory path to search for tracks
@@ -63,13 +90,51 @@ export interface AssetsOptions {
 }
 
 /**
- * Internal assets options used by native module
+ * Album-specific options
  */
-export interface InternalAssetsOptions {
+export interface AlbumOptions extends BaseOptions {
+  /**
+   * Sorting configuration for albums
+   * @example
+   * 'title' // Sort by title descending (default)
+   * ['trackCount', true] // Sort by track count ascending
+   */
+  sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
+}
+
+/**
+ * Artist-specific options
+ */
+export interface ArtistOptions extends BaseOptions {
+  /**
+   * Sorting configuration for artists
+   * @example
+   * 'title' // Sort by name descending (default)
+   * ['trackCount', true] // Sort by track count ascending
+   */
+  sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
+}
+
+/**
+ * Internal options used by native module
+ */
+export interface InternalTrackOptions {
   after?: string;
   first: number;
   sortBy: InternalSortByValue[];
   directory?: string;
+}
+
+export interface InternalAlbumOptions {
+  after?: string;
+  first: number;
+  sortBy: InternalSortByValue[];
+}
+
+export interface InternalArtistOptions {
+  after?: string;
+  first: number;
+  sortBy: InternalSortByValue[];
 }
 
 export interface PaginatedResult<T> {
@@ -218,16 +283,16 @@ export interface ArtistWithAlbumsAndTracks {
 }
 
 export interface Spec extends TurboModule {
-  getTracksAsync(options: InternalAssetsOptions): Promise<TrackResult>;
+  getTracksAsync(options: InternalTrackOptions): Promise<TrackResult>;
   getTrackMetadataAsync(trackId: string): Promise<TrackMetadata>;
   getTracksByAlbumAsync(albumId: string): Promise<Track[]>;
   getTracksByArtistAsync(
     artistId: string,
-    options: InternalAssetsOptions
+    options: InternalTrackOptions
   ): Promise<TrackResult>;
-  getAlbumsAsync(options: InternalAssetsOptions): Promise<AlbumResult>;
+  getAlbumsAsync(options: InternalAlbumOptions): Promise<AlbumResult>;
   getAlbumsByArtistAsync(artistId: string): Promise<Album[]>;
-  getArtistsAsync(options: InternalAssetsOptions): Promise<ArtistResult>;
+  getArtistsAsync(options: InternalArtistOptions): Promise<ArtistResult>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('MusicLibrary');

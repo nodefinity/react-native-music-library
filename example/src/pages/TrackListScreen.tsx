@@ -2,7 +2,7 @@ import { Alert, Button, View, FlatList, Text, StyleSheet } from 'react-native';
 import { getTracksAsync } from '@nodefinity/react-native-music-library';
 import { useState } from 'react';
 import type {
-  AssetsOptions,
+  TrackOptions,
   Track,
 } from '@nodefinity/react-native-music-library';
 import { usePermission } from '../hooks/usePermission';
@@ -53,7 +53,7 @@ export default function TrackListScreen({ navigation }: Props) {
     }
   };
 
-  const loadAllTracks = async (options: AssetsOptions = {}) => {
+  const loadAllTracks = async (options: TrackOptions = {}) => {
     let allTracks: Track[] = [];
     let hasMore = true;
     let cursor;
@@ -63,7 +63,7 @@ export default function TrackListScreen({ navigation }: Props) {
         first: 100,
         ...options,
         after: cursor,
-        sortBy: ['artist', true],
+        sortBy: ['title', true],
       });
 
       allTracks = [...allTracks, ...result.items];

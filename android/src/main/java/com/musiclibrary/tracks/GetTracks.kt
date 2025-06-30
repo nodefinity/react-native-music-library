@@ -2,12 +2,12 @@ package com.musiclibrary.tracks
 
 import android.content.Context
 import com.facebook.react.bridge.Promise
-import com.musiclibrary.models.AssetsOptions
+import com.musiclibrary.models.TrackOptions
 import com.musiclibrary.utils.DataConverter
 
 internal class GetTracks(
   private val context: Context,
-  private val options: AssetsOptions,
+  private val options: TrackOptions,
   private val promise: Promise
 ) {
 

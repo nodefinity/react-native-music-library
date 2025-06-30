@@ -2,12 +2,12 @@ package com.musiclibrary.artists
 
 import android.content.Context
 import com.facebook.react.bridge.Promise
-import com.musiclibrary.models.AssetsOptions
+import com.musiclibrary.models.ArtistOptions
 import com.musiclibrary.utils.DataConverter
 
 internal class GetArtists(
   private val context: Context,
-  private val options: AssetsOptions,
+  private val options: ArtistOptions,
   private val promise: Promise
 ) {
   
