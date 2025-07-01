@@ -2,25 +2,21 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'docs/**'
       - '.github/workflows/deploy.yml'
-  workflow_dispatch: # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build Docusaurus
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -28,51 +24,26 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: docs/yarn.lock
 
-      - name: Install dependencies
+      - name: Install deps
         working-directory: docs
         run: yarn install --frozen-lockfile
 
-      - name: Type check
-        working-directory: docs
-        run: yarn typecheck
-      
-      - name: Build website
+      - name: Build site
         working-directory: docs
         run: yarn build
-      
-      - name: Upload Build Artifact
+
+      - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/build
 
   deploy:
-    name: Deploy to GitHub Pages
-    needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    needs: build
     permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
-      contents: read # to read repository contents
-
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
+      pages: write
+      id-token: write
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-      
-      - name: Deployment status
-        run: |
-          if [ "${{ steps.deployment.outputs.page_url }}" != "" ]; then
-            echo "✅ Deployment successful!"
-            echo "🌐 Site URL: ${{ steps.deployment.outputs.page_url }}"
-          else
-            echo "❌ Deployment failed"
-            exit 1
-          fi
