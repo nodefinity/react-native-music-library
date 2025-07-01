@@ -1,0 +1,82 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build:
+    name: Build Docusaurus
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup
+        uses: ./.github/actions/setup
+      
+      - name: Type check
+        working-directory: docs
+        run: yarn typecheck
+      
+      - name: Build website
+        working-directory: docs
+        run: yarn build
+        env:
+          NODE_ENV: production
+      
+      - name: Verify build output
+        run: |
+          if [ ! -d "docs/build" ]; then
+            echo "❌ Build directory not found"
+            exit 1
+          fi
+          echo "✅ Build completed successfully"
+          ls -la docs/build/
+      
+      - name: Upload Build Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build
+          retention-days: 1
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+      contents: read # to read repository contents
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      
+      - name: Deployment status
+        run: |
+          if [ "${{ steps.deployment.outputs.page_url }}" != "" ]; then
+            echo "✅ Deployment successful!"
+            echo "🌐 Site URL: ${{ steps.deployment.outputs.page_url }}"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi
