@@ -126,4 +126,4 @@ const loadArtists = async () => {
 
 - [API Reference](./api) - Learn about all available methods and options
 - [Examples](./examples) - See practical usage examples
-- [Type Definitions](./api/types) - Understand the data structures
+- [Type Definitions](./api#type-definitions) - Understand the data structures
