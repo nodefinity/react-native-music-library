@@ -321,5 +321,37 @@
   "theme.contentVisibility.draftBanner.message": {
     "message": "此页面是草稿，仅在开发环境中可见，不会包含在正式版本中。",
     "description": "The draft content banner message"
+  },
+  "siteConfig.tagline": {
+    "message": "一个功能强大的 React Native 库，用于访问本地音乐文件并获取完整的元数据信息",
+    "description": "The title of the site"
+  },
+  "home.hero.mainButton": {
+    "message": "开始使用",
+    "description": "The label of the main button on the homepage hero"
+  },
+  "home.features.easyToUse.title": {
+    "message": "易于使用",
+    "description": "The title of the first feature on the homepage"
+  },
+  "home.features.easyToUse.description": {
+    "message": "专为简单易用而设计，让您能够快速集成到项目中并开始访问本地音乐文件。",
+    "description": "The description of the first feature on the homepage"
+  },
+  "home.features.powerful.title": {
+    "message": "功能强大",
+    "description": "The title of the second feature on the homepage"
+  },
+  "home.features.powerful.description": {
+    "message": "提供完整的媒体库和音乐元数据访问功能，让您专注于构建出色的音乐应用体验。",
+    "description": "The description of the second feature on the homepage"
+  },
+  "home.features.reactNative.title": {
+    "message": "基于 React Native",
+    "description": "The title of the third feature on the homepage"
+  },
+  "home.features.reactNative.description": {
+    "message": "专为 React Native 生态系统构建，提供原生性能和无缝集成体验，同时保持跨平台兼容性。",
+    "description": "The description of the third feature on the homepage"
   }
 }

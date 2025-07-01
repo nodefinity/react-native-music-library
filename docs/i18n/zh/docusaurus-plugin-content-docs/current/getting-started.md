@@ -2,38 +2,32 @@
 sidebar_position: 2
 ---
 
-# Getting Started
+# 开始使用
 
-Learn how to set up and use React Native Music Library in your project.
+学习如何在您的项目中设置和使用 React Native Music Library。
 
-## Installation
-
-### Using npm
+## 安装
 
 ```bash
 npm install @nodefinity/react-native-music-library
-```
-
-### Using yarn
-
-```bash
+# 或
 yarn add @nodefinity/react-native-music-library
 ```
 
-## Platform Setup
+## 平台设置
 
 ### Android
 
-1. **Add permissions** to `android/app/src/main/AndroidManifest.xml`:
+1. **添加权限**到 `android/app/src/main/AndroidManifest.xml`：
 
 ```xml
-<!-- Android 13+ granular permission -->
+<!-- Android 13+ 细粒度权限 -->
 <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-<!-- Android 12 and below traditional storage permission -->
+<!-- Android 12 及以下传统存储权限 -->
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
 
-2. **Request runtime permissions** using a permissions library:
+2. **请求运行时权限**使用权限库：
 
 ```js
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
@@ -42,25 +36,25 @@ const requestMusicPermission = async () => {
   const result = await request(PERMISSIONS.ANDROID.READ_MEDIA_AUDIO);
   
   if (result === RESULTS.GRANTED) {
-    console.log('Music permission granted');
+    console.log('音乐权限已授予');
   } else {
-    console.log('Music permission denied');
+    console.log('音乐权限被拒绝');
   }
 };
 ```
 
-### iOS (Coming Soon)
+### iOS（即将推出）
 
-iOS implementation is not yet available. For future compatibility, add to `Info.plist`:
+iOS 实现尚未可用。为了未来兼容性，在 `Info.plist` 中添加：
 
 ```xml
 <key>NSAppleMusicUsageDescription</key>
-<string>This app needs access to your music library to play songs</string>
+<string>此应用需要访问您的音乐库来播放歌曲</string>
 ```
 
-## Basic Usage
+## 基本用法
 
-### Import the library
+### 导入库
 
 ```js
 import { 
@@ -71,7 +65,7 @@ import {
 } from '@nodefinity/react-native-music-library';
 ```
 
-### Get all tracks
+### 获取所有曲目
 
 ```js
 const loadTracks = async () => {
@@ -79,57 +73,57 @@ const loadTracks = async () => {
     const result = await getTracksAsync();
     
     result.items.forEach(track => {
-      console.log(`${track.title} by ${track.artist}`);
-      console.log(`Duration: ${Math.floor(track.duration / 60)}:${track.duration % 60}`);
-      console.log(`File: ${track.url}`);
+      console.log(`${track.title} - ${track.artist}`);
+      console.log(`时长: ${Math.floor(track.duration / 60)}:${track.duration % 60}`);
+      console.log(`文件: ${track.url}`);
     });
   } catch (error) {
-    console.error('Failed to load tracks:', error);
+    console.error('加载曲目失败:', error);
   }
 };
 ```
 
-### Get albums
+### 获取专辑
 
 ```js
 const loadAlbums = async () => {
   try {
     const result = await getAlbumsAsync({
-      sortBy: ['title', true], // Sort by title ascending
+      sortBy: ['title', true], // 按标题升序排序
       first: 50
     });
     
     result.items.forEach(album => {
-      console.log(`${album.title} by ${album.artist}`);
-      console.log(`Tracks: ${album.trackCount}`);
+      console.log(`${album.title} - ${album.artist}`);
+      console.log(`曲目数: ${album.trackCount}`);
     });
   } catch (error) {
-    console.error('Failed to load albums:', error);
+    console.error('加载专辑失败:', error);
   }
 };
 ```
 
-### Get artists
+### 获取艺术家
 
 ```js
 const loadArtists = async () => {
   try {
     const result = await getArtistsAsync({
-      sortBy: 'title' // Sort by name
+      sortBy: 'title' // 按名称排序
     });
     
     result.items.forEach(artist => {
       console.log(`${artist.title}`);
-      console.log(`Albums: ${artist.albumCount}, Tracks: ${artist.trackCount}`);
+      console.log(`专辑数: ${artist.albumCount}, 曲目数: ${artist.trackCount}`);
     });
   } catch (error) {
-    console.error('Failed to load artists:', error);
+    console.error('加载艺术家失败:', error);
   }
 };
 ```
 
-## Next Steps
+## 下一步
 
-- [API Reference](./api) - Learn about all available methods and options
-- [Examples](./examples) - See practical usage examples
-- [Type Definitions](./api/types) - Understand the data structures
+- [API 参考](./api) - 了解所有可用的方法和选项
+- [示例](./examples) - 查看实际使用示例
+- [类型定义](./api/types) - 理解数据结构

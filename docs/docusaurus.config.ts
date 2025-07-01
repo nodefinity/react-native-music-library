@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'React Native Music Library',
   tagline:
-    'A powerful React Native library for accessing local music files with full metadata support.',
+    'A powerful React Native library for accessing local music files and getting full metadata.',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future

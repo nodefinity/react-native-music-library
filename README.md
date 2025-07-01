@@ -2,7 +2,7 @@
 
 [中文版](./README_ZH.md) | [📖 Documentation](./docs/)
 
-A powerful React Native library for accessing local music files with full metadata support. Built with React Native's New Architecture (TurboModules) for optimal performance.
+A powerful React Native library for accessing local music files and getting full metadata. Built with React Native's New Architecture (TurboModules) for optimal performance.
 
 [![npm version](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library.svg)](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

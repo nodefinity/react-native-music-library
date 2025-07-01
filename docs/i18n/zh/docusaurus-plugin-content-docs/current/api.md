@@ -2,38 +2,38 @@
 sidebar_position: 3
 ---
 
-# API Reference
+# API 参考
 
-Complete API documentation for React Native Music Library.
+React Native Music Library 的完整 API 文档。
 
-## Core Functions
+## 核心函数
 
 ### `getTracksAsync(options?)`
 
-Retrieves music tracks from the device's music library.
+从设备的音乐库中检索音乐曲目。
 
-#### Parameters
+#### 参数
 
-- `options` (optional): `TrackOptions` - Configuration options for the query
+- `options`（可选）：`TrackOptions` - 查询的配置选项
 
-#### Returns
+#### 返回值
 
-Promise that resolves to `TrackResult` containing:
+`Promise<TrackResult>`，包含：
 
-- `items`: Array of `Track` objects
-- `hasNextPage`: Boolean indicating if more tracks are available
-- `endCursor`: String cursor for pagination
-- `totalCount`: Total number of tracks (optional)
+- `items`：`Track` 对象数组
+- `hasNextPage`：布尔值，指示是否有更多曲目可用
+- `endCursor`：用于分页的字符串游标
+- `totalCount`：曲目总数
 
-#### Example
+#### 示例
 
 ```js
 import { getTracksAsync } from '@nodefinity/react-native-music-library';
 
-// Get all tracks
+// 获取所有曲目
 const result = await getTracksAsync();
 
-// Get tracks with options
+// 使用选项获取曲目
 const tracks = await getTracksAsync({
   first: 50,
   sortBy: ['artist', true],
@@ -43,103 +43,103 @@ const tracks = await getTracksAsync({
 
 ### `getAlbumsAsync(options?)`
 
-Retrieves albums from the device's music library.
+从设备的音乐库中检索专辑。
 
-#### Parameters
+#### 参数
 
-- `options` (optional): `AlbumOptions` - Configuration options for the query
+- `options`（可选）：`AlbumOptions` - 查询的配置选项
 
-#### Returns
+#### 返回值
 
-Promise that resolves to `AlbumResult` containing:
+`Promise<AlbumResult>`，包含：
 
-- `items`: Array of `Album` objects
-- `hasNextPage`: Boolean indicating if more albums are available
-- `endCursor`: String cursor for pagination
-- `totalCount`: Total number of albums (optional)
+- `items`：`Album` 对象数组
+- `hasNextPage`：布尔值，指示是否有更多专辑可用
+- `endCursor`：用于分页的字符串游标
+- `totalCount`：专辑总数（可选）
 
-#### Example
+#### 示例
 
 ```js
 import { getAlbumsAsync } from '@nodefinity/react-native-music-library';
 
-// Get all albums
+// 获取所有专辑
 const result = await getAlbumsAsync();
 
-// Get albums with sorting
+// 获取专辑并排序
 const albums = await getAlbumsAsync({
   first: 30,
-  sortBy: ['trackCount', false] // Sort by track count descending
+  sortBy: ['trackCount', false] // 按曲目数降序排序
 });
 ```
 
 ### `getArtistsAsync(options?)`
 
-Retrieves artists from the device's music library.
+从设备的音乐库中检索艺术家。
 
-#### Parameters
+#### 参数
 
-- `options` (optional): `ArtistOptions` - Configuration options for the query
+- `options`（可选）：`ArtistOptions` - 查询的配置选项
 
-#### Returns
+#### 返回值
 
-Promise that resolves to `ArtistResult` containing:
+`Promise<ArtistResult>`，包含：
 
-- `items`: Array of `Artist` objects
-- `hasNextPage`: Boolean indicating if more artists are available
-- `endCursor`: String cursor for pagination
-- `totalCount`: Total number of artists (optional)
+- `items`：`Artist` 对象数组
+- `hasNextPage`：布尔值，指示是否有更多艺术家可用
+- `endCursor`：用于分页的字符串游标
+- `totalCount`：艺术家总数（可选）
 
-#### Example
+#### 示例
 
 ```js
 import { getArtistsAsync } from '@nodefinity/react-native-music-library';
 
-// Get all artists
+// 获取所有艺术家
 const result = await getArtistsAsync();
 
-// Get artists with sorting
+// 获取艺术家并排序
 const artists = await getArtistsAsync({
   first: 20,
-  sortBy: ['trackCount', false] // Sort by track count descending
+  sortBy: ['trackCount', false] // 按曲目数降序排序
 });
 ```
 
 ### `getTrackMetadataAsync(trackId)`
 
-Retrieves detailed metadata for a specific track.
+检索特定曲目的详细元数据。
 
-#### Parameters
+#### 参数
 
-- `trackId`: string - The ID of the track to get metadata for
+- `trackId`：string - 要获取元数据的曲目 ID
 
-#### Returns
+#### 返回值
 
-Promise that resolves to `TrackMetadata` containing detailed audio and tag information.
+`Promise<TrackMetadata>`，包含详细的音频和标签信息。
 
-#### Example
+#### 示例
 
 ```js
 import { getTrackMetadataAsync } from '@nodefinity/react-native-music-library';
 
 const metadata = await getTrackMetadataAsync('track-id-123');
-console.log('Lyrics:', metadata.lyrics);
-console.log('Bitrate:', metadata.bitrate);
+console.log('歌词:', metadata.lyrics);
+console.log('比特率:', metadata.bitrate);
 ```
 
 ### `getTracksByAlbumAsync(albumId)`
 
-Retrieves all tracks from a specific album.
+检索特定专辑的所有曲目。
 
-#### Parameters
+#### 参数
 
-- `albumId`: string - The ID of the album
+- `albumId`：string - 专辑 ID
 
-#### Returns
+#### 返回值
 
-Promise that resolves to an array of `Track` objects.
+`Promise<Track[]>`，包含曲目对象数组。
 
-#### Example
+#### 示例
 
 ```js
 import { getTracksByAlbumAsync } from '@nodefinity/react-native-music-library';
@@ -149,18 +149,18 @@ const tracks = await getTracksByAlbumAsync('album-id-123');
 
 ### `getTracksByArtistAsync(artistId, options?)`
 
-Retrieves all tracks from a specific artist.
+检索特定艺术家的所有曲目。
 
-#### Parameters
+#### 参数
 
-- `artistId`: string - The ID of the artist
-- `options` (optional): `TrackOptions` - Configuration options for the query
+- `artistId`：string - 艺术家 ID
+- `options`（可选）：`TrackOptions` - 查询的配置选项
 
-#### Returns
+#### 返回值
 
-Promise that resolves to `TrackResult` containing tracks by the artist.
+`Promise<TrackResult>`，包含艺术家曲目的 `TrackResult`。
 
-#### Example
+#### 示例
 
 ```js
 import { getTracksByArtistAsync } from '@nodefinity/react-native-music-library';
@@ -173,17 +173,17 @@ const tracks = await getTracksByArtistAsync('artist-id-123', {
 
 ### `getAlbumsByArtistAsync(artistId)`
 
-Retrieves all albums from a specific artist.
+检索特定艺术家的所有专辑。
 
-#### Parameters
+#### 参数
 
-- `artistId`: string - The ID of the artist
+- `artistId`：string - 艺术家 ID
 
-#### Returns
+#### 返回值
 
-Promise that resolves to an array of `Album` objects.
+`Promise<Album[]>`，包含专辑对象数组。
 
-#### Example
+#### 示例
 
 ```js
 import { getAlbumsByArtistAsync } from '@nodefinity/react-native-music-library';
@@ -191,16 +191,16 @@ import { getAlbumsByArtistAsync } from '@nodefinity/react-native-music-library';
 const albums = await getAlbumsByArtistAsync('artist-id-123');
 ```
 
-## Type Definitions
+## 类型定义
 
 ### `TrackOptions`
 
 ```typescript
 interface TrackOptions {
-  after?: string;          // Cursor for pagination
-  first?: number;          // Max items to return (default: 20)
+  after?: string;          // 分页游标
+  first?: number;          // 最大返回项目数（默认：20）
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
-  directory?: string;      // Directory path to search
+  directory?: string;      // 搜索目录路径
 }
 ```
 
@@ -208,8 +208,8 @@ interface TrackOptions {
 
 ```typescript
 interface AlbumOptions {
-  after?: string;          // Cursor for pagination
-  first?: number;          // Max items to return (default: 20)
+  after?: string;          // 分页游标
+  first?: number;          // 最大返回项目数（默认：20）
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
 }
 ```
@@ -218,8 +218,8 @@ interface AlbumOptions {
 
 ```typescript
 interface ArtistOptions {
-  after?: string;          // Cursor for pagination
-  first?: number;          // Max items to return (default: 20)
+  after?: string;          // 分页游标
+  first?: number;          // 最大返回项目数（默认：20）
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
 }
 ```
@@ -229,15 +229,15 @@ interface ArtistOptions {
 ```typescript
 interface Track {
   id: string;
-  title: string;          // Track title
-  artist: string;         // Artist name
-  artwork: string;        // Artwork file URI
-  album: string;          // Album name
-  duration: number;       // Duration in seconds
-  url: string;            // File URL or path
-  createdAt: number;      // Date added (Unix timestamp)
-  modifiedAt: number;     // Date modified (Unix timestamp)
-  fileSize: number;       // File size in bytes
+  title: string;          // 曲目标题
+  artist: string;         // 艺术家名称
+  artwork: string;        // 封面文件 URI
+  album: string;          // 专辑名称
+  duration: number;       // 时长（秒）
+  url: string;            // 文件 URL 或路径
+  createdAt: number;      // 添加日期（Unix 时间戳）
+  modifiedAt: number;     // 修改日期（Unix 时间戳）
+  fileSize: number;       // 文件大小（字节）
 }
 ```
 
@@ -246,11 +246,11 @@ interface Track {
 ```typescript
 interface Album {
   id: string;
-  title: string;          // Album name
-  artist: string;         // Primary artist
-  artwork?: string;       // Album artwork URI
-  trackCount: number;     // Number of tracks
-  year?: number;          // Release year
+  title: string;          // 专辑名称
+  artist: string;         // 主要艺术家
+  artwork?: string;       // 专辑封面 URI
+  trackCount: number;     // 曲目数量
+  year?: number;          // 发行年份
 }
 ```
 
@@ -259,9 +259,9 @@ interface Album {
 ```typescript
 interface Artist {
   id: string;
-  title: string;          // Artist name
-  albumCount: number;     // Number of albums
-  trackCount: number;     // Total number of tracks
+  title: string;          // 艺术家名称
+  albumCount: number;     // 专辑数量
+  trackCount: number;     // 总曲目数
 }
 ```
 
@@ -269,70 +269,70 @@ interface Artist {
 
 ```typescript
 interface TrackMetadata {
-  id: string;              // Track ID
+  id: string;              // 曲目 ID
 
-  // Audio header
-  duration: number;       // Duration in seconds
-  bitrate: number;        // Bitrate in kbps
-  sampleRate: number;     // Sample rate in Hz
-  channels: number;       // Number of channels
-  format: string;         // Audio format
+  // 音频头信息
+  duration: number;       // 时长（秒）
+  bitrate: number;        // 比特率（kbps）
+  sampleRate: number;     // 采样率（Hz）
+  channels: number;       // 声道数
+  format: string;         // 音频格式
 
-  // Tag info
-  title: string;          // Track title
-  artist: string;         // Artist name
-  album: string;          // Album name
-  year: number;           // Release year
-  genre: string;          // Music genre
-  track: number;          // Track number
-  disc: number;           // Disc number
-  composer: string;       // Composer
-  lyricist: string;       // Lyricist
-  lyrics: string;         // Lyrics content
-  albumArtist: string;    // Album artist
-  comment: string;        // Comment
+  // 标签信息
+  title: string;          // 曲目标题
+  artist: string;         // 艺术家名称
+  album: string;          // 专辑名称
+  year: number;           // 发行年份
+  genre: string;          // 音乐流派
+  track: number;          // 曲目编号
+  disc: number;           // 碟片编号
+  composer: string;       // 作曲家
+  lyricist: string;       // 作词家
+  lyrics: string;         // 歌词内容
+  albumArtist: string;    // 专辑艺术家
+  comment: string;        // 注释
 }
 ```
 
-## Sorting Options
+## 排序选项
 
-### Track Sorting Keys
+### 曲目排序键
 
-- `'default'` - Default sorting (title)
-- `'title'` - Sort by track title
-- `'artist'` - Sort by artist name
-- `'album'` - Sort by album name
-- `'duration'` - Sort by duration
-- `'createdAt'` - Sort by creation date
-- `'modifiedAt'` - Sort by modification date
-- `'fileSize'` - Sort by file size
+- `'default'` - 默认排序（标题）
+- `'title'` - 按曲目标题排序
+- `'artist'` - 按艺术家名称排序
+- `'album'` - 按专辑名称排序
+- `'duration'` - 按时长排序
+- `'createdAt'` - 按创建日期排序
+- `'modifiedAt'` - 按修改日期排序
+- `'fileSize'` - 按文件大小排序
 
-### Album Sorting Keys
+### 专辑排序键
 
-- `'default'` - Default sorting (title)
-- `'title'` - Sort by album title
-- `'artist'` - Sort by artist name
-- `'trackCount'` - Sort by number of tracks
-- `'year'` - Sort by release year
+- `'default'` - 默认排序（标题）
+- `'title'` - 按专辑标题排序
+- `'artist'` - 按艺术家名称排序
+- `'trackCount'` - 按曲目数量排序
+- `'year'` - 按发行年份排序
 
-### Artist Sorting Keys
+### 艺术家排序键
 
-- `'default'` - Default sorting (title)
-- `'title'` - Sort by artist name
-- `'trackCount'` - Sort by number of tracks
-- `'albumCount'` - Sort by number of albums
+- `'default'` - 默认排序（标题）
+- `'title'` - 按艺术家名称排序
+- `'trackCount'` - 按曲目数量排序
+- `'albumCount'` - 按专辑数量排序
 
-### Sorting Examples
+### 排序示例
 
 ```js
-// Single sort key (descending by default)
+// 单个排序键（默认降序）
 sortBy: 'artist'
 
-// Single sort key with direction
-sortBy: ['artist', true]  // ascending
-sortBy: ['artist', false] // descending
+// 单个排序键带方向
+sortBy: ['artist', true]  // 升序
+sortBy: ['artist', false] // 降序
 
-// Multiple sort criteria
+// 多个排序条件
 sortBy: [
   ['artist', true],
   ['album', true],

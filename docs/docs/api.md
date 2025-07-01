@@ -18,7 +18,7 @@ Retrieves music tracks from the device's music library.
 
 #### Returns
 
-Promise that resolves to `TrackResult` containing:
+`Promise<TrackResult>` containing:
 
 - `items`: Array of `Track` objects
 - `hasNextPage`: Boolean indicating if more tracks are available
@@ -51,7 +51,7 @@ Retrieves albums from the device's music library.
 
 #### Returns
 
-Promise that resolves to `AlbumResult` containing:
+`Promise<AlbumResult>` containing:
 
 - `items`: Array of `Album` objects
 - `hasNextPage`: Boolean indicating if more albums are available
@@ -83,7 +83,7 @@ Retrieves artists from the device's music library.
 
 #### Returns
 
-Promise that resolves to `ArtistResult` containing:
+`Promise<ArtistResult>` containing:
 
 - `items`: Array of `Artist` objects
 - `hasNextPage`: Boolean indicating if more artists are available
@@ -115,7 +115,7 @@ Retrieves detailed metadata for a specific track.
 
 #### Returns
 
-Promise that resolves to `TrackMetadata` containing detailed audio and tag information.
+`Promise<TrackMetadata>` containing detailed audio and tag information.
 
 #### Example
 
@@ -137,7 +137,7 @@ Retrieves all tracks from a specific album.
 
 #### Returns
 
-Promise that resolves to an array of `Track` objects.
+`Promise<Track[]>` containing an array of `Track` objects.
 
 #### Example
 
@@ -158,7 +158,7 @@ Retrieves all tracks from a specific artist.
 
 #### Returns
 
-Promise that resolves to `TrackResult` containing tracks by the artist.
+`Promise<TrackResult>` containing tracks by the artist.
 
 #### Example
 
@@ -181,7 +181,7 @@ Retrieves all albums from a specific artist.
 
 #### Returns
 
-Promise that resolves to an array of `Album` objects.
+`Promise<Album[]>` containing an array of `Album` objects.
 
 #### Example
 

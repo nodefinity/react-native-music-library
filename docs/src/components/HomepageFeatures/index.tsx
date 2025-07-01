@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import clsx from 'clsx';
 import Heading from '@theme/Heading';
+import Translate, { translate } from '@docusaurus/Translate';
 import styles from './styles.module.css';
 
 type FeatureItem = {
@@ -11,33 +12,46 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: translate({
+      id: 'home.features.easyToUse.title',
+      message: 'Easy to use',
+      description: 'The title of the first feature on the homepage',
+    }),
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
-      <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
-      </>
+      <Translate id="home.features.easyToUse.description">
+        Designed for simplicity and ease of use, allowing you to quickly
+        integrate into your project and start accessing local music files.
+      </Translate>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: translate({
+      id: 'home.features.powerful.title',
+      message: 'Powerful',
+      description: 'The title of the second feature on the homepage',
+    }),
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
-      <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
-      </>
+      <Translate id="home.features.powerful.description">
+        Provide a complete media library and music metadata access function,
+        allowing you to focus on building excellent music application
+        experiences.
+      </Translate>
     ),
   },
   {
-    title: 'Powered by React',
+    title: translate({
+      id: 'home.features.reactNative.title',
+      message: 'Based on React Native',
+      description: 'The title of the third feature on the homepage',
+    }),
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
-      </>
+      <Translate id="home.features.reactNative.description">
+        Providing native performance and seamless integration experience while
+        maintaining cross platform compatibility.
+      </Translate>
     ),
   },
 ];

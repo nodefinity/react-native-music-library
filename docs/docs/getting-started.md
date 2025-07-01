@@ -8,15 +8,9 @@ Learn how to set up and use React Native Music Library in your project.
 
 ## Installation
 
-### Using npm
-
 ```bash
 npm install @nodefinity/react-native-music-library
-```
-
-### Using yarn
-
-```bash
+# or
 yarn add @nodefinity/react-native-music-library
 ```
 
