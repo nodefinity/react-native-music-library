@@ -21,9 +21,17 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Setup
-        uses: ./.github/actions/setup
-      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+          cache-dependency-path: docs/yarn.lock
+
+      - name: Install dependencies
+        working-directory: docs
+        run: yarn install --frozen-lockfile
+
       - name: Type check
         working-directory: docs
         run: yarn typecheck
@@ -31,23 +39,11 @@ jobs:
       - name: Build website
         working-directory: docs
         run: yarn build
-        env:
-          NODE_ENV: production
-      
-      - name: Verify build output
-        run: |
-          if [ ! -d "docs/build" ]; then
-            echo "❌ Build directory not found"
-            exit 1
-          fi
-          echo "✅ Build completed successfully"
-          ls -la docs/build/
       
       - name: Upload Build Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/build
-          retention-days: 1
 
   deploy:
     name: Deploy to GitHub Pages
