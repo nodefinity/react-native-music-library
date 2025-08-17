@@ -21,8 +21,14 @@
 - (void)getTracksAsync:(JS::NativeMusicLibrary::InternalTrackOptions &)options resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"🎵 [MusicLibrary.mm] getTracksAsync called from Objective-C");
   
-  NSDictionary *optionsDict = @{}; // Convert JS options to NSDictionary
-  NSDictionary *result = [musicLibrary getTracksAsync:optionsDict];
+  // Extract values from Objective-C types with proper casting
+  int first = (int)options.first();
+  NSString *after = options.after();
+  NSString *directory = options.directory();
+  NSArray *sortBy = (NSArray *)options.sortBy();
+  
+  // Call Swift function directly
+  NSDictionary *result = [musicLibrary getTracksAsyncWithFirst:first after:after sortBy:sortBy directory:directory];
   
   NSLog(@"🎵 [MusicLibrary.mm] getTracksAsync resolved with result: %@", result);
   resolve(result);
@@ -49,8 +55,14 @@
 - (void)getTracksByArtistAsync:(nonnull NSString *)artistId options:(JS::NativeMusicLibrary::InternalTrackOptions &)options resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
   NSLog(@"🎵 [MusicLibrary.mm] getTracksByArtistAsync called with artistId: %@", artistId);
   
-  NSDictionary *optionsDict = @{}; // Convert JS options to NSDictionary
-  NSDictionary *result = [musicLibrary getTracksByArtistAsync:artistId options:optionsDict];
+  // Extract values from Objective-C types with proper casting
+  int first = (int)options.first();
+  NSString *after = options.after();
+  NSString *directory = options.directory();
+  NSArray *sortBy = (NSArray *)options.sortBy();
+  
+  // Call Swift function directly
+  NSDictionary *result = [musicLibrary getTracksByArtistAsync:artistId first:first after:after sortBy:sortBy directory:directory];
   
   NSLog(@"🎵 [MusicLibrary.mm] getTracksByArtistAsync resolved with result: %@", result);
   resolve(result);
@@ -59,8 +71,13 @@
 - (void)getAlbumsAsync:(JS::NativeMusicLibrary::InternalAlbumOptions &)options resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
   NSLog(@"🎵 [MusicLibrary.mm] getAlbumsAsync called from Objective-C");
   
-  NSDictionary *optionsDict = @{}; // Convert JS options to NSDictionary
-  NSDictionary *result = [musicLibrary getAlbumsAsync:optionsDict];
+  // Extract values from Objective-C types with proper casting
+  int first = (int)options.first();
+  NSString *after = options.after();
+  NSArray *sortBy = (NSArray *)options.sortBy();
+  
+  // Call Swift function directly
+  NSDictionary *result = [musicLibrary getAlbumsAsyncWithFirst:first after:after sortBy:sortBy];
   
   NSLog(@"🎵 [MusicLibrary.mm] getAlbumsAsync resolved with result: %@", result);
   resolve(result);
@@ -78,8 +95,13 @@
 - (void)getArtistsAsync:(JS::NativeMusicLibrary::InternalArtistOptions &)options resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject { 
   NSLog(@"🎵 [MusicLibrary.mm] getArtistsAsync called from Objective-C");
   
-  NSDictionary *optionsDict = @{}; // Convert JS options to NSDictionary
-  NSDictionary *result = [musicLibrary getArtistsAsync:optionsDict];
+  // Extract values from Objective-C types with proper casting
+  int first = (int)options.first();
+  NSString *after = options.after();
+  NSArray *sortBy = (NSArray *)options.sortBy();
+  
+  // Call Swift function directly
+  NSDictionary *result = [musicLibrary getArtistsAsyncWithFirst:first after:after sortBy:sortBy];
   
   NSLog(@"🎵 [MusicLibrary.mm] getArtistsAsync resolved with result: %@", result);
   resolve(result);
