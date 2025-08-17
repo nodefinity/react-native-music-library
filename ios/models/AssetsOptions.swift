@@ -22,6 +22,10 @@ public class TrackOptions: NSObject {
     super.init()
   }
   
+  public override var description: String {
+    return "TrackOptions(after: \(after ?? "nil"), first: \(first), sortBy: \(sortBy), directory: \(directory ?? "nil"))"
+  }
+  
   public func toDictionary() -> [String: Any] {
     return [
       "after": after ?? NSNull(),
@@ -44,6 +48,10 @@ public class AlbumOptions: NSObject {
     super.init()
   }
   
+  public override var description: String {
+    return "AlbumOptions(after: \(after ?? "nil"), first: \(first), sortBy: \(sortBy))"
+  }
+  
   public func toDictionary() -> [String: Any] {
     return [
       "after": after ?? NSNull(),
@@ -63,6 +71,10 @@ public class ArtistOptions: NSObject {
     self.first = first
     self.sortBy = sortBy
     super.init()
+  }
+  
+  public override var description: String {
+    return "ArtistOptions(after: \(after ?? "nil"), first: \(first), sortBy: \(sortBy))"
   }
   
   public func toDictionary() -> [String: Any] {

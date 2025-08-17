@@ -10,62 +10,106 @@ import MediaPlayer
 internal class GetTracksQuery {
   
   static func getTracks(options: TrackOptions) -> PaginatedResult<Track> {
-    let query = MPMediaQuery.songs()
-    
-    NSLog("🎵 [MusicLibrary] getTracks query: %@", query)
-
-    // 添加筛选条件
-    var predicates: [MPMediaPredicate] = []
-    
-    // 只查询音乐文件（排除其他音频）
-    let musicPredicate = MPMediaPropertyPredicate(value: MPMediaType.music.rawValue,
-                                                forProperty: MPMediaItemPropertyMediaType)
-    predicates.append(musicPredicate)
-    
-    // 如果有目录筛选，添加路径筛选
-    if let directory = options.directory, !directory.isEmpty {
-      // iOS中MediaPlayer框架不直接支持路径筛选，这里留作扩展
-      // 可以通过assetURL进行后筛选
-    }
-    
-    // 应用所有筛选条件
-    query.filterPredicates = Set(predicates)
-    
-    // 设置排序
-    query.groupingType = .title
-    
-    // 获取所有项目
-    guard let items = query.items else {
+    // 检查权限
+    if MPMediaLibrary.authorizationStatus() != .authorized {
+      NSLog("🎵 [MusicLibrary] Music Library permission not authorized")
       return PaginatedResult<Track>(items: [], hasNextPage: false, totalCount: 0)
     }
     
-    let totalCount = items.count
-    var tracks: [Track] = []
-    var startIndex = 0
+    let query = MPMediaQuery.songs()
+    NSLog("🎵 [MusicLibrary] getTracks query: %@", query)
     
-    // 处理分页：查找after位置
-    if let after = options.after {
-      for (index, item) in items.enumerated() {
-        if "\(item.persistentID)" == after {
-          startIndex = index + 1
-          break
+    // 获取所有项目
+    guard var items = query.items else {
+      NSLog("🎵 [MusicLibrary] No items found in query")
+      return PaginatedResult<Track>(items: [], hasNextPage: false, totalCount: 0)
+    }
+    
+    NSLog("🎵 [MusicLibrary] Found %d total items", items.count)
+    
+    // 处理排序 - 按照参考实现的方式
+    if !options.sortBy.isEmpty {
+      for sortString in options.sortBy {
+        let components = sortString.components(separatedBy: " ")
+        let key = components[0]
+        let ascending = components.count > 1 && components[1] == "ASC"
+        
+        NSLog("🎵 [MusicLibrary] Sorting by: %@ %@", key, ascending ? "ASC" : "DESC")
+        
+        switch key.lowercased() {
+        case "title", "default":
+          items.sort { item1, item2 in
+            let title1 = item1.title ?? ""
+            let title2 = item2.title ?? ""
+            return ascending ? title1 < title2 : title1 > title2
+          }
+        case "artist":
+          items.sort { item1, item2 in
+            let artist1 = item1.artist ?? ""
+            let artist2 = item2.artist ?? ""
+            return ascending ? artist1 < artist2 : artist1 > artist2
+          }
+        case "duration":
+          items.sort { item1, item2 in
+            return ascending ? item1.playbackDuration < item2.playbackDuration : item1.playbackDuration > item2.playbackDuration
+          }
+        case "createdat", "creationtime":
+          items.sort { item1, item2 in
+            return ascending ? item1.dateAdded < item2.dateAdded : item1.dateAdded > item2.dateAdded
+          }
+        case "modifiedat", "modificationtime":
+          items.sort { item1, item2 in
+            let date1 = item1.lastPlayedDate ?? Date(timeIntervalSince1970: 0)
+            let date2 = item2.lastPlayedDate ?? Date(timeIntervalSince1970: 0)
+            return ascending ? date1 < date2 : date1 > date2
+          }
+        default:
+          NSLog("🎵 [MusicLibrary] Unknown sort key: %@", key)
         }
       }
     }
     
-    // 获取指定数量的记录
-    let maxItems = min(options.first, 1000) // 限制最大查询数量
-    let endIndex = min(startIndex + maxItems, totalCount)
+    // 处理分页 - 按照参考实现的方式
+    let first = options.first
+    let after = options.after
     
-    for i in startIndex..<endIndex {
-      let item = items[i]
+    var startIndex = 0
+    if let after = after, let afterId = UInt64(after) {
+      if let foundIndex = items.firstIndex(where: { $0.persistentID == afterId }) {
+        startIndex = foundIndex + 1
+      }
+    }
+    
+    let endIndex = min(startIndex + first, items.count)
+    let paginatedItems = startIndex < items.count ? Array(items[startIndex..<endIndex]) : []
+    
+    NSLog("🎵 [MusicLibrary] Pagination: startIndex=%d, endIndex=%d, paginatedItems=%d", 
+          startIndex, endIndex, paginatedItems.count)
+    
+    // 转换为Track对象
+    let tracks = paginatedItems.map { item -> Track in
+      // 详细调试 URL 信息
+      NSLog("🎵 [MusicLibrary] Track: '%@'", item.title ?? "Unknown")
+      NSLog("🎵 [MusicLibrary] - assetURL: %@", item.assetURL?.absoluteString ?? "nil")
+      NSLog("🎵 [MusicLibrary] - isCloudItem: %d", item.isCloudItem)
+      NSLog("🎵 [MusicLibrary] - hasProtectedAsset: %d", item.hasProtectedAsset)
       
-      // 跳过无效的音频文件
-      guard let url = item.assetURL, item.playbackDuration > 0 else {
-        continue
+      // 尝试不同的 URL 获取方式
+      var urlString = ""
+      
+      if let assetURL = item.assetURL {
+        urlString = assetURL.absoluteString
+        NSLog("🎵 [MusicLibrary] - Using assetURL: %@", urlString)
+      } else if item.isCloudItem {
+        // 对于云端项目，我们可以使用 persistentID 作为标识符
+        urlString = "ipod-library://item/item.m4a?id=\(item.persistentID)"
+        NSLog("🎵 [MusicLibrary] - Cloud item, using custom scheme: %@", urlString)
+      } else {
+        // 尝试使用 persistentID 构造URL（某些播放器可能支持）
+        urlString = "ipod-library://item/item.m4a?id=\(item.persistentID)"
+        NSLog("🎵 [MusicLibrary] - No assetURL, using fallback scheme: %@", urlString)
       }
       
-      // 创建Track对象
       let track = Track(
         id: "\(item.persistentID)",
         title: item.title ?? "Unknown Title",
@@ -73,24 +117,25 @@ internal class GetTracksQuery {
         artwork: getArtworkURL(for: item),
         album: item.albumTitle,
         duration: item.playbackDuration,
-        url: url.absoluteString,
+        url: urlString,
         createdAt: item.dateAdded.timeIntervalSince1970,
         modifiedAt: item.dateAdded.timeIntervalSince1970,
         fileSize: getFileSize(for: item)
       )
       
-      tracks.append(track)
+      NSLog("🎵 [MusicLibrary] Created track: %@ with URL: %@", track.title, track.url)
+      return track
     }
     
-    // 判断是否有下一页
-    let hasNextPage = endIndex < totalCount
-    let endCursor = tracks.last?.id
+    // 返回结果
+    let hasNextPage = endIndex < items.count
+    let endCursor = paginatedItems.last.map { "\($0.persistentID)" } ?? after ?? ""
     
     return PaginatedResult<Track>(
       items: tracks,
       hasNextPage: hasNextPage,
       endCursor: endCursor,
-      totalCount: totalCount
+      totalCount: items.count
     )
   }
   
