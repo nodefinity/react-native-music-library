@@ -1,5 +1,6 @@
 name: 🐛 Bug report
 description: Report a reproducible bug or regression in this library.
+title: "[Bug]: "
 labels: [bug]
 body:
   - type: markdown
@@ -61,8 +62,7 @@ body:
   - type: input
     id: reproducible-example
     attributes:
-      label: Reproducible example repository 
+      label: Reproducible example repository
       description: Please provide a link to a repository on GitHub with a reproducible example.
-      render: js
     validations:
       required: true
