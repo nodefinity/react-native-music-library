@@ -117,7 +117,7 @@ export default function TrackListScreen({ navigation }: Props) {
         />
 
         <Button
-          title={`${loading ? 'loading...' : ''} get tracks from directory`}
+          title={`${loading ? 'loading...' : ''} get tracks from directory (Android only)`}
           onPress={getTracksFromPickedDirectory}
           disabled={loading}
         />
