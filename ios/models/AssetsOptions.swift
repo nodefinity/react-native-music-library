@@ -8,12 +8,14 @@ import Foundation
 
 // MARK: - Options Models
 
+@objc(TrackOptions)
 public class TrackOptions: NSObject {
   public let after: String?
   public let first: Int
   public let sortBy: [String]
   public let directory: String?
-  
+
+  @objc
   public init(after: String? = nil, first: Int = 20, sortBy: [String] = [], directory: String? = nil) {
     self.after = after
     self.first = first
@@ -21,11 +23,11 @@ public class TrackOptions: NSObject {
     self.directory = directory
     super.init()
   }
-  
+
   public override var description: String {
     return "TrackOptions(after: \(after ?? "nil"), first: \(first), sortBy: \(sortBy), directory: \(directory ?? "nil"))"
   }
-  
+
   public func toDictionary() -> [String: Any] {
     return [
       "after": after ?? NSNull(),
@@ -40,18 +42,18 @@ public class AlbumOptions: NSObject {
   public let after: String?
   public let first: Int
   public let sortBy: [String]
-  
+
   public init(after: String? = nil, first: Int = 20, sortBy: [String] = []) {
     self.after = after
     self.first = first
     self.sortBy = sortBy
     super.init()
   }
-  
+
   public override var description: String {
     return "AlbumOptions(after: \(after ?? "nil"), first: \(first), sortBy: \(sortBy))"
   }
-  
+
   public func toDictionary() -> [String: Any] {
     return [
       "after": after ?? NSNull(),
@@ -65,18 +67,18 @@ public class ArtistOptions: NSObject {
   public let after: String?
   public let first: Int
   public let sortBy: [String]
-  
+
   public init(after: String? = nil, first: Int = 20, sortBy: [String] = []) {
     self.after = after
     self.first = first
     self.sortBy = sortBy
     super.init()
   }
-  
+
   public override var description: String {
     return "ArtistOptions(after: \(after ?? "nil"), first: \(first), sortBy: \(sortBy))"
   }
-  
+
   public func toDictionary() -> [String: Any] {
     return [
       "after": after ?? NSNull(),
