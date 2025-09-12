@@ -1,11 +1,20 @@
 # react-native-music-library
 
-[中文版](./README_ZH.md) | [📖 Documentation](./docs/)
+[![npm version](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library.svg)](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[中文](./README_ZH.md)
 
 A powerful React Native library for accessing local music files and getting full metadata. Built with React Native's New Architecture (TurboModules) for optimal performance.
 
-[![npm version](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library.svg)](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+  <img src="./assets/home.jpg" alt="Home Screen" style="width: 150px; height: auto;" />
+  <img src="./assets/track-list.jpg" alt="Track List" style="width: 150px; height: auto;" />
+  <img src="./assets/player.jpg" alt="Player" style="width: 150px; height: auto;" />
+  <img src="./assets/album-list.jpg" alt="Album List" style="width: 150px; height: auto;" />
+  <img src="./assets/artist-list.jpg" alt="Artist List" style="width: 150px; height: auto;" />
+</div>
 
 ## ✨ Features
 
@@ -34,7 +43,7 @@ yarn add @nodefinity/react-native-music-library
 ```js
 import { getTracksAsync, getAlbumsAsync, getArtistsAsync } from '@nodefinity/react-native-music-library';
 
-// Get all tracks
+// Get tracks
 const tracks = await getTracksAsync();
 
 // Get albums with sorting
@@ -55,13 +64,6 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
-
-## 📖 Documentation
-
-- [📚 Full API Documentation](./docs/)
-- [🎯 Getting Started](./docs/getting-started)
-- [🔧 API Reference](./docs/api)
-- [💡 Examples](./docs/examples)
 
 ## 🤝 Contributing
 

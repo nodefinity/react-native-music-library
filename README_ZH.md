@@ -1,11 +1,19 @@
 # react-native-music-library
 
-[English Version](./README.md) | [📖 文档](./docs/)
-
-一个功能强大的 React Native 库，用于访问本地音乐文件并获取完整的元数据信息。基于 React Native 新架构（TurboModules）构建，性能卓越。
-
 [![npm version](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library.svg)](https://badge.fury.io/js/@nodefinity%2Freact-native-music-library)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[English](./README.md)
+
+基于 React Native 新架构（TurboModules）构建的 React Native 库，用于访问本地音乐文件并获取完整的元数据信息。
+
+<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+  <img src="./assets/home.jpg" alt="Home Screen" style="width: 150px; height: auto;" />
+  <img src="./assets/track-list.jpg" alt="Track List" style="width: 150px; height: auto;" />
+  <img src="./assets/player.jpg" alt="Player" style="width: 150px; height: auto;" />
+  <img src="./assets/album-list.jpg" alt="Album List" style="width: 150px; height: auto;" />
+  <img src="./assets/artist-list.jpg" alt="Artist List" style="width: 150px; height: auto;" />
+</div>
 
 ## ✨ 特性
 
@@ -34,7 +42,7 @@ yarn add @nodefinity/react-native-music-library
 ```js
 import { getTracksAsync, getAlbumsAsync, getArtistsAsync } from '@nodefinity/react-native-music-library';
 
-// 获取所有曲目
+// 获取曲目
 const tracks = await getTracksAsync();
 
 // 获取专辑并排序
@@ -55,13 +63,6 @@ const artists = await getArtistsAsync();
 <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
-
-## 📖 文档
-
-- [📚 完整 API 文档](./docs/)
-- [🎯 快速开始](./docs/getting-started)
-- [🔧 API 参考](./docs/api)
-- [💡 示例](./docs/examples)
 
 ## 🤝 贡献
 
