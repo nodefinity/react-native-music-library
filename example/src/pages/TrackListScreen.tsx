@@ -10,8 +10,8 @@ import { pickDirectory } from '@react-native-documents/picker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { usePlayer } from '../contexts/PlayerContext';
-import { AudioPro, type AudioProTrack } from 'react-native-audio-pro';
+import { usePlayer, toAudioProTrack } from '../contexts/PlayerContext';
+import { AudioPro } from 'react-native-audio-pro';
 import TrackItem from '../components/TrackItem';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TrackList'>;
@@ -97,7 +97,7 @@ export default function TrackListScreen({ navigation }: Props) {
 
   const handleTrackPress = (track: Track) => {
     setPlaylist(tracks);
-    AudioPro.play(track as unknown as AudioProTrack);
+    AudioPro.play(toAudioProTrack(track));
     console.log('Playing track:', track.title);
     navigation.navigate('Player');
   };
