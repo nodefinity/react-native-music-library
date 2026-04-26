@@ -13,8 +13,8 @@ import {
   type Track,
 } from '@nodefinity/react-native-music-library';
 import TrackItem from '../components/TrackItem';
-import { usePlayer } from '../contexts/PlayerContext';
-import { AudioPro, type AudioProTrack } from 'react-native-audio-pro';
+import { usePlayer, toAudioProTrack } from '../contexts/PlayerContext';
+import { AudioPro } from 'react-native-audio-pro';
 import { useEffect, useState } from 'react';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AlbumTrackList'>;
@@ -40,7 +40,7 @@ export default function AlbumTrackListScreen({ navigation, route }: Props) {
 
   const handleTrackPress = (track: Track) => {
     setPlaylist(albumTracks);
-    AudioPro.play(track as unknown as AudioProTrack);
+    AudioPro.play(toAudioProTrack(track));
     console.log('Playing track:', track.title);
     navigation.navigate('Player');
   };

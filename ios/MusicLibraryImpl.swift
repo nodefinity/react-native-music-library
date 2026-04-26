@@ -54,41 +54,25 @@ public class MusicLibraryImpl: NSObject {
   }
 
   @objc public func getTracksByArtistAsync(_ artistId: String, first: Int, after: String?, sortBy: [String], directory: String?) -> [String: Any] {
-    NSLog("🎵 [MusicLibrary] getTracksByArtistAsync called with artistId: %@, first: %d, after: %@, sortBy: %@, directory: %@", artistId, first, after ?? "nil", sortBy, directory ?? "nil")
-
-    let result = PaginatedResult<Track>(items: [], hasNextPage: false)
-    let resultDict = result.toDictionary()
-
-    NSLog("🎵 [MusicLibrary] getTracksByArtistAsync returning: %@", resultDict)
-    return resultDict
+    let options = TrackOptions(after: after, first: first, sortBy: sortBy, directory: directory)
+    let result = GetTracksByArtistQuery.getTracksByArtist(artistId: artistId, options: options)
+    return result.toDictionary()
   }
 
   @objc public func getAlbumsAsync(first: Int, after: String?, sortBy: [String]) -> [String: Any] {
-    NSLog("🎵 [MusicLibrary] getAlbumsAsync called with first: %d, after: %@, sortBy: %@", first, after ?? "nil", sortBy)
-
-    let result = PaginatedResult<Album>(items: [], hasNextPage: false)
-    let resultDict = result.toDictionary()
-
-    NSLog("🎵 [MusicLibrary] getAlbumsAsync returning: %@", resultDict)
-    return resultDict
+    let options = AlbumOptions(after: after, first: first, sortBy: sortBy)
+    let result = GetAlbumsQuery.getAlbums(options: options)
+    return result.toDictionary()
   }
 
   @objc public func getAlbumsByArtistAsync(_ artistId: String) -> [[String: Any]] {
-    NSLog("🎵 [MusicLibrary] getAlbumsByArtistAsync called with artistId: %@", artistId)
-
-    let result: [[String: Any]] = []
-
-    NSLog("🎵 [MusicLibrary] getAlbumsByArtistAsync returning: %@", result)
-    return result
+    let albums = GetAlbumsByArtistQuery.getAlbumsByArtist(artistId: artistId)
+    return albums.map { $0.toDictionary() }
   }
 
   @objc public func getArtistsAsync(first: Int, after: String?, sortBy: [String]) -> [String: Any] {
-    NSLog("🎵 [MusicLibrary] getArtistsAsync called with first: %d, after: %@, sortBy: %@", first, after ?? "nil", sortBy)
-
-    let result = PaginatedResult<Artist>(items: [], hasNextPage: false)
-    let resultDict = result.toDictionary()
-
-    NSLog("🎵 [MusicLibrary] getArtistsAsync returning: %@", resultDict)
-    return resultDict
+    let options = ArtistOptions(after: after, first: first, sortBy: sortBy)
+    let result = GetArtistsQuery.getArtists(options: options)
+    return result.toDictionary()
   }
 }

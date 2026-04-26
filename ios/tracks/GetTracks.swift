@@ -79,6 +79,18 @@ internal class GetTracks {
             let date2 = item2.lastPlayedDate ?? Date(timeIntervalSince1970: 0)
             return ascending ? date1 < date2 : date1 > date2
           }
+        case "album":
+          items.sort { item1, item2 in
+            let album1 = item1.albumTitle ?? ""
+            let album2 = item2.albumTitle ?? ""
+            return ascending ? album1 < album2 : album1 > album2
+          }
+        case "filesize":
+          items.sort { item1, item2 in
+            let size1 = getFileSize(for: item1)
+            let size2 = getFileSize(for: item2)
+            return ascending ? size1 < size2 : size1 > size2
+          }
         default:
           NSLog("🎵 [MusicLibrary] Unknown sort key: %@", key)
         }

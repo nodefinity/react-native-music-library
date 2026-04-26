@@ -37,7 +37,7 @@ const result = await getTracksAsync();
 const tracks = await getTracksAsync({
   first: 50,
   sortBy: ['artist', true],
-  directory: '/Music/Favorites'
+  directory: '/Music/Favorites',
 });
 ```
 
@@ -69,7 +69,7 @@ const result = await getAlbumsAsync();
 // Get albums with sorting
 const albums = await getAlbumsAsync({
   first: 30,
-  sortBy: ['trackCount', false] // Sort by track count descending
+  sortBy: ['trackCount', false], // Sort by track count descending
 });
 ```
 
@@ -101,7 +101,7 @@ const result = await getArtistsAsync();
 // Get artists with sorting
 const artists = await getArtistsAsync({
   first: 20,
-  sortBy: ['trackCount', false] // Sort by track count descending
+  sortBy: ['trackCount', false], // Sort by track count descending
 });
 ```
 
@@ -167,7 +167,7 @@ import { getTracksByArtistAsync } from '@nodefinity/react-native-music-library';
 
 const tracks = await getTracksByArtistAsync('artist-id-123', {
   first: 100,
-  sortBy: ['album', true]
+  sortBy: ['album', true],
 });
 ```
 
@@ -197,10 +197,10 @@ const albums = await getAlbumsByArtistAsync('artist-id-123');
 
 ```typescript
 interface TrackOptions {
-  after?: string;          // Cursor for pagination
-  first?: number;          // Max items to return (default: 20)
+  after?: string; // Cursor for pagination
+  first?: number; // Max items to return (default: 20)
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
-  directory?: string;      // Directory path to search
+  directory?: string; // Directory path to search
 }
 ```
 
@@ -208,8 +208,8 @@ interface TrackOptions {
 
 ```typescript
 interface AlbumOptions {
-  after?: string;          // Cursor for pagination
-  first?: number;          // Max items to return (default: 20)
+  after?: string; // Cursor for pagination
+  first?: number; // Max items to return (default: 20)
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
 }
 ```
@@ -218,8 +218,8 @@ interface AlbumOptions {
 
 ```typescript
 interface ArtistOptions {
-  after?: string;          // Cursor for pagination
-  first?: number;          // Max items to return (default: 20)
+  after?: string; // Cursor for pagination
+  first?: number; // Max items to return (default: 20)
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
 }
 ```
@@ -229,15 +229,15 @@ interface ArtistOptions {
 ```typescript
 interface Track {
   id: string;
-  title: string;          // Track title
-  artist: string;         // Artist name
-  artwork: string;        // Artwork file URI
-  album: string;          // Album name
-  duration: number;       // Duration in seconds
-  url: string;            // File URL or path
-  createdAt: number;      // Date added (Unix timestamp)
-  modifiedAt: number;     // Date modified (Unix timestamp)
-  fileSize: number;       // File size in bytes
+  title: string; // Track title
+  artist: string; // Artist name
+  artwork?: string; // Artwork file URI (may be undefined)
+  album: string; // Album name
+  duration: number; // Duration in seconds
+  url: string; // File URL or path
+  createdAt: number; // Date added (Unix timestamp)
+  modifiedAt: number; // Date modified (Unix timestamp)
+  fileSize: number; // File size in bytes
 }
 ```
 
@@ -246,11 +246,11 @@ interface Track {
 ```typescript
 interface Album {
   id: string;
-  title: string;          // Album name
-  artist: string;         // Primary artist
-  artwork?: string;       // Album artwork URI
-  trackCount: number;     // Number of tracks
-  year?: number;          // Release year
+  title: string; // Album name
+  artist: string; // Primary artist
+  artwork?: string; // Album artwork URI
+  trackCount: number; // Number of tracks
+  year?: number; // Release year
 }
 ```
 
@@ -259,9 +259,9 @@ interface Album {
 ```typescript
 interface Artist {
   id: string;
-  title: string;          // Artist name
-  albumCount: number;     // Number of albums
-  trackCount: number;     // Total number of tracks
+  title: string; // Artist name
+  albumCount: number; // Number of albums
+  trackCount: number; // Total number of tracks
 }
 ```
 
@@ -269,28 +269,28 @@ interface Artist {
 
 ```typescript
 interface TrackMetadata {
-  id: string;              // Track ID
+  id: string; // Track ID
 
   // Audio header
-  duration: number;       // Duration in seconds
-  bitrate: number;        // Bitrate in kbps
-  sampleRate: number;     // Sample rate in Hz
-  channels: number;       // Number of channels
-  format: string;         // Audio format
+  duration: number; // Duration in seconds
+  bitrate: number; // Bitrate in kbps
+  sampleRate: number; // Sample rate in Hz
+  channels: string; // Number of channels (e.g. "2")
+  format: string; // Audio format
 
   // Tag info
-  title: string;          // Track title
-  artist: string;         // Artist name
-  album: string;          // Album name
-  year: number;           // Release year
-  genre: string;          // Music genre
-  track: number;          // Track number
-  disc: number;           // Disc number
-  composer: string;       // Composer
-  lyricist: string;       // Lyricist
-  lyrics: string;         // Lyrics content
-  albumArtist: string;    // Album artist
-  comment: string;        // Comment
+  title: string; // Track title
+  artist: string; // Artist name
+  album: string; // Album name
+  year: number; // Release year
+  genre: string; // Music genre
+  track: number; // Track number
+  disc: number; // Disc number
+  composer: string; // Composer
+  lyricist: string; // Lyricist
+  lyrics: string; // Lyrics content
+  albumArtist: string; // Album artist
+  comment: string; // Comment
 }
 ```
 
@@ -326,16 +326,12 @@ interface TrackMetadata {
 
 ```js
 // Single sort key (descending by default)
-sortBy: 'artist'
+sortBy: 'artist';
 
 // Single sort key with direction
-sortBy: ['artist', true]  // ascending
-sortBy: ['artist', false] // descending
+sortBy: ['artist', true]; // ascending
+sortBy: ['artist', false]; // descending
 
 // Multiple sort criteria
-sortBy: [
-  ['artist', true],
-  ['album', true],
-  'duration'
-]
+sortBy: [['artist', true], ['album', true], 'duration'];
 ```

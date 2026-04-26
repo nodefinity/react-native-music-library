@@ -3,6 +3,15 @@ import type { Track } from '../../../src/NativeMusicLibrary';
 import type { AudioProTrack } from 'react-native-audio-pro';
 import { AudioPro } from 'react-native-audio-pro';
 
+export function toAudioProTrack(track: Track): AudioProTrack {
+  return {
+    ...track,
+    artwork: track.artwork ?? require('../assets/default_artwork.png'),
+    artist: track.artist ?? '',
+    album: track.album ?? '',
+  } as unknown as AudioProTrack;
+}
+
 interface PlayerContextType {
   playlist: Track[];
   setPlaylist: (tracks: Track[]) => void;
@@ -24,7 +33,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     const nextIndex = (currentIndex + 1) % playlist.length;
     const nextTrack = playlist[nextIndex];
     if (nextTrack) {
-      AudioPro.play(nextTrack as unknown as AudioProTrack);
+      AudioPro.play(toAudioProTrack(nextTrack));
     }
   }, [playlist]);
 
@@ -37,7 +46,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
     const prevTrack = playlist[prevIndex];
     if (prevTrack) {
-      AudioPro.play(prevTrack as unknown as AudioProTrack);
+      AudioPro.play(toAudioProTrack(prevTrack));
     }
   }, [playlist]);
 

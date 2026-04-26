@@ -43,13 +43,29 @@ const requestMusicPermission = async () => {
 };
 ```
 
-### iOS（即将推出）
+### iOS
 
-iOS 实现尚未可用。为了未来兼容性，在 `Info.plist` 中添加：
+1. **添加权限**到 `Info.plist`：
 
 ```xml
 <key>NSAppleMusicUsageDescription</key>
 <string>此应用需要访问您的音乐库来播放歌曲</string>
+```
+
+2. **请求运行时权限**使用权限库：
+
+```js
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+
+const requestMusicPermission = async () => {
+  const result = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
+
+  if (result === RESULTS.GRANTED) {
+    console.log('音乐权限已授予');
+  } else {
+    console.log('音乐权限被拒绝');
+  }
+};
 ```
 
 ## 基本用法
@@ -124,6 +140,6 @@ const loadArtists = async () => {
 
 ## 下一步
 
-- [API 参考](./api) - 了解所有可用的方法和选项
-- [示例](./examples) - 查看实际使用示例
-- [类型定义](./api#type-definitions) - 理解数据结构
+- [API 参考](./api.md) - 了解所有可用的方法和选项
+- [示例](./examples.md) - 查看实际使用示例
+- [类型定义](./api.md#type-definitions) - 理解数据结构
