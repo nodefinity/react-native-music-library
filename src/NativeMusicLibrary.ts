@@ -172,8 +172,8 @@ export interface Track {
   /** Artist name */
   artist: string;
 
-  /** Track artwork (file URI) */
-  artwork: string;
+  /** Track artwork (file URI, optional) */
+  artwork?: string;
 
   /** Album name */
   album: string;
@@ -202,7 +202,7 @@ export interface TrackMetadata {
   duration: number; // in seconds
   bitrate: number; // in kbps
   sampleRate: number; // in Hz
-  channels: number;
+  channels: string;
   format: string;
 
   /** Tag info */

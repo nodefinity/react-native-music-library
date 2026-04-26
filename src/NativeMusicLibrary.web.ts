@@ -36,7 +36,7 @@ const MusicLibrary: Spec = {
       duration: 0,
       bitrate: 0,
       sampleRate: 0,
-      channels: 0,
+      channels: '',
       format: '',
       title: '',
       artist: '',
