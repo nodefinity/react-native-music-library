@@ -1,6 +1,6 @@
 {
   "name": "@nodefinity/react-native-music-library",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Access local music files in React Native and get full metadata.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -90,7 +90,7 @@
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-builder-bob": "^0.40.8",
-    "release-it": "^19.2.4",
+    "release-it": "^20.0.1",
     "turbo": "^1.10.7",
     "typescript": "^5.8.3"
   },
@@ -133,7 +133,7 @@
     "plugins": {
       "@release-it/conventional-changelog": {
         "preset": {
-          "name": "angular"
+          "name": "conventionalcommits"
         }
       }
     }
