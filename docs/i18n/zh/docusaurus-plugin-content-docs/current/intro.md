@@ -15,8 +15,8 @@ React Native Music Library 是一个功能强大的库，用于访问本地音�
 - 📁 **目录过滤** - 按特定目录过滤音乐
 - 🔄 **TypeScript** - 完整的类型定义和类型安全
 - 🎨 **专辑封面** - 支持专辑封面和封面图片
-- 🤖 **Android 支持** - 完整的原生 Android 实现
-- 📱 **iOS 支持** - 即将推出
+- 🤖 **Android** - 完整的原生 Android 实现
+- 🍎 **iOS** - 基于 MediaPlayer 框架的完整原生 iOS 实现
 
 ## 🚀 快速开始
 
@@ -67,8 +67,17 @@ const artists = await getArtistsAsync();
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
 
+### iOS 权限
+
+在 `Info.plist` 中添加：
+
+```xml
+<key>NSAppleMusicUsageDescription</key>
+<string>此应用需要访问您的音乐库。</string>
+```
+
 ## 📖 下一步
 
-- [开始使用](./getting-started) - 学习如何设置和使用该库
-- [API 参考](./api) - 完整的 API 文档
-- [示例](./examples) - 实际使用示例
+- [开始使用](./getting-started.md) - 学习如何设置和使用该库
+- [API 参考](./api.md) - 完整的 API 文档
+- [示例](./examples.md) - 实际使用示例

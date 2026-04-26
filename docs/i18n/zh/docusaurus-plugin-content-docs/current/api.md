@@ -37,7 +37,7 @@ const result = await getTracksAsync();
 const tracks = await getTracksAsync({
   first: 50,
   sortBy: ['artist', true],
-  directory: '/Music/Favorites'
+  directory: '/Music/Favorites',
 });
 ```
 
@@ -69,7 +69,7 @@ const result = await getAlbumsAsync();
 // 获取专辑并排序
 const albums = await getAlbumsAsync({
   first: 30,
-  sortBy: ['trackCount', false] // 按曲目数降序排序
+  sortBy: ['trackCount', false], // 按曲目数降序排序
 });
 ```
 
@@ -101,7 +101,7 @@ const result = await getArtistsAsync();
 // 获取艺术家并排序
 const artists = await getArtistsAsync({
   first: 20,
-  sortBy: ['trackCount', false] // 按曲目数降序排序
+  sortBy: ['trackCount', false], // 按曲目数降序排序
 });
 ```
 
@@ -167,7 +167,7 @@ import { getTracksByArtistAsync } from '@nodefinity/react-native-music-library';
 
 const tracks = await getTracksByArtistAsync('artist-id-123', {
   first: 100,
-  sortBy: ['album', true]
+  sortBy: ['album', true],
 });
 ```
 
@@ -197,10 +197,10 @@ const albums = await getAlbumsByArtistAsync('artist-id-123');
 
 ```typescript
 interface TrackOptions {
-  after?: string;          // 分页游标
-  first?: number;          // 最大返回项目数（默认：20）
+  after?: string; // 分页游标
+  first?: number; // 最大返回项目数（默认：20）
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
-  directory?: string;      // 搜索目录路径
+  directory?: string; // 搜索目录路径
 }
 ```
 
@@ -208,8 +208,8 @@ interface TrackOptions {
 
 ```typescript
 interface AlbumOptions {
-  after?: string;          // 分页游标
-  first?: number;          // 最大返回项目数（默认：20）
+  after?: string; // 分页游标
+  first?: number; // 最大返回项目数（默认：20）
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
 }
 ```
@@ -218,8 +218,8 @@ interface AlbumOptions {
 
 ```typescript
 interface ArtistOptions {
-  after?: string;          // 分页游标
-  first?: number;          // 最大返回项目数（默认：20）
+  after?: string; // 分页游标
+  first?: number; // 最大返回项目数（默认：20）
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
 }
 ```
@@ -229,15 +229,15 @@ interface ArtistOptions {
 ```typescript
 interface Track {
   id: string;
-  title: string;          // 曲目标题
-  artist: string;         // 艺术家名称
-  artwork: string;        // 封面文件 URI
-  album: string;          // 专辑名称
-  duration: number;       // 时长（秒）
-  url: string;            // 文件 URL 或路径
-  createdAt: number;      // 添加日期（Unix 时间戳）
-  modifiedAt: number;     // 修改日期（Unix 时间戳）
-  fileSize: number;       // 文件大小（字节）
+  title: string; // 曲目标题
+  artist: string; // 艺术家名称
+  artwork?: string; // 封面文件 URI（可能为空）
+  album: string; // 专辑名称
+  duration: number; // 时长（秒）
+  url: string; // 文件 URL 或路径
+  createdAt: number; // 添加日期（Unix 时间戳）
+  modifiedAt: number; // 修改日期（Unix 时间戳）
+  fileSize: number; // 文件大小（字节）
 }
 ```
 
@@ -246,11 +246,11 @@ interface Track {
 ```typescript
 interface Album {
   id: string;
-  title: string;          // 专辑名称
-  artist: string;         // 主要艺术家
-  artwork?: string;       // 专辑封面 URI
-  trackCount: number;     // 曲目数量
-  year?: number;          // 发行年份
+  title: string; // 专辑名称
+  artist: string; // 主要艺术家
+  artwork?: string; // 专辑封面 URI
+  trackCount: number; // 曲目数量
+  year?: number; // 发行年份
 }
 ```
 
@@ -259,9 +259,9 @@ interface Album {
 ```typescript
 interface Artist {
   id: string;
-  title: string;          // 艺术家名称
-  albumCount: number;     // 专辑数量
-  trackCount: number;     // 总曲目数
+  title: string; // 艺术家名称
+  albumCount: number; // 专辑数量
+  trackCount: number; // 总曲目数
 }
 ```
 
@@ -269,28 +269,28 @@ interface Artist {
 
 ```typescript
 interface TrackMetadata {
-  id: string;              // 曲目 ID
+  id: string; // 曲目 ID
 
   // 音频头信息
-  duration: number;       // 时长（秒）
-  bitrate: number;        // 比特率（kbps）
-  sampleRate: number;     // 采样率（Hz）
-  channels: number;       // 声道数
-  format: string;         // 音频格式
+  duration: number; // 时长（秒）
+  bitrate: number; // 比特率（kbps）
+  sampleRate: number; // 采样率（Hz）
+  channels: string; // 声道数（如 "2"）
+  format: string; // 音频格式
 
   // 标签信息
-  title: string;          // 曲目标题
-  artist: string;         // 艺术家名称
-  album: string;          // 专辑名称
-  year: number;           // 发行年份
-  genre: string;          // 音乐流派
-  track: number;          // 曲目编号
-  disc: number;           // 碟片编号
-  composer: string;       // 作曲家
-  lyricist: string;       // 作词家
-  lyrics: string;         // 歌词内容
-  albumArtist: string;    // 专辑艺术家
-  comment: string;        // 注释
+  title: string; // 曲目标题
+  artist: string; // 艺术家名称
+  album: string; // 专辑名称
+  year: number; // 发行年份
+  genre: string; // 音乐流派
+  track: number; // 曲目编号
+  disc: number; // 碟片编号
+  composer: string; // 作曲家
+  lyricist: string; // 作词家
+  lyrics: string; // 歌词内容
+  albumArtist: string; // 专辑艺术家
+  comment: string; // 注释
 }
 ```
 
@@ -326,16 +326,12 @@ interface TrackMetadata {
 
 ```js
 // 单个排序键（默认降序）
-sortBy: 'artist'
+sortBy: 'artist';
 
 // 单个排序键带方向
-sortBy: ['artist', true]  // 升序
-sortBy: ['artist', false] // 降序
+sortBy: ['artist', true]; // 升序
+sortBy: ['artist', false]; // 降序
 
 // 多个排序条件
-sortBy: [
-  ['artist', true],
-  ['album', true],
-  'duration'
-]
+sortBy: [['artist', true], ['album', true], 'duration'];
 ```
