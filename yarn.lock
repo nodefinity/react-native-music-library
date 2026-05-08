@@ -3141,10 +3141,10 @@ __metadata:
     "@eslint/eslintrc": ^3.3.3
     "@eslint/js": ^9.22.0
     "@evilmartians/lefthook": ^2.1.1
-    "@react-native-community/cli": 20.1.1
+    "@react-native-community/cli": 20.1.3
     "@react-native/babel-preset": 0.80.3
     "@react-native/eslint-config": ^0.80.3
-    "@release-it/conventional-changelog": ^10.0.5
+    "@release-it/conventional-changelog": ^11.0.0
     "@types/jest": ^30.0.0
     "@types/react": ^19.0.0
     commitlint: ^19.6.1
@@ -3521,15 +3521,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-community/cli-clean@npm:20.1.1":
-  version: 20.1.1
-  resolution: "@react-native-community/cli-clean@npm:20.1.1"
+"@react-native-community/cli-clean@npm:20.1.3":
+  version: 20.1.3
+  resolution: "@react-native-community/cli-clean@npm:20.1.3"
   dependencies:
-    "@react-native-community/cli-tools": 20.1.1
+    "@react-native-community/cli-tools": 20.1.3
     execa: ^5.0.0
     fast-glob: ^3.3.2
     picocolors: ^1.1.1
-  checksum: f082a56e04fd0b626e2d863831acd58f47866f6a3d235e45059fb8697a75c0484d06ba4bb3116198fc1e773cf19fc30526148ad45c3d0c771eb9f66346957405
+  checksum: 964586017aa8699a4e72eec4c559da8209505c946867b2b2bedb4fbd398be1b75584adaaabaae631eb40d65bba84604e5e7ea37bb0b77b904e9817090573d4fe
   languageName: node
   linkType: hard
 
@@ -3553,7 +3553,7 @@ __metadata:
     fast-glob: ^3.3.2
     fast-xml-parser: ^4.4.1
     picocolors: ^1.1.1
-  checksum: bf94b3e833eaf64c661503f836748160f4d763a5fb0c931bba74fdc836335ba210b030e556bea8cf15f1880ca9c483f1834fdfb04edb2e63036c5211c3db2627
+  checksum: 77ffa9bdfd49bde1eb9ef5f0ea6afadf78ef2449e40b6b02eb035faaa65e4beb3e14085a9a3bed9f323fcf27e4fdff20d0db676ec610e63a864e3c918e6af256
   languageName: node
   linkType: hard
 
@@ -3577,7 +3577,7 @@ __metadata:
     execa: ^5.0.0
     fast-glob: ^3.3.2
     picocolors: ^1.1.1
-  checksum: a01736ce164e6f08404b1d23732a82f4f38148682ef86268095680719aaa7d08eedfa7ff606aa7a095bf0762e36978e24192e4f9881016a56b162711195bbe4b
+  checksum: 76114eea7bb652121afd1d43f9fbd22134451d89db1c1444d4d3eb0e2837c7367fc52752965d46c82c5d6e981c9e5ec18dd26483b36cb5c320399ad7c226eed9
   languageName: node
   linkType: hard
 
@@ -3597,13 +3597,13 @@ __metadata:
   version: 20.1.1
   resolution: "@react-native-community/cli-config@npm:20.1.1"
   dependencies:
-    "@react-native-community/cli-tools": 20.1.1
+    "@react-native-community/cli-tools": 20.1.3
     cosmiconfig: ^9.0.0
     deepmerge: ^4.3.0
     fast-glob: ^3.3.2
     joi: ^17.2.1
     picocolors: ^1.1.1
-  checksum: 3ff7b882e4ec05886e98ec95048bdfce34bf5f4db36e822502001a84d2388976d11f6b23f4aaa859ea1f5c8a025385ece62f23443ff5de46de74d3bd65f31ce9
+  checksum: b3bd37445cb2adb586590e7fa8bcb69744eaf27a3a51506ab2851b3eb60a543ad336ac51906931e268ff52a65d815e1938331dca09fdae7efd501b1c955d2d4f
   languageName: node
   linkType: hard
 
@@ -3625,11 +3625,11 @@ __metadata:
   version: 20.1.1
   resolution: "@react-native-community/cli-doctor@npm:20.1.1"
   dependencies:
-    "@react-native-community/cli-config": 20.1.1
-    "@react-native-community/cli-platform-android": 20.1.1
-    "@react-native-community/cli-platform-apple": 20.1.1
-    "@react-native-community/cli-platform-ios": 20.1.1
-    "@react-native-community/cli-tools": 20.1.1
+    "@react-native-community/cli-config": 20.1.3
+    "@react-native-community/cli-platform-android": 20.1.3
+    "@react-native-community/cli-platform-apple": 20.1.3
+    "@react-native-community/cli-platform-ios": 20.1.3
+    "@react-native-community/cli-tools": 20.1.3
     command-exists: ^1.2.8
     deepmerge: ^4.3.0
     envinfo: ^7.13.0
@@ -3640,7 +3640,7 @@ __metadata:
     semver: ^7.5.2
     wcwidth: ^1.0.1
     yaml: ^2.2.1
-  checksum: 87f45d4afc5ad838a34d06c6762fafbb4d6af3dea3bbcaeabcef01c7aafaf7b1a2cdb99e6733cdd446e9340f52931b9c6a89ed9c135588646fc13d88fc8fa4b9
+  checksum: d8091fc0480fda001754e9c1d7f5deaea292eb400d24633ae479bc9e259171f8277584c45a8bdb1266b0b7e01803f97e91a75174bbf717c994685e1c57555fa1
   languageName: node
   linkType: hard
 
@@ -3693,16 +3693,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-community/cli-platform-apple@npm:20.1.1":
-  version: 20.1.1
-  resolution: "@react-native-community/cli-platform-apple@npm:20.1.1"
+"@react-native-community/cli-platform-apple@npm:20.1.3":
+  version: 20.1.3
+  resolution: "@react-native-community/cli-platform-apple@npm:20.1.3"
   dependencies:
-    "@react-native-community/cli-config-apple": 20.1.1
-    "@react-native-community/cli-tools": 20.1.1
+    "@react-native-community/cli-config-apple": 20.1.3
+    "@react-native-community/cli-tools": 20.1.3
     execa: ^5.0.0
-    fast-xml-parser: ^4.4.1
+    fast-xml-parser: ^5.3.6
     picocolors: ^1.1.1
-  checksum: bfafacf2466ffe79ea491e82c5a85d5ad7bde2df29b2cedb1c3489fdb14ab1a553a6d738382e3c32ec0f4f74239d2f07a9758fa45500d889ecf16dd6dd327255
+  checksum: a874a0e1c277ea217f7b220de5abee806a090d73038ae6dcd3c4c10b397895cb4f1e0d47bd2bb56cbae36303514bd4f91823d833000821b056ab2ea6b1355dd0
   languageName: node
   linkType: hard
 
@@ -3719,9 +3719,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-community/cli-platform-ios@npm:20.1.1":
-  version: 20.1.1
-  resolution: "@react-native-community/cli-platform-ios@npm:20.1.1"
+"@react-native-community/cli-server-api@npm:20.1.3":
+  version: 20.1.3
+  resolution: "@react-native-community/cli-server-api@npm:20.1.3"
   dependencies:
     "@react-native-community/cli-platform-apple": 20.1.1
   checksum: a2ec3bf30048824f48143bc8b994b7bd0deec706898493b19366649da4bf0c1a426db0f73059c4e7ec79c25dd1463ccba0215b84c11d9ebcfce438b0a6d678a6
@@ -3811,12 +3811,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-community/cli-types@npm:20.1.1":
-  version: 20.1.1
-  resolution: "@react-native-community/cli-types@npm:20.1.1"
+"@react-native-community/cli-types@npm:20.1.3":
+  version: 20.1.3
+  resolution: "@react-native-community/cli-types@npm:20.1.3"
   dependencies:
     joi: ^17.2.1
-  checksum: 0e03906f4636b35935eccabb47311748ceb5dc9328db16c42c5b7752aa21b822e0ddbf5dee91297310fe92db7cee19cfc312877bb0dd0c3b37cd183dcf127dda
+  checksum: 23184e526378139386962a645ed4248f7c3563aa0b345f01449f3e0d53c78b1a16331911e040db998c5a0a74315dd0395310439aec910925fbd7398ca01eed14
   languageName: node
   linkType: hard
 
@@ -3833,12 +3833,12 @@ __metadata:
   version: 20.1.1
   resolution: "@react-native-community/cli@npm:20.1.1"
   dependencies:
-    "@react-native-community/cli-clean": 20.1.1
-    "@react-native-community/cli-config": 20.1.1
-    "@react-native-community/cli-doctor": 20.1.1
-    "@react-native-community/cli-server-api": 20.1.1
-    "@react-native-community/cli-tools": 20.1.1
-    "@react-native-community/cli-types": 20.1.1
+    "@react-native-community/cli-clean": 20.1.3
+    "@react-native-community/cli-config": 20.1.3
+    "@react-native-community/cli-doctor": 20.1.3
+    "@react-native-community/cli-server-api": 20.1.3
+    "@react-native-community/cli-tools": 20.1.3
+    "@react-native-community/cli-types": 20.1.3
     commander: ^9.4.1
     deepmerge: ^4.3.0
     execa: ^5.0.0
@@ -3850,7 +3850,7 @@ __metadata:
     semver: ^7.5.2
   bin:
     rnc-cli: build/bin.js
-  checksum: cbbc72e3940a44f766677e5305d1d6990720f6421c0b7a20fd08b22ea71cc2e6a5ef2d39b5c85a2973e119b64d54ffd4a838d028f0019c0c3675c33172737a34
+  checksum: 8a47cbdfb491861ba35318c232d32467b85b77ead7203955fce7197282da88e5b0bb56c356ba6d3f8a8d667ac60e07b79dc234b965c624f3b8c538b5a78f29cd
   languageName: node
   linkType: hard
 
@@ -4297,20 +4297,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@release-it/conventional-changelog@npm:^10.0.5":
-  version: 10.0.5
-  resolution: "@release-it/conventional-changelog@npm:10.0.5"
+"@release-it/conventional-changelog@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "@release-it/conventional-changelog@npm:11.0.0"
   dependencies:
-    "@conventional-changelog/git-client": ^2.5.1
+    "@conventional-changelog/git-client": ^2.7.0
     concat-stream: ^2.0.0
-    conventional-changelog: ^7.1.1
-    conventional-changelog-angular: ^8.1.0
-    conventional-changelog-conventionalcommits: ^9.1.0
+    conventional-changelog: ^7.2.0
+    conventional-changelog-angular: ^8.3.1
+    conventional-changelog-conventionalcommits: ^9.3.1
     conventional-recommended-bump: ^11.2.0
-    semver: ^7.7.3
+    semver: ^7.7.4
   peerDependencies:
-    release-it: ^18.0.0 || ^19.0.0
-  checksum: d9e40b3db2eb31c9a17811e2c8404829c3effa7e1d5430dbdc31c06399d0dc79424448d9120e2b5d51ca07302f1213aa1615df5716860d86a0cc158dc8f2b80d
+    release-it: ^18.0.0 || ^19.0.0 || ^20.0.0
+  checksum: 730f179b3eb5d20f1c8f851c1dffcbfcc323fb3073d3d1231965c0def86090b4ccb17d27a7498de013d99edeea32be95bfb0a971ee5f8571999ca3533fcb5fac
   languageName: node
   linkType: hard
 
@@ -4347,12 +4347,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@simple-libs/hosted-git-info@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@simple-libs/hosted-git-info@npm:1.0.2"
+  checksum: c5d3c4e743611124b3d5be12ec5d536cb9f16ce699e1d911b0e05b96d9c7b4f1afd2606e1baaf0889c843a111dd2f8648fd162eb0d09e20fddf9f13b0e7d2090
+  languageName: node
+  linkType: hard
+
 "@simple-libs/stream-utils@npm:^1.1.0":
   version: 1.1.0
   resolution: "@simple-libs/stream-utils@npm:1.1.0"
   dependencies:
     "@types/node": ^22.0.0
   checksum: 13cb27400fa96c3d212d273ebc501851eaf4b13067be9961cfcc51e19e715e698c12cebd974ffa3135e94c7fd59c5bc857135cc64c1f61f3dd5f38e1a80d88a1
+  languageName: node
+  linkType: hard
+
+"@simple-libs/stream-utils@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@simple-libs/stream-utils@npm:1.2.0"
+  checksum: 80a2602f0e96515cab1f4ab054dccd0ee570b0a0b1722189d29fe2625e96a63b83c87486259268101b8b15a77a129aaca22bf480cf111e0910650af0820d26ee
   languageName: node
   linkType: hard
 
@@ -6116,9 +6130,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:^1.20.3":
-  version: 1.20.3
-  resolution: "body-parser@npm:1.20.3"
+"body-parser@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "body-parser@npm:2.2.2"
   dependencies:
     bytes: 3.1.2
     content-type: ~1.0.5
@@ -6200,12 +6214,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"brace-expansion@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "brace-expansion@npm:2.0.1"
+"brace-expansion@npm:^2.0.3":
+  version: 2.1.0
+  resolution: "brace-expansion@npm:2.1.0"
   dependencies:
     balanced-match: ^1.0.0
-  checksum: a61e7cd2e8a8505e9f0036b3b6108ba5e926b4b55089eeb5550cd04a471fe216c96d4fe7e4c7f995c728c554ae20ddfc4244cad10aef255e72b62930afd233d1
+  checksum: c77a7a64aabf94b8d5913955adb4f36957917565374461355bb4276830c027a313d981f32410cea9e38f52573e7eb776d02fe05091c3a79a061958d97e4d2b43
   languageName: node
   linkType: hard
 
@@ -6971,12 +6985,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-changelog-angular@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "conventional-changelog-angular@npm:8.1.0"
+"conventional-changelog-angular@npm:^8.3.1":
+  version: 8.3.1
+  resolution: "conventional-changelog-angular@npm:8.3.1"
   dependencies:
     compare-func: ^2.0.0
-  checksum: 1f14b235ab09b74e658353aa8ce559ec99de34f6c3e54923fee327291373baa720143a3172d12ae17cc3d9634b34a7bee57559c211354c9557d33743e5245f75
+  checksum: 1c40ef7831034debf026652452903f32308f49b1453d5dce1c6501489210207df68659e73dfd0f3a3cbed4532e42667cd19f5ce7d036fb91b681bc85d2f8bbe3
   languageName: node
   linkType: hard
 
@@ -6989,6 +7003,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"conventional-changelog-conventionalcommits@npm:^9.3.1":
+  version: 9.3.1
+  resolution: "conventional-changelog-conventionalcommits@npm:9.3.1"
+  dependencies:
+    compare-func: ^2.0.0
+  checksum: 6b581bf8e1fca7e404333cc04568140825495b652e559cc83dd56e40864a1178a2864001d0354de6b75c575739b9e7f328bb99339472c855c165990952a565b8
+  languageName: node
+  linkType: hard
+
 "conventional-changelog-preset-loader@npm:^5.0.0":
   version: 5.0.0
   resolution: "conventional-changelog-preset-loader@npm:5.0.0"
@@ -6996,35 +7019,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-changelog-writer@npm:^8.2.0":
-  version: 8.2.0
-  resolution: "conventional-changelog-writer@npm:8.2.0"
+"conventional-changelog-writer@npm:^8.3.0":
+  version: 8.4.0
+  resolution: "conventional-changelog-writer@npm:8.4.0"
   dependencies:
+    "@simple-libs/stream-utils": ^1.2.0
     conventional-commits-filter: ^5.0.0
     handlebars: ^4.7.7
     meow: ^13.0.0
     semver: ^7.5.2
   bin:
     conventional-changelog-writer: dist/cli/index.js
-  checksum: 0a7b62fdc06dbe3e8f0feff2c51295ebc03d8046db73111b3c6a595472885551adf9ef2eeb741c43794466e58c1f23a055160c8aef08cacfe769b86ea2b7c611
+  checksum: c537aa18fab4358fe30e90315e1c961c2429cfa9e50ad61fba178839242a98b56a1fb37846ea744a0691dae8a2b9566334be55a2a385f741274abd6351409a3d
   languageName: node
   linkType: hard
 
-"conventional-changelog@npm:^7.1.1":
-  version: 7.1.1
-  resolution: "conventional-changelog@npm:7.1.1"
+"conventional-changelog@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "conventional-changelog@npm:7.2.0"
   dependencies:
-    "@conventional-changelog/git-client": ^2.5.1
+    "@conventional-changelog/git-client": ^2.6.0
+    "@simple-libs/hosted-git-info": ^1.0.2
     "@types/normalize-package-data": ^2.4.4
     conventional-changelog-preset-loader: ^5.0.0
-    conventional-changelog-writer: ^8.2.0
-    conventional-commits-parser: ^6.2.0
+    conventional-changelog-writer: ^8.3.0
+    conventional-commits-parser: ^6.3.0
     fd-package-json: ^2.0.0
     meow: ^13.0.0
     normalize-package-data: ^7.0.0
   bin:
     conventional-changelog: dist/cli/index.js
-  checksum: 44b66b24092c384b2d1af22b3521ddf0e1f9caf973fd3de07323c2d67fbcfb7f566b7597a5b06406b478a5294ed7972ab37c6dd70ab61fe1d025fdb907b28fd2
+  checksum: c5a7f9ad9785def414abf86e911dc975b9cfbdfc6fe9cde4a57a187ea518ab938bdf8a83afddb9e9a3a7a8b8fd50cf392d805442f7568a3bd0f7b314e9fdadf1
   languageName: node
   linkType: hard
 
@@ -7049,7 +7074,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"conventional-commits-parser@npm:^6.1.0, conventional-commits-parser@npm:^6.2.0, conventional-commits-parser@npm:^6.2.1":
+"conventional-commits-parser@npm:^6.1.0, conventional-commits-parser@npm:^6.2.1":
   version: 6.2.1
   resolution: "conventional-commits-parser@npm:6.2.1"
   dependencies:
@@ -7057,6 +7082,18 @@ __metadata:
   bin:
     conventional-commits-parser: dist/cli/index.js
   checksum: 9d0fe3a7800bb3c6f2f7582724841990b44a21e944de584ef811591330d3c0fe9a19ba488234dde896b7d1331fbf63b18f43dc64579bf0805aad28bed4ce879a
+  languageName: node
+  linkType: hard
+
+"conventional-commits-parser@npm:^6.3.0":
+  version: 6.4.0
+  resolution: "conventional-commits-parser@npm:6.4.0"
+  dependencies:
+    "@simple-libs/stream-utils": ^1.2.0
+    meow: ^13.0.0
+  bin:
+    conventional-commits-parser: dist/cli/index.js
+  checksum: c7e1f3075e5af116b1e9cd0e29368c7a4b3d877351d6d211797b7b0c71368b33ef98504b26d66f819697777505c46c3a0f074eb7d2f1d00bae51e532f491911f
   languageName: node
   linkType: hard
 
@@ -7416,14 +7453,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"defu@npm:^6.1.4":
-  version: 6.1.4
-  resolution: "defu@npm:6.1.4"
-  checksum: 40e3af6338f195ac1564f53d1887fa2d0429ac7e8c081204bc4d29191180059d3952b5f4e08fe5df8d59eb873aa26e9c88b56d4fac699673d4a372c93620b229
-  languageName: node
-  linkType: hard
-
-"defu@npm:^6.1.7":
+"defu@npm:^6.1.5":
   version: 6.1.7
   resolution: "defu@npm:6.1.7"
   checksum: aeca3fc4a1e9f5a99c8b2cd3efa478dbbda1b344e3facfbe750e8b10d8ec48ede08560108f58363e9b8b8687d9ccb68faf0ba24833e267a0f1c0518c89fdabfe
@@ -8539,10 +8569,13 @@ __metadata:
   version: 4.5.3
   resolution: "fast-xml-parser@npm:4.5.3"
   dependencies:
-    strnum: ^1.1.1
+    "@nodable/entities": ^2.1.0
+    fast-xml-builder: ^1.1.7
+    path-expression-matcher: ^1.5.0
+    strnum: ^2.2.3
   bin:
     fxparser: src/cli/cli.js
-  checksum: cd6a184941ec6c23f9e6b514421a3f396cfdff5f4a8c7c27bd0eff896edb4a2b55c27da16f09b789663613dfc4933602b9b71ac3e9d1d2ddcc0492fc46c8fa52
+  checksum: 4b9af69a2f8d156c5479d9a366b6a6e8e022ea450703880f17c50004cf4942a5ecc1806d0085ffeebfd852960a4791a53a72d85adbd8a351ddb8ec6d836dd80f
   languageName: node
   linkType: hard
 
@@ -9233,7 +9266,7 @@ __metadata:
       optional: true
   bin:
     handlebars: bin/handlebars
-  checksum: 00e68bb5c183fd7b8b63322e6234b5ac8fbb960d712cb3f25587d559c2951d9642df83c04a1172c918c41bcfc81bfbd7a7718bbce93b893e0135fc99edea93ff
+  checksum: ac39070fc1c3c76a654e4b526383eaf1601976eaa474547b263915b4806977f083600e586ca923709baeed7c82a42640bcc9cc04c37a7efd3fb444f49b8347d6
   languageName: node
   linkType: hard
 
@@ -9783,13 +9816,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ip-address@npm:^9.0.5":
-  version: 9.0.5
-  resolution: "ip-address@npm:9.0.5"
-  dependencies:
-    jsbn: 1.1.0
-    sprintf-js: ^1.1.3
-  checksum: aa15f12cfd0ef5e38349744e3654bae649a34c3b10c77a674a167e99925d1549486c5b14730eebce9fea26f6db9d5e42097b00aa4f9f612e68c79121c71652dc
+"ip-address@npm:^10.1.1":
+  version: 10.2.0
+  resolution: "ip-address@npm:10.2.0"
+  checksum: 3ffba04dc4cdaf81ed2ed6edc47eee1494bb97550ef73f1918ca28405d175c03efa416b8337e868123b08c2cc677e3a07c5ce03eda3b1aeb2741c149bd37ddf9
   languageName: node
   linkType: hard
 
@@ -11106,13 +11136,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsbn@npm:1.1.0":
-  version: 1.1.0
-  resolution: "jsbn@npm:1.1.0"
-  checksum: 944f924f2bd67ad533b3850eee47603eed0f6ae425fd1ee8c760f477e8c34a05f144c1bd4f5a5dd1963141dc79a2c55f89ccc5ab77d039e7077f3ad196b64965
-  languageName: node
-  linkType: hard
-
 "jsc-safe-url@npm:^0.2.2":
   version: 0.2.4
   resolution: "jsc-safe-url@npm:0.2.4"
@@ -11627,10 +11650,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"media-typer@npm:0.3.0":
-  version: 0.3.0
-  resolution: "media-typer@npm:0.3.0"
-  checksum: af1b38516c28ec95d6b0826f6c8f276c58aec391f76be42aa07646b4e39d317723e869700933ca6995b056db4b09a78c92d5440dc23657e6764be5d28874bba1
+"media-typer@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "media-typer@npm:1.1.0"
+  checksum: a58dd60804df73c672942a7253ccc06815612326dc1c0827984b1a21704466d7cde351394f47649e56cf7415e6ee2e26e000e81b51b3eebb5a93540e8bf93cbd
   languageName: node
   linkType: hard
 
@@ -13571,8 +13594,8 @@ __metadata:
   version: 6.13.0
   resolution: "qs@npm:6.13.0"
   dependencies:
-    side-channel: ^1.0.6
-  checksum: e9404dc0fc2849245107108ce9ec2766cde3be1b271de0bf1021d049dc5b98d1a2901e67b431ac5509f865420a7ed80b7acb3980099fe1c118a1c5d2e1432ad8
+    side-channel: ^1.1.0
+  checksum: 777eb585b886ebf5c8e499a736c64505748169e6fa0ef1409f351986837f64aebb7b9b06bcf469e2b9b508d760515ed0d2089a7ae8334feea0ec0caebc08f9f6
   languageName: node
   linkType: hard
 
@@ -13643,15 +13666,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"raw-body@npm:2.5.2":
-  version: 2.5.2
-  resolution: "raw-body@npm:2.5.2"
+"raw-body@npm:^3.0.1":
+  version: 3.0.2
+  resolution: "raw-body@npm:3.0.2"
   dependencies:
-    bytes: 3.1.2
-    http-errors: 2.0.0
-    iconv-lite: 0.4.24
-    unpipe: 1.0.0
-  checksum: ba1583c8d8a48e8fbb7a873fdbb2df66ea4ff83775421bfe21ee120140949ab048200668c47d9ae3880012f6e217052690628cf679ddfbd82c9fc9358d574676
+    bytes: ~3.1.2
+    http-errors: ~2.0.1
+    iconv-lite: ~0.7.0
+    unpipe: ~1.0.0
+  checksum: bf8ce8e9734f273f24d81f9fed35609dbd25c2869faa5fb5075f7ee225c0913e2240adda03759d7e72f2a757f8012d58bb7a871a80261d5140ad65844caeb5bd
   languageName: node
   linkType: hard
 
@@ -14491,7 +14514,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.7.4, semver@npm:^7.7.2, semver@npm:^7.7.3":
+"semver@npm:7.7.4, semver@npm:^7.7.2, semver@npm:^7.7.4":
   version: 7.7.4
   resolution: "semver@npm:7.7.4"
   bin:
@@ -14738,7 +14761,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"side-channel@npm:^1.0.6, side-channel@npm:^1.1.0":
+"side-channel@npm:^1.1.0":
   version: 1.1.0
   resolution: "side-channel@npm:1.1.0"
   dependencies:
@@ -14962,13 +14985,6 @@ __metadata:
   version: 4.2.0
   resolution: "split2@npm:4.2.0"
   checksum: 05d54102546549fe4d2455900699056580cca006c0275c334611420f854da30ac999230857a85fdd9914dc2109ae50f80fda43d2a445f2aa86eccdc1dfce779d
-  languageName: node
-  linkType: hard
-
-"sprintf-js@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "sprintf-js@npm:1.1.3"
-  checksum: a3fdac7b49643875b70864a9d9b469d87a40dfeaf5d34d9d0c5b1cda5fd7d065531fcb43c76357d62254c57184a7b151954156563a4d6a747015cfb41021cad0
   languageName: node
   linkType: hard
 
@@ -15248,10 +15264,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strnum@npm:^1.1.1":
-  version: 1.1.2
-  resolution: "strnum@npm:1.1.2"
-  checksum: a85219eda13e97151c95e343a9e5960eacfb0a0ff98104b4c9cb7a212e3008bddf0c9714c9c37c2e508be78e741a04afc80027c2dc18509d1b5ffd4c37191fc2
+"strnum@npm:^2.2.3":
+  version: 2.3.0
+  resolution: "strnum@npm:2.3.0"
+  checksum: 4d397aab0751e7cdc755dbc7d64f29dd445c849c9b0f3f1d316c6a1d24b99af860ebb0c4e15299565296894d1558ab7bc1603e5094fc45b17d741d6d37daadb7
   languageName: node
   linkType: hard
 
@@ -15711,9 +15727,10 @@ __metadata:
   version: 1.6.18
   resolution: "type-is@npm:1.6.18"
   dependencies:
-    media-typer: 0.3.0
-    mime-types: ~2.1.24
-  checksum: 2c8e47675d55f8b4e404bcf529abdf5036c537a04c2b20177bcf78c9e3c1da69da3942b1346e6edb09e823228c0ee656ef0e033765ec39a70d496ef601a0c657
+    content-type: ^1.0.5
+    media-typer: ^1.1.0
+    mime-types: ^3.0.0
+  checksum: 0266e7c782238128292e8c45e60037174d48c6366bb2d45e6bd6422b611c193f83409a8341518b6b5f33f8e4d5a959f38658cacfea77f0a3505b9f7ac1ddec8f
   languageName: node
   linkType: hard
 
@@ -15925,7 +15942,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unpipe@npm:1.0.0, unpipe@npm:~1.0.0":
+"unpipe@npm:~1.0.0":
   version: 1.0.0
   resolution: "unpipe@npm:1.0.0"
   checksum: 4fa18d8d8d977c55cb09715385c203197105e10a6d220087ec819f50cb68870f02942244f1017565484237f1f8c5d3cd413631b1ae104d3096f24fdfde1b4aa2
