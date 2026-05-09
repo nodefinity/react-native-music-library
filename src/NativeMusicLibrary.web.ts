@@ -8,6 +8,32 @@ import type {
   Album,
 } from './NativeMusicLibrary';
 
+export const TrackSortByObject = {
+  default: 'default',
+  title: 'title',
+  artist: 'artist',
+  album: 'album',
+  duration: 'duration',
+  createdAt: 'createdAt',
+  modifiedAt: 'modifiedAt',
+  fileSize: 'fileSize',
+} as const;
+
+export const AlbumSortByObject = {
+  default: 'default',
+  title: 'title',
+  artist: 'artist',
+  trackCount: 'trackCount',
+  year: 'year',
+} as const;
+
+export const ArtistSortByObject = {
+  default: 'default',
+  title: 'title',
+  trackCount: 'trackCount',
+  albumCount: 'albumCount',
+} as const;
+
 const showWebWarning = () => {
   if (__DEV__) {
     console.warn(

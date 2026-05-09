@@ -15,9 +15,17 @@ interface PermissionResponse {
   accessPrivileges?: string;
 }
 
+const WEB_GRANTED: PermissionResponse = {
+  status: RESULTS.GRANTED,
+  granted: true,
+  canAskAgain: false,
+};
+
 export const usePermission = () => {
   const [permissionStatus, setPermissionStatus] =
-    useState<PermissionResponse | null>(null);
+    useState<PermissionResponse | null>(
+      Platform.OS === 'web' ? WEB_GRANTED : null
+    );
 
   const getAudioPermission = () => {
     if (Platform.OS === 'ios') {
@@ -37,6 +45,7 @@ export const usePermission = () => {
   };
 
   const checkPermissions = useCallback(async () => {
+    if (Platform.OS === 'web') return WEB_GRANTED;
     try {
       const permission = getAudioPermission();
       const result = await check(permission);
@@ -57,6 +66,7 @@ export const usePermission = () => {
   }, []);
 
   const requestPermissions = async () => {
+    if (Platform.OS === 'web') return WEB_GRANTED;
     try {
       const permission = getAudioPermission();
       const result = await request(permission);

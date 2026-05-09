@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Platform } from 'react-native';
 
 export function useNotificationPermission() {
   useEffect(() => {
@@ -7,6 +7,7 @@ export function useNotificationPermission() {
       if (Platform.OS === 'android') {
         try {
           if (Platform.Version >= 33) {
+            const { PermissionsAndroid } = await import('react-native');
             const granted = await PermissionsAndroid.request(
               PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
               {

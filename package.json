@@ -33,6 +33,7 @@
   ],
   "scripts": {
     "example": "yarn workspace react-native-music-library-example",
+    "web": "yarn workspace react-native-music-library-example web",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",

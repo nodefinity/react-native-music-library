@@ -66,6 +66,7 @@ export default function TrackListScreen({ navigation }: Props) {
         sortBy: ['title', true],
       });
 
+      console.log('getTracksAsync result:', JSON.stringify(result, null, 2));
       allTracks = [...allTracks, ...result.items];
       hasMore = result.hasNextPage;
       cursor = result.endCursor;
