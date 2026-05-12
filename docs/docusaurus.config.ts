@@ -27,7 +27,11 @@ const config: Config = {
   projectName: 'react-native-music-library', // Usually your repo name.
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   // Internationalization
   i18n: {

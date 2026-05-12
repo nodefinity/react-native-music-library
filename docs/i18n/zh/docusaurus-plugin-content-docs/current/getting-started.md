@@ -142,4 +142,4 @@ const loadArtists = async () => {
 
 - [API 参考](./api.md) - 了解所有可用的方法和选项
 - [示例](./examples.md) - 查看实际使用示例
-- [类型定义](./api.md#type-definitions) - 理解数据结构
+- [类型定义](./api.md#类型定义) - 理解数据结构

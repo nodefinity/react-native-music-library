@@ -4,7 +4,7 @@ title: Welcome to RNML!
 authors: [nodefinity]
 ---
 
-<!--truncate-->
+{/* truncate */}
 
 Welcome to React Native Music Library!
 
