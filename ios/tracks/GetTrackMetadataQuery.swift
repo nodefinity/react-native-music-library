@@ -27,22 +27,24 @@ internal class GetTrackMetadataQuery {
     
     // 获取基本信息
     let duration = item.playbackDuration
-    let title = item.title
-    let artist = item.artist
-    let album = item.albumTitle
-    let year = item.releaseDate.map { Calendar.current.component(.year, from: $0) }
-    let genre = item.genre
-    let trackNumber = item.albumTrackNumber > 0 ? item.albumTrackNumber : nil
-    let discNumber = item.discNumber > 0 ? item.discNumber : nil
-    let composer = item.composer
-    let albumArtist = item.albumArtist
+    var title = item.title
+    var artist = item.artist
+    var album = item.albumTitle
+    var year = item.releaseDate.map { Calendar.current.component(.year, from: $0) }
+    var genre = item.genre
+    var trackNumber = item.albumTrackNumber > 0 ? item.albumTrackNumber : nil
+    var discNumber = item.discNumber > 0 ? item.discNumber : nil
+    var composer = item.composer
+    var albumArtist = item.albumArtist
     
     // 尝试获取更详细的音频信息
     var bitrate: Int64? = nil
     var sampleRate: Int? = nil
     var channels: String? = nil
     var format: String? = nil
-    var lyrics: String? = nil
+    var lyricist: String? = nil
+    var lyrics: String? = item.lyrics
+    var comment: String? = item.comments
     
     if let assetURL = item.assetURL {
       let asset = AVAsset(url: assetURL)
@@ -68,8 +70,71 @@ internal class GetTrackMetadataQuery {
         bitrate = estimateBitrate(for: asset, duration: duration)
       }
       
-      // 获取歌词（如果有）
-      lyrics = getLyrics(from: item)
+      let metadataItems = collectMetadata(from: asset)
+      
+      title = title ?? firstMetadataString(in: metadataItems, identifiers: [
+        .commonIdentifierTitle,
+        .iTunesMetadataSongName,
+        .id3MetadataTitleDescription
+      ])
+      artist = artist ?? firstMetadataString(in: metadataItems, identifiers: [
+        .commonIdentifierArtist,
+        .iTunesMetadataArtist,
+        .id3MetadataLeadPerformer
+      ])
+      album = album ?? firstMetadataString(in: metadataItems, identifiers: [
+        .commonIdentifierAlbumName,
+        .iTunesMetadataAlbum,
+        .id3MetadataAlbumTitle
+      ])
+      year = year ?? firstMetadataInt(in: metadataItems, identifiers: [
+        .commonIdentifierCreationDate,
+        .iTunesMetadataReleaseDate,
+        .id3MetadataYear,
+        .id3MetadataRecordingTime,
+        .id3MetadataReleaseTime
+      ])
+      genre = genre ?? firstMetadataString(in: metadataItems, identifiers: [
+        .iTunesMetadataUserGenre,
+        .iTunesMetadataPredefinedGenre,
+        .id3MetadataContentType
+      ])
+      trackNumber = trackNumber ?? firstMetadataInt(in: metadataItems, identifiers: [
+        .iTunesMetadataTrackNumber,
+        .id3MetadataTrackNumber
+      ])
+      discNumber = discNumber ?? firstMetadataInt(in: metadataItems, identifiers: [
+        .iTunesMetadataDiscNumber,
+        .id3MetadataPartOfASet
+      ])
+      composer = composer ?? firstMetadataString(in: metadataItems, identifiers: [
+        .iTunesMetadataComposer,
+        .id3MetadataComposer,
+        .quickTimeUserDataComposer,
+        .quickTimeMetadataComposer
+      ])
+      lyricist = firstMetadataString(in: metadataItems, identifiers: [
+        .id3MetadataLyricist,
+        .id3MetadataOriginalLyricist,
+        .quickTimeUserDataWriter
+      ])
+      lyrics = lyrics ?? firstMetadataString(in: metadataItems, identifiers: [
+        .iTunesMetadataLyrics,
+        .id3MetadataUnsynchronizedLyric,
+        .id3MetadataSynchronizedLyric
+      ])
+      albumArtist = albumArtist ?? firstMetadataString(in: metadataItems, identifiers: [
+        .iTunesMetadataAlbumArtist,
+        .id3MetadataBand
+      ])
+      comment = comment ?? firstMetadataString(in: metadataItems, identifiers: [
+        .iTunesMetadataUserComment,
+        .id3MetadataComments,
+        .quickTimeUserDataComment,
+        .quickTimeMetadataComment,
+        .commonIdentifierDescription,
+        .iTunesMetadataDescription
+      ])
     }
     
     return TrackMetadata(
@@ -87,10 +152,10 @@ internal class GetTrackMetadataQuery {
       track: trackNumber,
       disc: discNumber,
       composer: composer,
-      lyricist: nil, // MediaPlayer框架不直接提供lyricist信息
+      lyricist: lyricist,
       lyrics: lyrics,
       albumArtist: albumArtist,
-      comment: nil // MediaPlayer框架不直接提供comment信息
+      comment: comment
     )
   }
   
@@ -135,9 +200,100 @@ internal class GetTrackMetadataQuery {
     }
   }
   
-  private static func getLyrics(from item: MPMediaItem) -> String? {
-    // MediaPlayer框架不直接提供歌词
-    // 在实际应用中，您可能需要从其他源获取歌词或解析文件中的歌词标签
-    return item.lyrics
+  private static func collectMetadata(from asset: AVAsset) -> [AVMetadataItem] {
+    var metadataItems = asset.commonMetadata + asset.metadata
+    
+    for format in asset.availableMetadataFormats {
+      metadataItems.append(contentsOf: asset.metadata(forFormat: format))
+    }
+    
+    return metadataItems
+  }
+  
+  private static func firstMetadataString(in metadataItems: [AVMetadataItem], identifiers: [AVMetadataIdentifier]) -> String? {
+    for identifier in identifiers {
+      let items = AVMetadataItem.metadataItems(from: metadataItems, filteredByIdentifier: identifier)
+      for item in items {
+        if let value = metadataStringValue(item) {
+          let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+          if !trimmedValue.isEmpty {
+            return trimmedValue
+          }
+        }
+      }
+    }
+    
+    return nil
+  }
+  
+  private static func firstMetadataInt(in metadataItems: [AVMetadataItem], identifiers: [AVMetadataIdentifier]) -> Int? {
+    guard let value = firstMetadataString(in: metadataItems, identifiers: identifiers) else {
+      return nil
+    }
+    
+    return parseLeadingInt(value)
+  }
+  
+  private static func metadataStringValue(_ item: AVMetadataItem) -> String? {
+    if let stringValue = item.stringValue {
+      return stringValue
+    }
+    
+    if let numberValue = item.numberValue {
+      return numberValue.stringValue
+    }
+    
+    if let dataValue = item.dataValue, let decodedValue = decodeMetadataData(dataValue) {
+      return decodedValue
+    }
+    
+    if let stringValue = item.value as? String {
+      return stringValue
+    }
+    
+    if let numberValue = item.value as? NSNumber {
+      return numberValue.stringValue
+    }
+    
+    if let dataValue = item.value as? Data {
+      return decodeMetadataData(dataValue)
+    }
+    
+    return nil
+  }
+  
+  private static func decodeMetadataData(_ data: Data) -> String? {
+    let encodings: [String.Encoding] = [
+      .utf8,
+      .utf16,
+      .utf16LittleEndian,
+      .utf16BigEndian,
+      .isoLatin1
+    ]
+    
+    for encoding in encodings {
+      if let value = String(data: data, encoding: encoding) {
+        let trimmedValue = value.trimmingCharacters(in: .controlCharacters)
+        if !trimmedValue.isEmpty {
+          return trimmedValue
+        }
+      }
+    }
+    
+    return nil
+  }
+  
+  private static func parseLeadingInt(_ value: String) -> Int? {
+    let leadingDigits = value
+      .split(separator: "/")
+      .first?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .prefix { $0.isNumber }
+    
+    guard let digits = leadingDigits, !digits.isEmpty else {
+      return nil
+    }
+    
+    return Int(String(digits))
   }
 } 
