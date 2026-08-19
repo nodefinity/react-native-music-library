@@ -195,11 +195,11 @@ internal class TrackQuery {
   }
 
   private static func artworkURL(for item: MPMediaItem) -> String? {
-    guard item.artwork != nil else {
+    guard item.artwork != nil || item.assetURL != nil else {
       return nil
     }
 
-    return "artwork://\(item.persistentID)"
+    return "artwork://track/\(item.persistentID)"
   }
 
   private static func fileSize(for item: MPMediaItem) -> Int64 {

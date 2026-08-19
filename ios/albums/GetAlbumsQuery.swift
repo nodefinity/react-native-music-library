@@ -50,7 +50,9 @@ internal class GetAlbumsQuery {
     let artist = representative.albumArtist ?? representative.artist ?? ""
     let trackCount = collection.count
     let year = representative.releaseDate.map { Calendar.current.component(.year, from: $0) }
-    let artwork: String? = representative.artwork != nil ? "artwork://album/\(albumId)" : nil
+    let artwork: String? = representative.artwork != nil || representative.assetURL != nil
+      ? "artwork://album/\(albumId)"
+      : nil
 
     return Album(
       id: "\(albumId)",

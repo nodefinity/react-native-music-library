@@ -55,17 +55,19 @@ public class MusicLibraryImpl: NSObject {
   @objc public func getTrackMetadataAsync(_ trackId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     NSLog("🎵 [MusicLibrary] getTrackMetadataAsync called with trackId: %@", trackId)
 
-    do {
-      try ensureAuthorized()
-      guard let metadata = GetTrackMetadataQuery.getTrackMetadata(trackId: trackId) else {
-        throw MusicLibraryError.trackNotFound(trackId)
+    Task { @MainActor in
+      do {
+        try ensureAuthorized()
+        guard let metadata = try await GetTrackMetadataQuery.getTrackMetadata(trackId: trackId) else {
+          throw MusicLibraryError.trackNotFound(trackId)
+        }
+        let resultDict = metadata.toDictionary()
+        NSLog("🎵 [MusicLibrary] getTrackMetadataAsync returning: %@", resultDict)
+        resolve(resultDict)
+      } catch {
+        NSLog("🎵 [MusicLibrary] getTrackMetadataAsync error: %@", error.localizedDescription)
+        rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to get track metadata", reject: reject)
       }
-      let resultDict = metadata.toDictionary()
-      NSLog("🎵 [MusicLibrary] getTrackMetadataAsync returning: %@", resultDict)
-      resolve(resultDict)
-    } catch {
-      NSLog("🎵 [MusicLibrary] getTrackMetadataAsync error: %@", error.localizedDescription)
-      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to get track metadata", reject: reject)
     }
   }
 

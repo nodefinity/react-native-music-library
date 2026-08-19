@@ -189,6 +189,13 @@
     "name": "MusicLibrarySpec",
     "type": "modules",
     "jsSrcsDir": "src",
+    "ios": {
+      "modulesConformingToProtocol": {
+        "RCTImageURLLoader": [
+          "MusicLibraryArtworkLoader"
+        ]
+      }
+    },
     "android": {
       "javaPackageName": "com.musiclibrary"
     }
