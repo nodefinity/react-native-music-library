@@ -1,6 +1,20 @@
 #import "MusicLibrary.h"
 #import "MusicLibrary-Swift.h"
 
+static NSArray *NSArrayFromSortByVector(facebook::react::LazyVector<JS::NativeMusicLibrary::InternalSortByValue> sortByVector) {
+  NSMutableArray *sortBy = [NSMutableArray array];
+
+  for (auto sortOption : sortByVector) {
+    NSString *key = sortOption.key() ?: @"default";
+    [sortBy addObject:@{
+      @"key": key,
+      @"ascending": @(sortOption.ascending())
+    }];
+  }
+
+  return sortBy;
+}
+
 @implementation MusicLibrary {
   MusicLibraryImpl *musicLibrary;
 }
@@ -23,7 +37,7 @@
   int first = (int)options.first();
   NSString *after = options.after();
   NSString *directory = options.directory();
-  NSArray *sortBy = (NSArray *)options.sortBy();
+  NSArray *sortBy = NSArrayFromSortByVector(options.sortBy());
 
   TrackOptions *trackOptions = [[TrackOptions alloc] initAfter:after first:first sortBy:sortBy directory:directory];
 
@@ -34,19 +48,13 @@
 - (void)getTrackMetadataAsync:(nonnull NSString *)trackId resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"🎵 [MusicLibrary.mm] getTrackMetadataAsync called with trackId: %@", trackId);
 
-  NSDictionary *result = [musicLibrary getTrackMetadataAsync:trackId];
-
-  NSLog(@"🎵 [MusicLibrary.mm] getTrackMetadataAsync resolved with result: %@", result);
-  resolve(result);
+  [musicLibrary getTrackMetadataAsync:trackId resolve:resolve reject:reject];
 }
 
 - (void)getTracksByAlbumAsync:(nonnull NSString *)albumId resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"🎵 [MusicLibrary.mm] getTracksByAlbumAsync called with albumId: %@", albumId);
 
-  NSArray *result = [musicLibrary getTracksByAlbumAsync:albumId];
-
-  NSLog(@"🎵 [MusicLibrary.mm] getTracksByAlbumAsync resolved with result: %@", result);
-  resolve(result);
+  [musicLibrary getTracksByAlbumAsync:albumId resolve:resolve reject:reject];
 }
 
 - (void)getTracksByArtistAsync:(nonnull NSString *)artistId options:(JS::NativeMusicLibrary::InternalTrackOptions &)options resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
@@ -56,13 +64,9 @@
   int first = (int)options.first();
   NSString *after = options.after();
   NSString *directory = options.directory();
-  NSArray *sortBy = (NSArray *)options.sortBy();
+  NSArray *sortBy = NSArrayFromSortByVector(options.sortBy());
 
-  // Call Swift function directly
-  NSDictionary *result = [musicLibrary getTracksByArtistAsync:artistId first:first after:after sortBy:sortBy directory:directory];
-
-  NSLog(@"🎵 [MusicLibrary.mm] getTracksByArtistAsync resolved with result: %@", result);
-  resolve(result);
+  [musicLibrary getTracksByArtistAsync:artistId first:first after:after sortBy:sortBy directory:directory resolve:resolve reject:reject];
 }
 
 - (void)getAlbumsAsync:(JS::NativeMusicLibrary::InternalAlbumOptions &)options resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
@@ -71,22 +75,15 @@
   // Extract values from Objective-C types with proper casting
   int first = (int)options.first();
   NSString *after = options.after();
-  NSArray *sortBy = (NSArray *)options.sortBy();
+  NSArray *sortBy = NSArrayFromSortByVector(options.sortBy());
 
-  // Call Swift function directly
-  NSDictionary *result = [musicLibrary getAlbumsAsyncWithFirst:first after:after sortBy:sortBy];
-
-  NSLog(@"🎵 [MusicLibrary.mm] getAlbumsAsync resolved with result: %@", result);
-  resolve(result);
+  [musicLibrary getAlbumsAsyncWithFirst:first after:after sortBy:sortBy resolve:resolve reject:reject];
 }
 
 - (void)getAlbumsByArtistAsync:(nonnull NSString *)artistId resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   NSLog(@"🎵 [MusicLibrary.mm] getAlbumsByArtistAsync called with artistId: %@", artistId);
 
-  NSArray *result = [musicLibrary getAlbumsByArtistAsync:artistId];
-
-  NSLog(@"🎵 [MusicLibrary.mm] getAlbumsByArtistAsync resolved with result: %@", result);
-  resolve(result);
+  [musicLibrary getAlbumsByArtistAsync:artistId resolve:resolve reject:reject];
 }
 
 - (void)getArtistsAsync:(JS::NativeMusicLibrary::InternalArtistOptions &)options resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
@@ -95,13 +92,9 @@
   // Extract values from Objective-C types with proper casting
   int first = (int)options.first();
   NSString *after = options.after();
-  NSArray *sortBy = (NSArray *)options.sortBy();
+  NSArray *sortBy = NSArrayFromSortByVector(options.sortBy());
 
-  // Call Swift function directly
-  NSDictionary *result = [musicLibrary getArtistsAsyncWithFirst:first after:after sortBy:sortBy];
-
-  NSLog(@"🎵 [MusicLibrary.mm] getArtistsAsync resolved with result: %@", result);
-  resolve(result);
+  [musicLibrary getArtistsAsyncWithFirst:first after:after sortBy:sortBy resolve:resolve reject:reject];
 }
 
 + (NSString *)moduleName {

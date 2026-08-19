@@ -62,12 +62,10 @@ internal class GetAlbumsQuery {
     )
   }
 
-  private static func applySortBy(_ sortBy: [String], to albums: inout [Album]) {
-    for sortString in sortBy {
-      let parts = sortString.components(separatedBy: " ")
-      guard parts.count == 2 else { continue }
-      let ascending = parts[1].uppercased() == "ASC"
-      switch parts[0].lowercased() {
+  private static func applySortBy(_ sortBy: [SortOption], to albums: inout [Album]) {
+    for sortOption in sortBy {
+      let ascending = sortOption.ascending
+      switch sortOption.key.lowercased() {
       case "default", "title":
         albums.sort { ascending ? $0.title < $1.title : $0.title > $1.title }
       case "artist":

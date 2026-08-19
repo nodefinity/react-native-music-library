@@ -27,8 +27,8 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getTracksAsync(options: ReadableMap, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
+    withModuleScope(promise) {
+      throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
         GetTracks(reactApplicationContext, options.toTrackOptions(), promise)
           .execute()
       }
@@ -36,8 +36,8 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getTrackMetadataAsync(trackId: String, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
+    withModuleScope(promise) {
+      throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
         GetTrackMetadataQuery(reactApplicationContext, trackId, promise)
           .execute()
       }
@@ -45,8 +45,8 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getTracksByAlbumAsync(albumId: String, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
+    withModuleScope(promise) {
+      throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
         GetTracksByAlbum(reactApplicationContext, albumId, promise)
           .execute()
       }
@@ -54,8 +54,8 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getTracksByArtistAsync(artistId: String, options: ReadableMap, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
+    withModuleScope(promise) {
+      throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
         GetTracksByArtist(reactApplicationContext, artistId, options.toTrackOptions(), promise)
           .execute()
       }
@@ -63,8 +63,8 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getAlbumsAsync(options: ReadableMap, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
+    withModuleScope(promise) {
+      throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
         GetAlbums(reactApplicationContext, options.toAlbumOptions(), promise)
           .execute()
       }
@@ -72,8 +72,8 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getAlbumsByArtistAsync(artistId: String, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
+    withModuleScope(promise) {
+      throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
         GetAlbumsByArtist(reactApplicationContext, artistId, promise)
           .execute()
       }
@@ -81,8 +81,8 @@ class MusicLibraryModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getArtistsAsync(options: ReadableMap, promise: Promise) {
-    throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
-      withModuleScope(promise) {
+    withModuleScope(promise) {
+      throwUnlessPermissionsGranted(reactApplicationContext, isWrite = false) {
         GetArtists(reactApplicationContext, options.toArtistOptions(), promise)
           .execute()
       }

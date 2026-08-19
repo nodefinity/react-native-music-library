@@ -119,26 +119,21 @@ object GetArtistsQuery {
     return null
   }
 
-  private fun buildSortOrder(sortBy: List<String>): String {
+  private fun buildSortOrder(sortBy: List<SortOption>): String {
     if (sortBy.isEmpty()) {
       return "${MediaStore.Audio.Artists.ARTIST} ASC"
     }
 
     return sortBy.joinToString(", ") { sortOption ->
-      val parts = sortOption.split(" ")
-      require(parts.size == 2) { "sortBy should be 'key order'" }
-
-      val column = when (parts[0].lowercase()) {
+      val column = when (sortOption.key.lowercase()) {
         "default" -> MediaStore.Audio.Artists.ARTIST
         "title" -> MediaStore.Audio.Artists.ARTIST
         "trackcount" -> MediaStore.Audio.Artists.NUMBER_OF_TRACKS
         "albumcount" -> MediaStore.Audio.Artists.NUMBER_OF_ALBUMS
-        else -> throw IllegalArgumentException("Unsupported SortKey for artists: ${parts[0]}")
+        else -> throw IllegalArgumentException("Unsupported SortKey for artists: ${sortOption.key}")
       }
 
-      val order = parts[1].uppercase()
-      require(order == "ASC" || order == "DESC") { "Sort By must be ASC or DESC" }
-
+      val order = if (sortOption.ascending) "ASC" else "DESC"
       "$column $order"
     }
   }

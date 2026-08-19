@@ -25,7 +25,10 @@ export type ArtistSortByKey = 'default' | 'title' | 'trackCount' | 'albumCount';
 
 export type SortByValue<T extends string> = [T, boolean] | T;
 
-export type InternalSortByValue = `${string} ${'ASC' | 'DESC'}`;
+export interface InternalSortByValue {
+  key: string;
+  ascending: boolean;
+}
 
 export const TrackSortByObject = {
   default: 'default',
@@ -170,13 +173,13 @@ export interface Track {
   title: string;
 
   /** Artist name */
-  artist: string;
+  artist?: string | null;
 
   /** Track artwork (file URI, optional) */
-  artwork?: string;
+  artwork?: string | null;
 
   /** Album name */
-  album: string;
+  album?: string | null;
 
   /** Duration in seconds */
   duration: number;
@@ -185,10 +188,10 @@ export interface Track {
   url: string;
 
   /** Date added to library (Unix timestamp, optional) */
-  createdAt: number;
+  createdAt?: number | null;
 
   /** Date modified (Unix timestamp, optional) */
-  modifiedAt: number;
+  modifiedAt?: number | null;
 
   /** File size in bytes */
   fileSize: number;
@@ -199,25 +202,25 @@ export interface TrackMetadata {
   id: string;
 
   /** Audio header */
-  duration: number; // in seconds
-  bitrate: number; // in kbps
-  sampleRate: number; // in Hz
-  channels: string;
-  format: string;
+  duration?: number | null; // in seconds
+  bitrate?: number | null; // in kbps
+  sampleRate?: number | null; // in Hz
+  channels?: string | null;
+  format?: string | null;
 
   /** Tag info */
-  title: string;
-  artist: string;
-  album: string;
-  year: number;
-  genre: string;
-  track: number;
-  disc: number;
-  composer: string;
-  lyricist: string;
-  lyrics: string;
-  albumArtist: string;
-  comment: string;
+  title?: string | null;
+  artist?: string | null;
+  album?: string | null;
+  year?: number | null;
+  genre?: string | null;
+  track?: number | null;
+  disc?: number | null;
+  composer?: string | null;
+  lyricist?: string | null;
+  lyrics?: string | null;
+  albumArtist?: string | null;
+  comment?: string | null;
 }
 
 export interface Album {
@@ -236,7 +239,7 @@ export interface Album {
    * Album artwork (base64 encoded image or URL, optional)
    * @default undefined
    */
-  artwork?: string;
+  artwork?: string | null;
 
   /**
    * Number of tracks in album
@@ -248,7 +251,7 @@ export interface Album {
    * Release year (optional)
    * @default undefined
    */
-  year?: number;
+  year?: number | null;
 }
 
 export interface Artist {

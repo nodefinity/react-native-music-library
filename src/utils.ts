@@ -52,15 +52,15 @@ export function checkSortByKey(sortBy: any, type: SortByType): void {
   }
 }
 
-export function sortByOptionToString(
+export function sortByOptionToDescriptor(
   sortBy: SortByValue<any> | undefined,
   type: SortByType
 ): InternalSortByValue {
   checkSortBy(sortBy, type);
   if (Array.isArray(sortBy)) {
-    return `${sortBy[0]} ${sortBy[1] ? 'ASC' : 'DESC'}`;
+    return { key: sortBy[0], ascending: sortBy[1] };
   }
-  return `${sortBy} DESC`;
+  return { key: sortBy, ascending: false };
 }
 
 export function getId(
@@ -114,7 +114,7 @@ export function getTrackOptions(
 
   return {
     ...options,
-    sortBy: options.sortBy.map((t) => sortByOptionToString(t, 'track')),
+    sortBy: options.sortBy.map((t) => sortByOptionToDescriptor(t, 'track')),
   };
 }
 
@@ -133,7 +133,7 @@ export function getAlbumOptions(
 
   return {
     ...options,
-    sortBy: options.sortBy.map((t) => sortByOptionToString(t, 'album')),
+    sortBy: options.sortBy.map((t) => sortByOptionToDescriptor(t, 'album')),
   };
 }
 
@@ -152,7 +152,7 @@ export function getArtistOptions(
 
   return {
     ...options,
-    sortBy: options.sortBy.map((t) => sortByOptionToString(t, 'artist')),
+    sortBy: options.sortBy.map((t) => sortByOptionToDescriptor(t, 'artist')),
   };
 }
 

@@ -8,18 +8,54 @@ import Foundation
 
 // MARK: - Options Models
 
+public struct SortOption {
+  public let key: String
+  public let ascending: Bool
+
+  public init(key: String, ascending: Bool) {
+    self.key = key
+    self.ascending = ascending
+  }
+
+  public var dictionary: [String: Any] {
+    return [
+      "key": key,
+      "ascending": ascending
+    ]
+  }
+
+  public static func fromBridgeArray(_ array: NSArray) -> [SortOption] {
+    guard array.count > 0 else {
+      return [SortOption(key: "default", ascending: true)]
+    }
+
+    let parsed: [SortOption] = array.compactMap { item in
+      guard let dict = item as? [String: Any] else {
+        return nil
+      }
+
+      return SortOption(
+        key: dict["key"] as? String ?? "default",
+        ascending: dict["ascending"] as? Bool ?? true
+      )
+    }
+
+    return parsed.isEmpty ? [SortOption(key: "default", ascending: true)] : parsed
+  }
+}
+
 @objc(TrackOptions)
 public class TrackOptions: NSObject {
   public let after: String?
   public let first: Int
-  public let sortBy: [String]
+  public let sortBy: [SortOption]
   public let directory: String?
 
   @objc
-  public init(after: String? = nil, first: Int = 20, sortBy: [String] = [], directory: String? = nil) {
+  public init(after: String? = nil, first: Int = 20, sortBy: NSArray = [], directory: String? = nil) {
     self.after = after
     self.first = first
-    self.sortBy = sortBy
+    self.sortBy = SortOption.fromBridgeArray(sortBy)
     self.directory = directory
     super.init()
   }
@@ -32,7 +68,7 @@ public class TrackOptions: NSObject {
     return [
       "after": after ?? NSNull(),
       "first": first,
-      "sortBy": sortBy,
+      "sortBy": sortBy.map { $0.dictionary },
       "directory": directory ?? NSNull()
     ]
   }
@@ -41,12 +77,12 @@ public class TrackOptions: NSObject {
 public class AlbumOptions: NSObject {
   public let after: String?
   public let first: Int
-  public let sortBy: [String]
+  public let sortBy: [SortOption]
 
-  public init(after: String? = nil, first: Int = 20, sortBy: [String] = []) {
+  public init(after: String? = nil, first: Int = 20, sortBy: NSArray = []) {
     self.after = after
     self.first = first
-    self.sortBy = sortBy
+    self.sortBy = SortOption.fromBridgeArray(sortBy)
     super.init()
   }
 
@@ -58,7 +94,7 @@ public class AlbumOptions: NSObject {
     return [
       "after": after ?? NSNull(),
       "first": first,
-      "sortBy": sortBy
+      "sortBy": sortBy.map { $0.dictionary }
     ]
   }
 }
@@ -66,12 +102,12 @@ public class AlbumOptions: NSObject {
 public class ArtistOptions: NSObject {
   public let after: String?
   public let first: Int
-  public let sortBy: [String]
+  public let sortBy: [SortOption]
 
-  public init(after: String? = nil, first: Int = 20, sortBy: [String] = []) {
+  public init(after: String? = nil, first: Int = 20, sortBy: NSArray = []) {
     self.after = after
     self.first = first
-    self.sortBy = sortBy
+    self.sortBy = SortOption.fromBridgeArray(sortBy)
     super.init()
   }
 
@@ -83,7 +119,7 @@ public class ArtistOptions: NSObject {
     return [
       "after": after ?? NSNull(),
       "first": first,
-      "sortBy": sortBy
+      "sortBy": sortBy.map { $0.dictionary }
     ]
   }
 }

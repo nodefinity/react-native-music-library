@@ -6,6 +6,30 @@
 
 import Foundation
 import React
+import MediaPlayer
+
+enum MusicLibraryError: LocalizedError {
+  case permissionDenied
+  case trackNotFound(String)
+
+  var code: String {
+    switch self {
+    case .permissionDenied:
+      return "PERMISSION_DENIED"
+    case .trackNotFound:
+      return "TRACK_NOT_FOUND"
+    }
+  }
+
+  var errorDescription: String? {
+    switch self {
+    case .permissionDenied:
+      return "Audio permission is required. Please grant media library permission first."
+    case .trackNotFound(let trackId):
+      return "Track with id \(trackId) not found"
+    }
+  }
+}
 
 @objc(MusicLibraryImpl)
 public class MusicLibraryImpl: NSObject {
@@ -15,6 +39,7 @@ public class MusicLibraryImpl: NSObject {
     NSLog("🎵 [MusicLibrary] getTracksAsync called with options: %@", options)
 
     do {
+      try ensureAuthorized()
       let getTracks = GetTracks(options: options)
       let result = getTracks.execute()
       let resultDict = result.toDictionary()
@@ -23,56 +48,98 @@ public class MusicLibraryImpl: NSObject {
       resolve(resultDict)
     } catch {
       NSLog("🎵 [MusicLibrary] getTracksAsync error: %@", error.localizedDescription)
-      reject("QUERY_ERROR", "Failed to query tracks: \(error.localizedDescription)", error)
+      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query tracks", reject: reject)
     }
   }
 
-  @objc public func getTrackMetadataAsync(_ trackId: String) -> [String: Any] {
+  @objc public func getTrackMetadataAsync(_ trackId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     NSLog("🎵 [MusicLibrary] getTrackMetadataAsync called with trackId: %@", trackId)
 
-    if let metadata = GetTrackMetadataQuery.getTrackMetadata(trackId: trackId) {
+    do {
+      try ensureAuthorized()
+      guard let metadata = GetTrackMetadataQuery.getTrackMetadata(trackId: trackId) else {
+        throw MusicLibraryError.trackNotFound(trackId)
+      }
       let resultDict = metadata.toDictionary()
       NSLog("🎵 [MusicLibrary] getTrackMetadataAsync returning: %@", resultDict)
-      return resultDict
-    } else {
-      NSLog("🎵 [MusicLibrary] getTrackMetadataAsync: track not found")
-      return DataConverter.createErrorDictionary(
-        code: "TRACK_NOT_FOUND",
-        message: "Track with id \(trackId) not found"
-      )
+      resolve(resultDict)
+    } catch {
+      NSLog("🎵 [MusicLibrary] getTrackMetadataAsync error: %@", error.localizedDescription)
+      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to get track metadata", reject: reject)
     }
   }
 
-  @objc public func getTracksByAlbumAsync(_ albumId: String) -> [[String: Any]] {
+  @objc public func getTracksByAlbumAsync(_ albumId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     NSLog("🎵 [MusicLibrary] getTracksByAlbumAsync called with albumId: %@", albumId)
 
-    let tracks = GetTracksByAlbumQuery.getTracksByAlbum(albumId: albumId)
-    let result = tracks.map { $0.toDictionary() }
+    do {
+      try ensureAuthorized()
+      let tracks = GetTracksByAlbumQuery.getTracksByAlbum(albumId: albumId)
+      let result = tracks.map { $0.toDictionary() }
 
-    NSLog("🎵 [MusicLibrary] getTracksByAlbumAsync returning: %@", result)
-    return result
+      NSLog("🎵 [MusicLibrary] getTracksByAlbumAsync returning: %@", result)
+      resolve(result)
+    } catch {
+      NSLog("🎵 [MusicLibrary] getTracksByAlbumAsync error: %@", error.localizedDescription)
+      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query tracks by album", reject: reject)
+    }
   }
 
-  @objc public func getTracksByArtistAsync(_ artistId: String, first: Int, after: String?, sortBy: [String], directory: String?) -> [String: Any] {
-    let options = TrackOptions(after: after, first: first, sortBy: sortBy, directory: directory)
-    let result = GetTracksByArtistQuery.getTracksByArtist(artistId: artistId, options: options)
-    return result.toDictionary()
+  @objc public func getTracksByArtistAsync(_ artistId: String, first: Int, after: String?, sortBy: NSArray, directory: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try ensureAuthorized()
+      let options = TrackOptions(after: after, first: first, sortBy: sortBy, directory: directory)
+      let result = GetTracksByArtistQuery.getTracksByArtist(artistId: artistId, options: options)
+      resolve(result.toDictionary())
+    } catch {
+      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query tracks by artist", reject: reject)
+    }
   }
 
-  @objc public func getAlbumsAsync(first: Int, after: String?, sortBy: [String]) -> [String: Any] {
-    let options = AlbumOptions(after: after, first: first, sortBy: sortBy)
-    let result = GetAlbumsQuery.getAlbums(options: options)
-    return result.toDictionary()
+  @objc public func getAlbumsAsync(first: Int, after: String?, sortBy: NSArray, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try ensureAuthorized()
+      let options = AlbumOptions(after: after, first: first, sortBy: sortBy)
+      let result = GetAlbumsQuery.getAlbums(options: options)
+      resolve(result.toDictionary())
+    } catch {
+      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query albums", reject: reject)
+    }
   }
 
-  @objc public func getAlbumsByArtistAsync(_ artistId: String) -> [[String: Any]] {
-    let albums = GetAlbumsByArtistQuery.getAlbumsByArtist(artistId: artistId)
-    return albums.map { $0.toDictionary() }
+  @objc public func getAlbumsByArtistAsync(_ artistId: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try ensureAuthorized()
+      let albums = GetAlbumsByArtistQuery.getAlbumsByArtist(artistId: artistId)
+      resolve(albums.map { $0.toDictionary() })
+    } catch {
+      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query albums by artist", reject: reject)
+    }
   }
 
-  @objc public func getArtistsAsync(first: Int, after: String?, sortBy: [String]) -> [String: Any] {
-    let options = ArtistOptions(after: after, first: first, sortBy: sortBy)
-    let result = GetArtistsQuery.getArtists(options: options)
-    return result.toDictionary()
+  @objc public func getArtistsAsync(first: Int, after: String?, sortBy: NSArray, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    do {
+      try ensureAuthorized()
+      let options = ArtistOptions(after: after, first: first, sortBy: sortBy)
+      let result = GetArtistsQuery.getArtists(options: options)
+      resolve(result.toDictionary())
+    } catch {
+      rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query artists", reject: reject)
+    }
+  }
+
+  private func ensureAuthorized() throws {
+    guard MPMediaLibrary.authorizationStatus() == .authorized else {
+      throw MusicLibraryError.permissionDenied
+    }
+  }
+
+  private func rejectError(_ error: Error, fallbackCode: String, fallbackMessage: String, reject: RCTPromiseRejectBlock) {
+    if let musicLibraryError = error as? MusicLibraryError {
+      reject(musicLibraryError.code, musicLibraryError.localizedDescription, musicLibraryError)
+      return
+    }
+
+    reject(fallbackCode, "\(fallbackMessage): \(error.localizedDescription)", error)
   }
 }

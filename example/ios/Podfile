@@ -63,5 +63,17 @@ target 'MusicLibraryExample' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # fmt fails to compile as C++20 with Xcode 26.5 because its consteval
+    # format-string checks are rejected by Apple Clang. Keep this dependency
+    # on C++17 while leaving React Native and the app on their configured
+    # language standard.
+    installer.pods_project.targets.each do |target|
+      next unless target.name == 'fmt'
+
+      target.build_configurations.each do |build_configuration|
+        build_configuration.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      end
+    end
   end
 end
