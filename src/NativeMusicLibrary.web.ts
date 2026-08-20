@@ -50,7 +50,6 @@ const MusicLibrary: Spec = {
     return {
       items: [],
       hasNextPage: false,
-      endCursor: undefined,
       totalCount: 0,
     };
   },
@@ -59,28 +58,27 @@ const MusicLibrary: Spec = {
     showWebWarning();
     return {
       id: trackId,
-      duration: 0,
-      bitrate: 0,
-      sampleRate: 0,
-      channels: '',
-      format: '',
-      title: '',
-      artist: '',
-      album: '',
-      year: 0,
-      genre: '',
-      track: 0,
-      disc: 0,
-      composer: '',
-      lyricist: '',
-      lyrics: '',
-      albumArtist: '',
-      comment: '',
+      duration: null,
+      bitrate: null,
+      sampleRate: null,
+      channels: null,
+      format: null,
+      title: null,
+      artist: null,
+      album: null,
+      year: null,
+      genre: null,
+      track: null,
+      disc: null,
+      composer: null,
+      lyricist: null,
+      lyrics: null,
+      albumArtist: null,
+      comment: null,
     };
   },
 
-  async getTracksByAlbumAsync(albumId: string): Promise<Track[]> {
-    console.log('getTracksByAlbumAsync', albumId);
+  async getTracksByAlbumAsync(_albumId: string): Promise<Track[]> {
     showWebWarning();
     return [];
   },
@@ -90,7 +88,6 @@ const MusicLibrary: Spec = {
     return {
       items: [],
       hasNextPage: false,
-      endCursor: undefined,
       totalCount: 0,
     };
   },
@@ -100,13 +97,11 @@ const MusicLibrary: Spec = {
     return {
       items: [],
       hasNextPage: false,
-      endCursor: undefined,
       totalCount: 0,
     };
   },
 
-  async getAlbumsByArtistAsync(artistId: string): Promise<Album[]> {
-    console.log('getAlbumsByArtistAsync', artistId);
+  async getAlbumsByArtistAsync(_artistId: string): Promise<Album[]> {
     showWebWarning();
     return [];
   },
@@ -116,7 +111,6 @@ const MusicLibrary: Spec = {
     return {
       items: [],
       hasNextPage: false,
-      endCursor: undefined,
       totalCount: 0,
     };
   },

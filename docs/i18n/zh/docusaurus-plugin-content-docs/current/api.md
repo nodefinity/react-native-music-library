@@ -237,14 +237,14 @@ interface ArtistOptions {
 interface Track {
   id: string;
   title: string; // 曲目标题
-  artist: string; // 艺术家名称
-  artwork?: string; // 封面文件 URI（可能为空）
-  album: string; // 专辑名称
+  artist: string | null; // 艺术家名称，缺失时为 null
+  artwork: string | null; // 封面引用，缺失时为 null
+  album: string | null; // 专辑名称，缺失时为 null
   duration: number; // 时长（秒）
   url: string; // 可播放的资源 URI
   contentUri?: string | null; // Android MediaStore 规范 URI
-  createdAt?: number | null; // 添加日期（Unix 秒）
-  modifiedAt?: number | null; // 资源修改时间；iOS 上为 null
+  createdAt: number | null; // 添加日期（Unix 秒），缺失时为 null
+  modifiedAt: number | null; // 资源修改时间；iOS 上为 null
   fileSize: number; // 文件大小（字节）
 }
 ```
@@ -268,9 +268,9 @@ interface Album {
   id: string;
   title: string; // 专辑名称
   artist: string; // 主要艺术家
-  artwork?: string; // 专辑封面 URI
+  artwork: string | null; // 专辑封面引用，缺失时为 null
   trackCount: number; // 曲目数量
-  year?: number; // 发行年份
+  year: number | null; // 发行年份，缺失时为 null
 }
 ```
 
@@ -292,27 +292,46 @@ interface TrackMetadata {
   id: string; // 曲目 ID
 
   // 音频头信息
-  duration: number; // 时长（秒）
-  bitrate: number; // 比特率（kbps）
-  sampleRate: number; // 采样率（Hz）
-  channels: string; // 声道数（如 "2"）
-  format: string; // 音频格式
+  duration: number | null; // 时长（秒），缺失时为 null
+  bitrate: number | null; // 比特率（kbps），缺失时为 null
+  sampleRate: number | null; // 采样率（Hz），缺失时为 null
+  channels: string | null; // 声道数，缺失时为 null
+  format: string | null; // 音频格式，缺失时为 null
 
   // 标签信息
-  title: string; // 曲目标题
-  artist: string; // 艺术家名称
-  album: string; // 专辑名称
-  year: number; // 发行年份
-  genre: string; // 音乐流派
-  track: number; // 曲目编号
-  disc: number; // 碟片编号
-  composer: string; // 作曲家
-  lyricist: string; // 作词家
-  lyrics: string; // 歌词内容
-  albumArtist: string; // 专辑艺术家
-  comment: string; // 注释
+  title: string | null; // 曲目标题，缺失时为 null
+  artist: string | null; // 艺术家名称，缺失时为 null
+  album: string | null; // 专辑名称，缺失时为 null
+  year: number | null; // 发行年份，缺失时为 null
+  genre: string | null; // 音乐流派，缺失时为 null
+  track: number | null; // 曲目编号，缺失时为 null
+  disc: number | null; // 碟片编号，缺失时为 null
+  composer: string | null; // 作曲家，缺失时为 null
+  lyricist: string | null; // 作词家，缺失时为 null
+  lyrics: string | null; // 歌词内容，缺失时为 null
+  albumArtist: string | null; // 专辑艺术家，缺失时为 null
+  comment: string | null; // 注释，缺失时为 null
 }
 ```
+
+## 返回值与错误契约
+
+实体和曲目元数据中的可空字段始终存在；无可用值时返回 `null`。结构性的可选
+字段则会省略：`contentUri` 仅 Android 返回，分页终止页不含 `endCursor`。
+内嵌元数据不存在或无法读取时，`getTrackMetadataAsync` 仍会返回已有的音乐库
+元数据，其余字段为 `null`。
+
+原生失败会拒绝 Promise，并返回带稳定 `code` 的 `MusicLibraryError`：
+
+| Code                        | 含义                                         |
+| --------------------------- | -------------------------------------------- |
+| `PERMISSION_DENIED`         | 未获得本地音乐库访问权限                     |
+| `TRACK_NOT_FOUND`           | 请求的曲目已不存在                           |
+| `QUERY_ERROR`               | 原生查询或资源读取失败                       |
+| `INVALID_CURSOR`            | `after` 不是合法的实体 ID 游标               |
+| `CURSOR_NOT_FOUND`          | 游标格式合法，但不在当前查询结果中           |
+| `INVALID_PAGE_SIZE`         | `first` 不在 `1`–`1000` 范围内               |
+| `UNSUPPORTED_DIRECTORY_URI` | Android 无法将目录 URI 安全映射到 MediaStore |
 
 ## 排序选项
 

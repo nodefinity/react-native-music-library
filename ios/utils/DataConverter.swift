@@ -41,14 +41,4 @@ internal class DataConverter {
     return result.toDictionary()
   }
   
-  // MARK: - Error Handling
-  
-  static func createErrorDictionary(code: String, message: String) -> [String: Any] {
-    return [
-      "error": [
-        "code": code,
-        "message": message
-      ]
-    ]
-  }
 }

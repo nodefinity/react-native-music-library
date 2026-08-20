@@ -1,5 +1,6 @@
 import type { TrackSortByKey } from '../NativeMusicLibrary';
 import MusicLibrary from '../NativeMusicLibrary';
+import WebMusicLibrary from '../NativeMusicLibrary.web';
 import {
   getAlbumsAsync,
   getAllAlbumsAsync,
@@ -286,6 +287,53 @@ describe('public pagination validation', () => {
       code: 'INVALID_CURSOR',
     });
     expect(mockMusicLibrary.getAlbumsAsync).not.toHaveBeenCalled();
+  });
+});
+
+describe('web result contract', () => {
+  beforeEach(() => {
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('omits an end cursor from an empty terminal page', async () => {
+    const result = await WebMusicLibrary.getTracksAsync({
+      first: 20,
+      sortBy: [],
+    });
+
+    expect(result).toEqual({
+      items: [],
+      hasNextPage: false,
+      totalCount: 0,
+    });
+    expect(result).not.toHaveProperty('endCursor');
+  });
+
+  it('returns every unavailable metadata field as null', async () => {
+    await expect(WebMusicLibrary.getTrackMetadataAsync('42')).resolves.toEqual({
+      id: '42',
+      duration: null,
+      bitrate: null,
+      sampleRate: null,
+      channels: null,
+      format: null,
+      title: null,
+      artist: null,
+      album: null,
+      year: null,
+      genre: null,
+      track: null,
+      disc: null,
+      composer: null,
+      lyricist: null,
+      lyrics: null,
+      albumArtist: null,
+      comment: null,
+    });
   });
 });
 

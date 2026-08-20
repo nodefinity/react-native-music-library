@@ -7,6 +7,11 @@ internal interface CodedQueryException {
 }
 
 internal fun Promise.rejectQueryError(error: Exception, fallbackMessage: String) {
+  if (error is SecurityException) {
+    reject("PERMISSION_DENIED", error.message, error)
+    return
+  }
+
   if (error is CodedQueryException) {
     reject(error.code, error.message, error)
     return

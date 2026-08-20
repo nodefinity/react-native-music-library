@@ -4,7 +4,7 @@ import MediaPlayer
 
 @MainActor
 internal enum TrackMetadataExtractor {
-  static func extract(trackId: String, from item: MPMediaItem) async throws -> TrackMetadata {
+  static func extract(trackId: String, from item: MPMediaItem) async -> TrackMetadata {
     let duration = item.playbackDuration
     var title = nonEmpty(item.title)
     var artist = nonEmpty(item.artist)
@@ -26,38 +26,38 @@ internal enum TrackMetadataExtractor {
 
     if let assetURL = item.assetURL {
       let asset = AVURLAsset(url: assetURL)
-      let audioInfo = try await extractAudioInfo(from: asset, duration: duration)
+      if let audioInfo = try? await extractAudioInfo(from: asset, duration: duration) {
+        bitrate = audioInfo.bitrate
+        sampleRate = audioInfo.sampleRate
+        channels = audioInfo.channels
+        format = audioInfo.format
+      }
 
-      bitrate = audioInfo.bitrate
-      sampleRate = audioInfo.sampleRate
-      channels = audioInfo.channels
-      format = audioInfo.format
-
-      let metadataItems = try await asset.load(.metadata)
+      let metadataItems = (try? await asset.load(.metadata)) ?? []
 
       if title == nil {
-        title = try await firstMetadataString(in: metadataItems, identifiers: [
+        title = try? await firstMetadataString(in: metadataItems, identifiers: [
           .commonIdentifierTitle,
           .iTunesMetadataSongName,
           .id3MetadataTitleDescription
         ])
       }
       if artist == nil {
-        artist = try await firstMetadataString(in: metadataItems, identifiers: [
+        artist = try? await firstMetadataString(in: metadataItems, identifiers: [
           .commonIdentifierArtist,
           .iTunesMetadataArtist,
           .id3MetadataLeadPerformer
         ])
       }
       if album == nil {
-        album = try await firstMetadataString(in: metadataItems, identifiers: [
+        album = try? await firstMetadataString(in: metadataItems, identifiers: [
           .commonIdentifierAlbumName,
           .iTunesMetadataAlbum,
           .id3MetadataAlbumTitle
         ])
       }
       if year == nil {
-        year = try await firstMetadataInt(in: metadataItems, identifiers: [
+        year = try? await firstMetadataInt(in: metadataItems, identifiers: [
           .commonIdentifierCreationDate,
           .iTunesMetadataReleaseDate,
           .id3MetadataYear,
@@ -66,52 +66,52 @@ internal enum TrackMetadataExtractor {
         ])
       }
       if genre == nil {
-        genre = try await firstMetadataString(in: metadataItems, identifiers: [
+        genre = try? await firstMetadataString(in: metadataItems, identifiers: [
           .iTunesMetadataUserGenre,
           .iTunesMetadataPredefinedGenre,
           .id3MetadataContentType
         ])
       }
       if trackNumber == nil {
-        trackNumber = try await firstMetadataInt(in: metadataItems, identifiers: [
+        trackNumber = try? await firstMetadataInt(in: metadataItems, identifiers: [
           .iTunesMetadataTrackNumber,
           .id3MetadataTrackNumber
         ])
       }
       if discNumber == nil {
-        discNumber = try await firstMetadataInt(in: metadataItems, identifiers: [
+        discNumber = try? await firstMetadataInt(in: metadataItems, identifiers: [
           .iTunesMetadataDiscNumber,
           .id3MetadataPartOfASet
         ])
       }
       if composer == nil {
-        composer = try await firstMetadataString(in: metadataItems, identifiers: [
+        composer = try? await firstMetadataString(in: metadataItems, identifiers: [
           .iTunesMetadataComposer,
           .id3MetadataComposer,
           .quickTimeUserDataComposer,
           .quickTimeMetadataComposer
         ])
       }
-      lyricist = try await firstMetadataString(in: metadataItems, identifiers: [
+      lyricist = try? await firstMetadataString(in: metadataItems, identifiers: [
         .id3MetadataLyricist,
         .id3MetadataOriginalLyricist,
         .quickTimeUserDataWriter
       ])
       if lyrics == nil {
-        lyrics = try await firstMetadataString(in: metadataItems, identifiers: [
+        lyrics = try? await firstMetadataString(in: metadataItems, identifiers: [
           .iTunesMetadataLyrics,
           .id3MetadataUnsynchronizedLyric,
           .id3MetadataSynchronizedLyric
         ])
       }
       if albumArtist == nil {
-        albumArtist = try await firstMetadataString(in: metadataItems, identifiers: [
+        albumArtist = try? await firstMetadataString(in: metadataItems, identifiers: [
           .iTunesMetadataAlbumArtist,
           .id3MetadataBand
         ])
       }
       if comment == nil {
-        comment = try await firstMetadataString(in: metadataItems, identifiers: [
+        comment = try? await firstMetadataString(in: metadataItems, identifiers: [
           .iTunesMetadataUserComment,
           .id3MetadataComments,
           .quickTimeUserDataComment,

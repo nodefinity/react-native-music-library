@@ -73,7 +73,7 @@ public class MusicLibraryImpl: NSObject {
     Task { @MainActor in
       do {
         try ensureAuthorized()
-        guard let metadata = try await GetTrackMetadataQuery.getTrackMetadata(trackId: trackId) else {
+        guard let metadata = await GetTrackMetadataQuery.getTrackMetadata(trackId: trackId) else {
           throw MusicLibraryError.trackNotFound(trackId)
         }
         let resultDict = metadata.toDictionary()

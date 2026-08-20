@@ -75,12 +75,19 @@ public class PaginatedResult<T: NSObject>: NSObject {
       return nil
     }
     
-    return [
+    var dictionary: [String: Any] = [
       "items": itemDictionaries,
-      "hasNextPage": hasNextPage,
-      "endCursor": endCursor ?? NSNull(),
-      "totalCount": totalCount ?? NSNull()
+      "hasNextPage": hasNextPage
     ]
+
+    if let endCursor {
+      dictionary["endCursor"] = endCursor
+    }
+    if let totalCount {
+      dictionary["totalCount"] = totalCount
+    }
+
+    return dictionary
   }
 }
 

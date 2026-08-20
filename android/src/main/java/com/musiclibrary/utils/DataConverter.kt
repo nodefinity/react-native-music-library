@@ -10,16 +10,16 @@ object DataConverter {
     val map = Arguments.createMap()
     map.putString("id", track.id)
     map.putString("title", track.title)
-    track.artist?.let { map.putString("artist", it) }
-    track.artwork?.let { map.putString("artwork", it) }
-    track.album?.let { map.putString("album", it) }
+    putNullableString(map, "artist", track.artist)
+    putNullableString(map, "artwork", track.artwork)
+    putNullableString(map, "album", track.album)
     map.putDouble("duration", track.duration)
     map.putString("url", track.url)
     track.contentUri?.let { map.putString("contentUri", it) }
     map.putLong("fileSize", track.fileSize)
 
-    track.createdAt?.let { map.putDouble("createdAt", it.toDouble()) }
-    track.modifiedAt?.let { map.putDouble("modifiedAt", it.toDouble()) }
+    putNullableLong(map, "createdAt", track.createdAt)
+    putNullableLong(map, "modifiedAt", track.modifiedAt)
 
     return map
   }
@@ -29,9 +29,9 @@ object DataConverter {
     map.putString("id", album.id)
     map.putString("title", album.title)
     map.putString("artist", album.artist)
-    album.artwork?.let { map.putString("artwork", it) }
+    putNullableString(map, "artwork", album.artwork)
     map.putInt("trackCount", album.trackCount)
-    album.year?.let { map.putInt("year", it) }
+    if (album.year == null) map.putNull("year") else map.putInt("year", album.year)
 
     return map
   }
@@ -77,23 +77,39 @@ object DataConverter {
   fun trackMetadataToWritableMap(metadata: TrackMetadata): WritableMap {
     val map = Arguments.createMap()
     map.putString("id", metadata.id)
-    metadata.duration?.let { map.putDouble("duration", it) }
-    metadata.bitrate?.let { map.putLong("bitrate", it) }
-    metadata.sampleRate?.let { map.putInt("sampleRate", it) }
-    metadata.channels?.let { map.putString("channels", it) }
-    metadata.format?.let { map.putString("format", it) }
-    metadata.title?.let { map.putString("title", it) }
-    metadata.artist?.let { map.putString("artist", it) }
-    metadata.album?.let { map.putString("album", it) }
-    metadata.year?.let { map.putInt("year", it) }
-    metadata.genre?.let { map.putString("genre", it) }
-    metadata.track?.let { map.putInt("track", it) }
-    metadata.disc?.let { map.putInt("disc", it) }
-    metadata.composer?.let { map.putString("composer", it) }
-    metadata.lyricist?.let { map.putString("lyricist", it) }
-    metadata.lyrics?.let { map.putString("lyrics", it) }
-    metadata.albumArtist?.let { map.putString("albumArtist", it) }
-    metadata.comment?.let { map.putString("comment", it) }
+    putNullableDouble(map, "duration", metadata.duration)
+    putNullableLong(map, "bitrate", metadata.bitrate)
+    putNullableInt(map, "sampleRate", metadata.sampleRate)
+    putNullableString(map, "channels", metadata.channels)
+    putNullableString(map, "format", metadata.format)
+    putNullableString(map, "title", metadata.title)
+    putNullableString(map, "artist", metadata.artist)
+    putNullableString(map, "album", metadata.album)
+    putNullableInt(map, "year", metadata.year)
+    putNullableString(map, "genre", metadata.genre)
+    putNullableInt(map, "track", metadata.track)
+    putNullableInt(map, "disc", metadata.disc)
+    putNullableString(map, "composer", metadata.composer)
+    putNullableString(map, "lyricist", metadata.lyricist)
+    putNullableString(map, "lyrics", metadata.lyrics)
+    putNullableString(map, "albumArtist", metadata.albumArtist)
+    putNullableString(map, "comment", metadata.comment)
     return map
+  }
+
+  private fun putNullableString(map: WritableMap, key: String, value: String?) {
+    if (value == null) map.putNull(key) else map.putString(key, value)
+  }
+
+  private fun putNullableInt(map: WritableMap, key: String, value: Int?) {
+    if (value == null) map.putNull(key) else map.putInt(key, value)
+  }
+
+  private fun putNullableLong(map: WritableMap, key: String, value: Long?) {
+    if (value == null) map.putNull(key) else map.putDouble(key, value.toDouble())
+  }
+
+  private fun putNullableDouble(map: WritableMap, key: String, value: Double?) {
+    if (value == null) map.putNull(key) else map.putDouble(key, value)
   }
 }
