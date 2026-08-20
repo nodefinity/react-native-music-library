@@ -1,6 +1,11 @@
 import type { TrackSortByKey } from '../NativeMusicLibrary';
 import MusicLibrary from '../NativeMusicLibrary';
-import { getAlbumsAsync, getAllTracksAsync } from '../index';
+import {
+  getAlbumsAsync,
+  getAllAlbumsAsync,
+  getAllArtistsAsync,
+  getAllTracksAsync,
+} from '../index';
 import {
   getAlbumOptions,
   getArtistOptions,
@@ -202,6 +207,73 @@ describe('getAllTracksAsync', () => {
       'Pagination did not provide an end cursor.'
     );
   });
+
+  it('returns an empty list for an empty library', async () => {
+    mockMusicLibrary.getTracksAsync.mockResolvedValueOnce({
+      items: [],
+      hasNextPage: false,
+      totalCount: 0,
+    });
+
+    await expect(getAllTracksAsync()).resolves.toEqual([]);
+  });
+
+  it('fails when a native cursor repeats instead of advancing', async () => {
+    mockMusicLibrary.getTracksAsync
+      .mockResolvedValueOnce({
+        items: [createTrack('1')],
+        hasNextPage: true,
+        endCursor: '1',
+      })
+      .mockResolvedValueOnce({
+        items: [createTrack('1')],
+        hasNextPage: true,
+        endCursor: '1',
+      });
+
+    await expect(getAllTracksAsync()).rejects.toThrow(
+      'Pagination cursor did not advance.'
+    );
+    expect(mockMusicLibrary.getTracksAsync).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('complete entity helpers', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('collects every album through the shared pagination loop', async () => {
+    const album = createAlbum('1');
+    mockMusicLibrary.getAlbumsAsync.mockResolvedValueOnce({
+      items: [album],
+      hasNextPage: false,
+      totalCount: 1,
+    });
+
+    await expect(getAllAlbumsAsync({ first: 50 })).resolves.toEqual([album]);
+    expect(mockMusicLibrary.getAlbumsAsync).toHaveBeenCalledWith({
+      after: undefined,
+      first: 50,
+      sortBy: [{ key: 'default', ascending: true }],
+    });
+  });
+
+  it('collects every artist through the shared pagination loop', async () => {
+    const artist = createArtist('1');
+    mockMusicLibrary.getArtistsAsync.mockResolvedValueOnce({
+      items: [artist],
+      hasNextPage: false,
+      totalCount: 1,
+    });
+
+    await expect(getAllArtistsAsync()).resolves.toEqual([artist]);
+    expect(mockMusicLibrary.getArtistsAsync).toHaveBeenCalledWith({
+      after: undefined,
+      first: 20,
+      sortBy: [{ key: 'default', ascending: true }],
+    });
+  });
 });
 
 describe('public pagination validation', () => {
@@ -229,5 +301,25 @@ function createTrack(id: string) {
     createdAt: null,
     modifiedAt: null,
     fileSize: 1,
+  };
+}
+
+function createAlbum(id: string) {
+  return {
+    id,
+    title: `Album ${id}`,
+    artist: 'Artist',
+    artwork: null,
+    trackCount: 1,
+    year: null,
+  };
+}
+
+function createArtist(id: string) {
+  return {
+    id,
+    title: `Artist ${id}`,
+    albumCount: 1,
+    trackCount: 1,
   };
 }

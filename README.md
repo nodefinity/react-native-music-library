@@ -297,6 +297,11 @@ async function fetchAllTracks() {
 }
 ```
 
+For workflows that need the complete current result, use
+`getAllTracksAsync`, `getAllTracksByArtistAsync`, `getAllAlbumsAsync`, or
+`getAllArtistsAsync`. These helpers follow `endCursor`, preserve the low-level
+query options, and reject malformed or non-advancing native pagination.
+
 ## 🤝 Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.

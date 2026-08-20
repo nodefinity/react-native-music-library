@@ -9,11 +9,8 @@ import {
   Alert,
   Button,
 } from 'react-native';
-import { getAlbumsAsync } from '@nodefinity/react-native-music-library';
-import type {
-  Album,
-  AlbumOptions,
-} from '@nodefinity/react-native-music-library';
+import { getAllAlbumsAsync } from '@nodefinity/react-native-music-library';
+import type { Album } from '@nodefinity/react-native-music-library';
 import { usePermission } from '../hooks/usePermission';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -26,7 +23,7 @@ export default function AlbumListScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const { permissionStatus, requestPermissions } = usePermission();
 
-  const getAllAlbums = async () => {
+  const handleGetAllAlbums = async () => {
     try {
       if (!permissionStatus?.granted) {
         const result = await requestPermissions();
@@ -41,7 +38,10 @@ export default function AlbumListScreen({ navigation }: Props) {
 
       setLoading(true);
       const startTime = Date.now();
-      const results = await loadAllAlbums();
+      const results = await getAllAlbumsAsync({
+        first: 100,
+        sortBy: ['title', true],
+      });
       const endTime = Date.now();
 
       setAlbums(results);
@@ -55,27 +55,6 @@ export default function AlbumListScreen({ navigation }: Props) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadAllAlbums = async (options: AlbumOptions = {}) => {
-    let allAlbums: Album[] = [];
-    let hasMore = true;
-    let cursor;
-
-    while (hasMore) {
-      const result = await getAlbumsAsync({
-        first: 100,
-        ...options,
-        after: cursor,
-        sortBy: ['title', true],
-      });
-
-      allAlbums = [...allAlbums, ...result.items];
-      hasMore = result.hasNextPage;
-      cursor = result.endCursor;
-    }
-
-    return allAlbums;
   };
 
   const handleAlbumPress = async (album: Album) => {
@@ -127,7 +106,7 @@ export default function AlbumListScreen({ navigation }: Props) {
       <View style={styles.buttonContainer}>
         <Button
           title={`${loading ? 'loading...' : ''} get all albums`}
-          onPress={getAllAlbums}
+          onPress={handleGetAllAlbums}
           disabled={loading}
         />
       </View>
