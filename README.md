@@ -5,7 +5,11 @@
 
 [中文](./README_ZH.md)
 
-A powerful React Native library for accessing local music files and getting full metadata. Built with React Native's New Architecture (TurboModules) for optimal performance.
+[Documentation](https://nodefinity.github.io/react-native-music-library/) ·
+[Getting Started](https://nodefinity.github.io/react-native-music-library/docs/getting-started) ·
+[API Reference](https://nodefinity.github.io/react-native-music-library/docs/api)
+
+A React Native local music library for Android and iOS. Query on-device tracks, albums, artists, artwork, lyrics, and audio metadata through Android MediaStore and iOS MediaPlayer. Built with TurboModules and the React Native New Architecture.
 
 <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
   <img src="./assets/home.jpg" alt="Home Screen" style="width: 150px; height: auto;" />

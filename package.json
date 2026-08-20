@@ -1,7 +1,7 @@
 {
   "name": "@nodefinity/react-native-music-library",
   "version": "0.10.2",
-  "description": "Access local music files in React Native and get full metadata.",
+  "description": "A React Native local music library for Android and iOS with tracks, albums, artists, artwork, lyrics, and audio metadata.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -44,17 +44,28 @@
   },
   "keywords": [
     "react-native",
+    "react-native-library",
     "ios",
     "android",
     "music",
+    "local-music",
     "library",
     "music-library",
     "react-native-music-library",
+    "mediastore",
+    "android-mediastore",
+    "media-player",
+    "mpmediaquery",
     "track",
-    "song",
-    "metadata",
-    "retrieve",
-    "tag"
+    "album",
+    "artist",
+    "audio-metadata",
+    "music-metadata",
+    "album-artwork",
+    "lyrics",
+    "turbomodule",
+    "new-architecture",
+    "typescript"
   ],
   "repository": {
     "type": "git",
@@ -65,7 +76,7 @@
   "bugs": {
     "url": "https://github.com/nodefinity/react-native-music-library/issues"
   },
-  "homepage": "https://github.com/nodefinity/react-native-music-library#readme",
+  "homepage": "https://nodefinity.github.io/react-native-music-library/",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"

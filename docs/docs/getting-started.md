@@ -1,5 +1,7 @@
 ---
 sidebar_position: 2
+title: Installation and Permissions
+description: Install React Native Music Library, configure Android and iOS permissions, and query tracks, albums, and artists.
 ---
 
 # Getting Started

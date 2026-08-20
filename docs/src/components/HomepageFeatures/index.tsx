@@ -6,66 +6,107 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  icon: string;
   description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: translate({
-      id: 'home.features.easyToUse.title',
-      message: 'Easy to use',
-      description: 'The title of the first feature on the homepage',
+      id: 'home.features.android.title',
+      message: 'Android MediaStore',
+      description: 'Android feature title on the homepage',
     }),
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    icon: '🤖',
     description: (
-      <Translate id="home.features.easyToUse.description">
-        Designed for simplicity and ease of use, allowing you to quickly
-        integrate into your project and start accessing local music files.
+      <Translate id="home.features.android.description">
+        Query local tracks, albums, and artists through Android MediaStore, with
+        sorting and directory filtering.
       </Translate>
     ),
   },
   {
     title: translate({
-      id: 'home.features.powerful.title',
-      message: 'Powerful',
-      description: 'The title of the second feature on the homepage',
+      id: 'home.features.ios.title',
+      message: 'iOS Music Library',
+      description: 'iOS feature title on the homepage',
     }),
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    icon: '🍎',
     description: (
-      <Translate id="home.features.powerful.description">
-        Provide a complete media library and music metadata access function,
-        allowing you to focus on building excellent music application
-        experiences.
+      <Translate id="home.features.ios.description">
+        Access the user&apos;s Music Library through MediaPlayer and
+        MPMediaQuery using the same JavaScript API.
       </Translate>
     ),
   },
   {
     title: translate({
-      id: 'home.features.reactNative.title',
-      message: 'Based on React Native',
-      description: 'The title of the third feature on the homepage',
+      id: 'home.features.metadata.title',
+      message: 'Track Metadata',
+      description: 'Track metadata feature title on the homepage',
     }),
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    icon: '🎵',
     description: (
-      <Translate id="home.features.reactNative.description">
-        Providing native performance and seamless integration experience while
-        maintaining cross platform compatibility.
+      <Translate id="home.features.metadata.description">
+        Read bitrate, sample rate, channels, format, genre, composer, and other
+        library or embedded metadata.
+      </Translate>
+    ),
+  },
+  {
+    title: translate({
+      id: 'home.features.artwork.title',
+      message: 'Artwork & Lyrics',
+      description: 'Artwork and lyrics feature title on the homepage',
+    }),
+    icon: '🎨',
+    description: (
+      <Translate id="home.features.artwork.description">
+        Display artwork references and retrieve lyrics exposed by the Local
+        Music Library or embedded in a track.
+      </Translate>
+    ),
+  },
+  {
+    title: translate({
+      id: 'home.features.pagination.title',
+      message: 'Cursor Pagination',
+      description: 'Pagination feature title on the homepage',
+    }),
+    icon: '📄',
+    description: (
+      <Translate id="home.features.pagination.description">
+        Load large libraries efficiently with typed cursors, configurable page
+        sizes, and flexible sorting.
+      </Translate>
+    ),
+  },
+  {
+    title: translate({
+      id: 'home.features.architecture.title',
+      message: 'React Native New Architecture',
+      description: 'New Architecture feature title on the homepage',
+    }),
+    icon: '⚛️',
+    description: (
+      <Translate id="home.features.architecture.description">
+        Built with TurboModules and TypeScript for a native, type-safe React
+        Native integration.
       </Translate>
     ),
   },
 ];
 
-function Feature({ title, Svg, description }: FeatureItem) {
+function Feature({ title, icon, description }: FeatureItem) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
-      <div className="text--center padding-horiz--md">
+    <div className={clsx('col col--4', styles.featureColumn)}>
+      <article className={styles.featureCard}>
+        <span className={styles.featureIcon} aria-hidden="true">
+          {icon}
+        </span>
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
-      </div>
+      </article>
     </div>
   );
 }
@@ -74,6 +115,20 @@ export default function HomepageFeatures(): ReactNode {
   return (
     <section className={styles.features}>
       <div className="container">
+        <div className={styles.intro}>
+          <Heading as="h2">
+            <Translate id="home.features.sectionTitle">
+              One API for the local music library on Android and iOS
+            </Translate>
+          </Heading>
+          <p>
+            <Translate id="home.features.sectionDescription">
+              Build local music browsers and players with direct access to
+              tracks, albums, artists, artwork, lyrics, and detailed audio
+              metadata.
+            </Translate>
+          </p>
+        </div>
         <div className="row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />

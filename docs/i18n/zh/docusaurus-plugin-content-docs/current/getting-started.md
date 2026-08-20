@@ -1,5 +1,7 @@
 ---
 sidebar_position: 2
+title: 安装与权限配置
+description: 安装 React Native Music Library，配置 Android 和 iOS 权限，并查询曲目、专辑和艺术家。
 ---
 
 # 开始使用

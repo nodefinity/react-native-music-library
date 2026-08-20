@@ -323,35 +323,103 @@
     "description": "The draft content banner message"
   },
   "siteConfig.tagline": {
-    "message": "一个功能强大的 React Native 库，用于访问本地音乐文件并获取完整的元数据信息",
+    "message": "在 Android 和 iOS 上访问设备中的曲目、专辑、艺术家、封面、歌词和音频元数据",
     "description": "The title of the site"
+  },
+  "home.meta.title": {
+    "message": "支持 Android 与 iOS 的本地音乐库",
+    "description": "SEO title for the homepage"
+  },
+  "home.meta.description": {
+    "message": "通过 Android MediaStore 和 iOS MediaPlayer，在 React Native 中访问设备上的曲目、专辑、艺术家、封面、歌词和音频元数据。",
+    "description": "SEO description for the homepage"
+  },
+  "home.hero.title": {
+    "message": "支持 Android 与 iOS 的 React Native 本地音乐库",
+    "description": "The main heading on the homepage"
+  },
+  "home.hero.subtitle": {
+    "message": "通过一套类型安全的 API，访问设备上的曲目、专辑、艺术家、封面、歌词和音频元数据。",
+    "description": "The homepage hero description"
   },
   "home.hero.mainButton": {
     "message": "开始使用",
     "description": "The label of the main button on the homepage hero"
   },
-  "home.features.easyToUse.title": {
-    "message": "易于使用",
-    "description": "The title of the first feature on the homepage"
+  "home.hero.apiButton": {
+    "message": "API 参考",
+    "description": "The label of the API button on the homepage hero"
   },
-  "home.features.easyToUse.description": {
-    "message": "专为简单易用而设计，让您能够快速集成到项目中并开始访问本地音乐文件。",
-    "description": "The description of the first feature on the homepage"
+  "home.hero.installLabel": {
+    "message": "安装",
+    "description": "The label before the package installation command"
   },
-  "home.features.powerful.title": {
-    "message": "功能强大",
-    "description": "The title of the second feature on the homepage"
+  "home.features.sectionTitle": {
+    "message": "一套 API 访问 Android 和 iOS 本地音乐库",
+    "description": "The heading of the homepage features section"
   },
-  "home.features.powerful.description": {
-    "message": "提供完整的媒体库和音乐元数据访问功能，让您专注于构建出色的音乐应用体验。",
-    "description": "The description of the second feature on the homepage"
+  "home.features.sectionDescription": {
+    "message": "直接访问曲目、专辑、艺术家、封面、歌词和详细音频元数据，构建本地音乐浏览器和播放器。",
+    "description": "The description of the homepage features section"
   },
-  "home.features.reactNative.title": {
-    "message": "基于 React Native",
-    "description": "The title of the third feature on the homepage"
+  "home.features.android.title": {
+    "message": "Android MediaStore",
+    "description": "Android feature title on the homepage"
   },
-  "home.features.reactNative.description": {
-    "message": "专为 React Native 生态系统构建，提供原生性能和无缝集成体验，同时保持跨平台兼容性。",
-    "description": "The description of the third feature on the homepage"
+  "home.features.android.description": {
+    "message": "通过 Android MediaStore 查询本地曲目、专辑和艺术家，并支持排序和目录过滤。",
+    "description": "Android feature description on the homepage"
+  },
+  "home.features.ios.title": {
+    "message": "iOS 音乐资料库",
+    "description": "iOS feature title on the homepage"
+  },
+  "home.features.ios.description": {
+    "message": "通过 MediaPlayer 和 MPMediaQuery，使用同一套 JavaScript API 访问用户的音乐资料库。",
+    "description": "iOS feature description on the homepage"
+  },
+  "home.features.metadata.title": {
+    "message": "曲目元数据",
+    "description": "Track metadata feature title on the homepage"
+  },
+  "home.features.metadata.description": {
+    "message": "读取比特率、采样率、声道、格式、流派、作曲者，以及音乐库或曲目内嵌的其他元数据。",
+    "description": "Track metadata feature description on the homepage"
+  },
+  "home.features.artwork.title": {
+    "message": "封面与歌词",
+    "description": "Artwork and lyrics feature title on the homepage"
+  },
+  "home.features.artwork.description": {
+    "message": "展示封面引用，并读取本地音乐库提供或内嵌在曲目中的歌词。",
+    "description": "Artwork and lyrics feature description on the homepage"
+  },
+  "home.features.pagination.title": {
+    "message": "游标分页",
+    "description": "Pagination feature title on the homepage"
+  },
+  "home.features.pagination.description": {
+    "message": "通过类型安全的游标、可配置的分页大小和灵活排序，高效加载大型音乐库。",
+    "description": "Pagination feature description on the homepage"
+  },
+  "home.features.architecture.title": {
+    "message": "React Native 新架构",
+    "description": "New Architecture feature title on the homepage"
+  },
+  "home.features.architecture.description": {
+    "message": "基于 TurboModules 和 TypeScript，提供原生且类型安全的 React Native 集成。",
+    "description": "New Architecture feature description on the homepage"
+  },
+  "home.quickStart.title": {
+    "message": "几分钟内开始查询本地音乐库",
+    "description": "The heading of the homepage quick start section"
+  },
+  "home.quickStart.description": {
+    "message": "使用游标分页获取曲目，并只在需要时加载详细元数据。",
+    "description": "The description of the homepage quick start section"
+  },
+  "home.quickStart.link": {
+    "message": "阅读配置指南",
+    "description": "The link to the getting started guide"
   }
 }

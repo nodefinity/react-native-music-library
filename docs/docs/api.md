@@ -1,5 +1,7 @@
 ---
 sidebar_position: 3
+title: API Reference
+description: API reference for querying tracks, albums, artists, artwork, lyrics, audio metadata, sorting, filtering, and cursor pagination.
 ---
 
 # API Reference

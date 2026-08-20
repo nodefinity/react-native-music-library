@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Android 与 iOS 本地音乐库
+description: 使用 React Native 在 Android 和 iOS 上访问设备中的曲目、专辑、艺术家、封面、歌词和音频元数据。
 ---
 
 # 介绍

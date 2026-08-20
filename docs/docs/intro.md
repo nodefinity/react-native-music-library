@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Local Music Library for Android & iOS
+description: Access on-device tracks, albums, artists, artwork, lyrics, and audio metadata on Android and iOS with React Native.
 ---
 
 # Introduction

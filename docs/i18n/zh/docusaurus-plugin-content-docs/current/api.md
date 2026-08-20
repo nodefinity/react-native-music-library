@@ -1,5 +1,7 @@
 ---
 sidebar_position: 3
+title: API 参考
+description: 查询曲目、专辑、艺术家、封面、歌词、音频元数据、排序、过滤和游标分页的 API 参考。
 ---
 
 # API 参考

@@ -5,7 +5,11 @@
 
 [English](./README.md)
 
-基于 React Native 新架构（TurboModules）构建的本地音乐库访问库，支持完整元数据读取。
+[文档](https://nodefinity.github.io/react-native-music-library/zh/) ·
+[开始使用](https://nodefinity.github.io/react-native-music-library/zh/docs/getting-started) ·
+[API 参考](https://nodefinity.github.io/react-native-music-library/zh/docs/api)
+
+一个支持 Android 和 iOS 的 React Native 本地音乐库。通过 Android MediaStore 和 iOS MediaPlayer 查询设备上的曲目、专辑、艺术家、封面、歌词和音频元数据，并基于 TurboModules 与 React Native 新架构构建。
 
 <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
   <img src="./assets/home.jpg" alt="Home Screen" style="width: 150px; height: auto;" />
