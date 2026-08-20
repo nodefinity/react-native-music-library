@@ -5,6 +5,7 @@ import android.provider.MediaStore
 import android.net.Uri
 import android.provider.DocumentsContract
 import com.musiclibrary.models.*
+import com.musiclibrary.utils.readCursorPage
 import androidx.core.net.toUri
 
 object GetAlbumsQuery {
@@ -32,12 +33,9 @@ object GetAlbumsQuery {
       sortOrder
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
 
-    val albums = mutableListOf<Album>()
-    var hasNextPage: Boolean
-    var endCursor: String? = null
     val totalCount = cursor.count
 
-    cursor.use { c ->
+    return cursor.use { c ->
       val idColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums._ID)
       val albumColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM)
       val artistColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.ARTIST)
@@ -63,11 +61,11 @@ object GetAlbumsQuery {
         found && cursor.moveToNext()
       }
 
-      var count = 0
       val maxItems = options.first.coerceAtMost(1000) // Limit the maximum number of queries
-
-      while (foundAfter && count < maxItems) {
-        try {
+      val page = readCursorPage(
+        canReadFirst = foundAfter,
+        maxItems = maxItems,
+        readItem = {
           val id = c.getLong(idColumn)
           val albumTitle = c.getString(albumColumn) ?: ""
           val artist = c.getString(artistColumn) ?: ""
@@ -76,42 +74,33 @@ object GetAlbumsQuery {
 
           // Skip invalid albums
           if (albumTitle.isEmpty() || trackCount == 0) {
-            continue
+            null
+          } else {
+            // Get artwork URI
+            val artworkUri: Uri = "content://media/external/audio/albumart/${id}".toUri()
+
+            // Create an Album
+            Album(
+              id = id.toString(),
+              title = albumTitle,
+              artist = artist,
+              artwork = artworkUri.toString(),
+              trackCount = trackCount,
+              year = if (firstYear > 0) firstYear else null
+            )
           }
+        },
+        moveToNext = c::moveToNext,
+        isAfterLast = { c.isAfterLast },
+      )
 
-          // Get artwork URI
-          val artworkUri: Uri = "content://media/external/audio/albumart/${id}".toUri()
-
-          // Create an Album
-          val album = Album(
-            id = id.toString(),
-            title = albumTitle,
-            artist = artist,
-            artwork = artworkUri.toString(),
-            trackCount = trackCount,
-            year = if (firstYear > 0) firstYear else null
-          )
-
-          albums.add(album)
-          endCursor = id.toString()
-          count++
-        } catch (e: Exception) {
-          continue
-        }
-
-        if (!cursor.moveToNext()) break
-      }
-
-      // Check if there are more data
-      hasNextPage = !c.isAfterLast
+      PaginatedResult(
+        items = page.items,
+        hasNextPage = page.hasNextPage,
+        endCursor = page.items.lastOrNull()?.id,
+        totalCount = totalCount
+      )
     }
-
-    return PaginatedResult(
-      items = albums,
-      hasNextPage = hasNextPage,
-      endCursor = endCursor,
-      totalCount = totalCount
-    )
   }
 
   private fun buildSelection(options: AlbumOptions): String {

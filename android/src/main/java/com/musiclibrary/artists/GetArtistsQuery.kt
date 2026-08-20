@@ -5,6 +5,7 @@ import android.provider.MediaStore
 import android.net.Uri
 import android.provider.DocumentsContract
 import com.musiclibrary.models.*
+import com.musiclibrary.utils.readCursorPage
 import androidx.core.net.toUri
 
 object GetArtistsQuery {
@@ -31,12 +32,9 @@ object GetArtistsQuery {
       sortOrder
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
 
-    val artists = mutableListOf<Artist>()
-    var hasNextPage: Boolean
-    var endCursor: String? = null
     val totalCount = cursor.count
 
-    cursor.use { c ->
+    return cursor.use { c ->
       val idColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Artists._ID)
       val artistColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Artists.ARTIST)
       val albumCountColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Artists.NUMBER_OF_ALBUMS)
@@ -61,11 +59,11 @@ object GetArtistsQuery {
         found && cursor.moveToNext()
       }
 
-      var count = 0
       val maxItems = options.first.coerceAtMost(1000) // Limit the maximum number of queries
-
-      while (foundAfter && count < maxItems) {
-        try {
+      val page = readCursorPage(
+        canReadFirst = foundAfter,
+        maxItems = maxItems,
+        readItem = {
           val id = c.getLong(idColumn)
           val artistName = c.getString(artistColumn) ?: ""
           val albumCount = c.getInt(albumCountColumn)
@@ -73,37 +71,28 @@ object GetArtistsQuery {
 
           // Skip invalid artists
           if (artistName.isEmpty() || trackCount == 0) {
-            continue
+            null
+          } else {
+            // Create an Artist
+            Artist(
+              id = id.toString(),
+              title = artistName,
+              albumCount = albumCount,
+              trackCount = trackCount
+            )
           }
+        },
+        moveToNext = c::moveToNext,
+        isAfterLast = { c.isAfterLast },
+      )
 
-          // Create an Artist
-          val artist = Artist(
-            id = id.toString(),
-            title = artistName,
-            albumCount = albumCount,
-            trackCount = trackCount
-          )
-
-          artists.add(artist)
-          endCursor = id.toString()
-          count++
-        } catch (e: Exception) {
-          continue
-        }
-
-        if (!cursor.moveToNext()) break
-      }
-
-      // Check if there are more data
-      hasNextPage = !c.isAfterLast
+      PaginatedResult(
+        items = page.items,
+        hasNextPage = page.hasNextPage,
+        endCursor = page.items.lastOrNull()?.id,
+        totalCount = totalCount
+      )
     }
-
-    return PaginatedResult(
-      items = artists,
-      hasNextPage = hasNextPage,
-      endCursor = endCursor,
-      totalCount = totalCount
-    )
   }
 
   private fun buildSelection(options: ArtistOptions): String {
