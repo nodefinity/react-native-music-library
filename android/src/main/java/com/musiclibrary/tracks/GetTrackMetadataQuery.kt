@@ -13,7 +13,7 @@ internal class GetTrackMetadataQuery(
     try {
       val source = TrackMetadataLookup.findTrack(context.contentResolver, trackId)
         ?: throw TrackNotFoundException(trackId)
-      val result = AudioMetadataExtractor.extract(source)
+      val result = AudioMetadataExtractor.extract(context, source)
       val writableMap = DataConverter.trackMetadataToWritableMap(result)
       promise.resolve(writableMap)
     } catch (e: TrackNotFoundException) {

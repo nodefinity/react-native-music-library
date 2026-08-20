@@ -1,11 +1,9 @@
 package com.musiclibrary.utils
 
-import com.facebook.react.bridge.Promise
-
 internal sealed class PaginationException(
-  val code: String,
+  override val code: String,
   message: String,
-) : IllegalArgumentException(message)
+) : IllegalArgumentException(message), CodedQueryException
 
 internal class InvalidCursorException(cursor: String) : PaginationException(
   code = "INVALID_CURSOR",
@@ -58,13 +56,4 @@ private fun isValidCursor(cursor: String): Boolean {
   return cursor.matches(Regex("[1-9][0-9]*")) &&
     (cursor.length < maxCursorId.length ||
       (cursor.length == maxCursorId.length && cursor <= maxCursorId))
-}
-
-internal fun Promise.rejectQueryError(error: Exception, fallbackMessage: String) {
-  if (error is PaginationException) {
-    reject(error.code, error.message, error)
-    return
-  }
-
-  reject("QUERY_ERROR", "$fallbackMessage: ${error.message}", error)
 }

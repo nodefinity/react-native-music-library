@@ -202,7 +202,7 @@ interface TrackOptions {
   after?: string; // 上一页返回的实体 ID 游标
   first?: number; // 返回 1–1000 项（默认：20）
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
-  directory?: string; // 搜索目录路径
+  directory?: string; // 旧路径或受支持的 Android SAF 树 URI
 }
 ```
 
@@ -241,12 +241,25 @@ interface Track {
   artwork?: string; // 封面文件 URI（可能为空）
   album: string; // 专辑名称
   duration: number; // 时长（秒）
-  url: string; // 文件 URL 或路径
+  url: string; // 可播放的资源 URI
+  contentUri?: string | null; // Android MediaStore 规范 URI
   createdAt?: number | null; // 添加日期（Unix 秒）
   modifiedAt?: number | null; // 资源修改时间；iOS 上为 null
   fileSize: number; // 文件大小（字节）
 }
 ```
+
+#### Android 曲目资源兼容策略
+
+Android 播放或资源访问应优先使用 `contentUri`。为保持兼容，MediaStore 能提供
+旧文件路径时，`url` 仍是 `file://` URI；不能提供时，`url` 回退为同一个
+`contentUri`。内嵌曲目元数据通过 `ContentResolver` 读取，并用临时文件适配
+只接受文件的标签解析器。
+
+绝对 `directory` 路径保留原有的 `DATA` 筛选。Android 10 及以上支持来自
+`com.android.externalstorage.documents` 的 SAF 树 URI，并按 MediaStore 卷和
+相对路径筛选，包括已挂载的可移动存储。其他 provider，或 Android 10 以前的
+SAF 树筛选，会以 `UNSUPPORTED_DIRECTORY_URI` 拒绝。
 
 ### `Album`
 

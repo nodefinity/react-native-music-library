@@ -1,11 +1,9 @@
 package com.musiclibrary.tracks
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.database.Cursor
-import android.net.Uri
-import android.provider.DocumentsContract
 import android.provider.MediaStore
-import androidx.core.net.toUri
 import com.musiclibrary.models.PaginatedResult
 import com.musiclibrary.models.SortOption
 import com.musiclibrary.models.Track
@@ -103,11 +101,12 @@ internal object TrackQuery {
     directory: String?,
     sortOrder: String,
   ): Cursor {
+    val directorySelection = TrackDirectoryFilter.resolve(directory)
     return contentResolver.query(
       MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
       TRACK_PROJECTION,
-      buildSelection(filter, directory),
-      buildSelectionArgs(filter, directory),
+      buildSelection(filter, directorySelection),
+      buildSelectionArgs(filter, directorySelection),
       sortOrder
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
   }
@@ -115,11 +114,11 @@ internal object TrackQuery {
   private fun readTrack(cursor: Cursor, columns: TrackColumns): Track? {
     return try {
       val id = cursor.getLong(columns.id)
-      val data = cursor.getString(columns.data) ?: return null
-
-      if (data.isEmpty()) {
-        return null
-      }
+      val data = cursor.getString(columns.data)?.takeIf { it.isNotEmpty() }
+      val contentUri = ContentUris.withAppendedId(
+        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        id,
+      ).toString()
 
       val title = cursor.getString(columns.title) ?: ""
       val artist = cursor.getString(columns.artist)
@@ -136,7 +135,8 @@ internal object TrackQuery {
         artwork = artworkUri(id),
         album = album,
         duration = duration,
-        url = "file://$data",
+        url = selectTrackUrl(contentUri, data),
+        contentUri = contentUri,
         createdAt = dateAdded,
         modifiedAt = dateModified,
         fileSize = fileSize
@@ -146,7 +146,10 @@ internal object TrackQuery {
     }
   }
 
-  private fun buildSelection(filter: TrackQueryFilter, directory: String?): String {
+  private fun buildSelection(
+    filter: TrackQueryFilter,
+    directory: TrackDirectorySelection,
+  ): String {
     val conditions = mutableListOf<String>()
 
     when (filter) {
@@ -158,14 +161,15 @@ internal object TrackQuery {
     conditions.add("${MediaStore.Audio.Media.IS_MUSIC} = 1")
     conditions.add("${MediaStore.Audio.Media.DURATION} > 0")
 
-    if (!directory.isNullOrEmpty()) {
-      conditions.add("${MediaStore.Audio.Media.DATA} LIKE ?")
-    }
+    directory.clause?.let { conditions.add(it) }
 
     return conditions.joinToString(" AND ")
   }
 
-  private fun buildSelectionArgs(filter: TrackQueryFilter, directory: String?): Array<String>? {
+  private fun buildSelectionArgs(
+    filter: TrackQueryFilter,
+    directory: TrackDirectorySelection,
+  ): Array<String>? {
     val args = mutableListOf<String>()
 
     when (filter) {
@@ -174,17 +178,7 @@ internal object TrackQuery {
       TrackQueryFilter.All -> Unit
     }
 
-    if (!directory.isNullOrEmpty()) {
-      val dir = if (directory.startsWith("content://")) {
-        uriToFullPath(directory.toUri())
-      } else {
-        directory
-      }
-
-      if (!dir.isNullOrEmpty()) {
-        args.add("$dir%")
-      }
-    }
+    args.addAll(directory.arguments)
 
     return if (args.isEmpty()) null else args.toTypedArray()
   }
@@ -215,22 +209,12 @@ internal object TrackQuery {
     return (descriptors + "${MediaStore.Audio.Media._ID} ASC").joinToString(", ")
   }
 
-  private fun uriToFullPath(treeUri: Uri): String? {
-    val docId = DocumentsContract.getTreeDocumentId(treeUri)
-    val parts = docId.split(":")
-    if (parts.size < 2) return null
-
-    val type = parts[0]
-    val relativePath = parts[1]
-
-    return when (type) {
-      "primary" -> "/storage/emulated/0/$relativePath"
-      else -> "/storage/$type/$relativePath"
-    }
-  }
-
   private fun artworkUri(id: Long): String {
     return "content://media/external/audio/media/$id/albumart"
+  }
+
+  internal fun selectTrackUrl(contentUri: String, filePath: String?): String {
+    return filePath?.takeIf { it.isNotEmpty() }?.let { "file://$it" } ?: contentUri
   }
 
   private data class TrackColumns(

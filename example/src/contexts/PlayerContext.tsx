@@ -6,6 +6,7 @@ import { AudioPro } from 'react-native-audio-pro';
 export function toAudioProTrack(track: Track): AudioProTrack {
   return {
     ...track,
+    url: track.contentUri ?? track.url,
     artwork: track.artwork ?? require('../assets/default_artwork.png'),
     artist: track.artist ?? '',
     album: track.album ?? '',

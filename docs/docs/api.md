@@ -202,7 +202,7 @@ interface TrackOptions {
   after?: string; // Previous page's entity-ID cursor
   first?: number; // 1–1000 items (default: 20)
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
-  directory?: string; // Directory path to search
+  directory?: string; // Legacy path or supported Android SAF tree URI
 }
 ```
 
@@ -242,12 +242,26 @@ interface Track {
   artwork?: string; // Artwork file URI (may be undefined)
   album: string; // Album name
   duration: number; // Duration in seconds
-  url: string; // File URL or path
+  url: string; // Playable resource URI
+  contentUri?: string | null; // Canonical Android MediaStore URI
   createdAt?: number | null; // Date added (Unix seconds)
   modifiedAt?: number | null; // Resource modification time; null on iOS
   fileSize: number; // File size in bytes
 }
 ```
+
+#### Android Track resource compatibility
+
+Prefer `contentUri` for Android playback or resource access. For compatibility,
+`url` remains a `file://` URI when MediaStore exposes a legacy path and falls
+back to `contentUri` when it does not. Embedded Track Metadata is read through
+`ContentResolver` and a temporary file adapter for the file-based tag parser.
+
+Absolute `directory` paths retain the legacy `DATA` filter. On Android 10 and
+newer, Storage Access Framework tree URIs from
+`com.android.externalstorage.documents` are mapped to MediaStore volume and
+relative-path filters, including mounted removable volumes. Other providers and
+SAF tree filtering before Android 10 reject with `UNSUPPORTED_DIRECTORY_URI`.
 
 ### `Album`
 

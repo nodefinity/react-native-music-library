@@ -8,6 +8,7 @@ data class Track(
   val album: String? = null,
   val duration: Double,
   val url: String,
+  val contentUri: String? = null,
   val createdAt: Long? = null,
   val modifiedAt: Long? = null,
   val fileSize: Long,

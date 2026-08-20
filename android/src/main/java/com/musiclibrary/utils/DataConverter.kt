@@ -15,6 +15,7 @@ object DataConverter {
     track.album?.let { map.putString("album", it) }
     map.putDouble("duration", track.duration)
     map.putString("url", track.url)
+    track.contentUri?.let { map.putString("contentUri", it) }
     map.putLong("fileSize", track.fileSize)
 
     track.createdAt?.let { map.putDouble("createdAt", it.toDouble()) }

@@ -92,12 +92,12 @@ getTracksAsync(options?: TrackOptions): Promise<PaginatedResult<Track>>
 
 **TrackOptions**
 
-| Property    | Type                                                     | Default     | Description                             |
-| ----------- | -------------------------------------------------------- | ----------- | --------------------------------------- |
-| `first`     | `number`                                                 | `20`        | Items to return (`1`–`1000`)            |
-| `after`     | `string`                                                 | —           | Cursor from previous page's `endCursor` |
-| `sortBy`    | `TrackSortByKey \| [TrackSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`   |
-| `directory` | `string`                                                 | —           | Filter by directory path (Android only) |
+| Property    | Type                                                     | Default     | Description                                          |
+| ----------- | -------------------------------------------------------- | ----------- | ---------------------------------------------------- |
+| `first`     | `number`                                                 | `20`        | Items to return (`1`–`1000`)                         |
+| `after`     | `string`                                                 | —           | Cursor from previous page's `endCursor`              |
+| `sortBy`    | `TrackSortByKey \| [TrackSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`                |
+| `directory` | `string`                                                 | —           | Legacy path or supported SAF tree URI (Android only) |
 
 **TrackSortByKey**: `'default' \| 'title' \| 'artist' \| 'album' \| 'duration' \| 'createdAt' \| 'modifiedAt' \| 'fileSize'`
 
@@ -191,18 +191,34 @@ getArtistsAsync(options?: ArtistOptions): Promise<PaginatedResult<Artist>>
 
 ### `Track`
 
-| Field        | Type      | Description                                               |
-| ------------ | --------- | --------------------------------------------------------- |
-| `id`         | `string`  | Unique identifier                                         |
-| `title`      | `string`  | Track title                                               |
-| `artist`     | `string`  | Artist name                                               |
-| `artwork`    | `string?` | Artwork file URI (may be undefined)                       |
-| `album`      | `string`  | Album name                                                |
-| `duration`   | `number`  | Duration in seconds                                       |
-| `url`        | `string`  | File URI                                                  |
-| `createdAt`  | `number?` | Date added, Unix timestamp in seconds                     |
-| `modifiedAt` | `number?` | Resource modification time in Unix seconds; `null` on iOS |
-| `fileSize`   | `number`  | File size in bytes                                        |
+| Field        | Type      | Description                                                 |
+| ------------ | --------- | ----------------------------------------------------------- |
+| `id`         | `string`  | Unique identifier                                           |
+| `title`      | `string`  | Track title                                                 |
+| `artist`     | `string`  | Artist name                                                 |
+| `artwork`    | `string?` | Artwork file URI (may be undefined)                         |
+| `album`      | `string`  | Album name                                                  |
+| `duration`   | `number`  | Duration in seconds                                         |
+| `url`        | `string`  | Playable URI; preserves `file://` when available on Android |
+| `contentUri` | `string?` | Canonical Android MediaStore URI                            |
+| `createdAt`  | `number?` | Date added, Unix timestamp in seconds                       |
+| `modifiedAt` | `number?` | Resource modification time in Unix seconds; `null` on iOS   |
+| `fileSize`   | `number`  | File size in bytes                                          |
+
+### Android Track resources
+
+Use `contentUri` as the canonical Android Track resource. `url` remains
+backward compatible: it is a `file://` URI when MediaStore exposes a legacy
+path, and otherwise falls back to the same playable `content://` URI. Track
+Metadata is opened through `ContentResolver`, so a Track no longer requires a
+`DATA` path.
+
+`directory` still accepts an absolute path for existing callers. On Android 10+
+it also accepts a Storage Access Framework tree URI from the system external
+storage provider, including mounted removable volumes; filtering uses the
+MediaStore volume and relative path. Other document providers and SAF tree URIs
+on older Android versions reject with `UNSUPPORTED_DIRECTORY_URI` instead of
+guessing a `/storage/...` path.
 
 ### `TrackMetadata`
 

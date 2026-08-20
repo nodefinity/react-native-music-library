@@ -186,8 +186,11 @@ export interface Track {
   /** Duration in seconds */
   duration: number;
 
-  /** File URI or path */
+  /** Playable resource URI. May use file, content, or platform-library schemes. */
   url: string;
+
+  /** Canonical Android MediaStore content URI (Android only) */
+  contentUri?: string | null;
 
   /** Date added to the library as a Unix timestamp in seconds (optional) */
   createdAt?: number | null;
