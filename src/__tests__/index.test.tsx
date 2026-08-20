@@ -1,7 +1,12 @@
 import type { TrackSortByKey } from '../NativeMusicLibrary';
 import MusicLibrary from '../NativeMusicLibrary';
-import { getAllTracksAsync } from '../index';
-import { getTrackOptions, normalizeSortBy } from '../utils';
+import { getAlbumsAsync, getAllTracksAsync } from '../index';
+import {
+  getAlbumOptions,
+  getArtistOptions,
+  getTrackOptions,
+  normalizeSortBy,
+} from '../utils';
 
 // Mock the native module
 jest.mock('../NativeMusicLibrary', () => ({
@@ -106,6 +111,43 @@ describe('getTrackOptions', () => {
       { key: 'duration', ascending: false },
     ]);
   });
+
+  it.each(['', '0', '-1', '1.5', 'abc', '1abc', '18446744073709551616'])(
+    'rejects malformed cursor %p',
+    (after) => {
+      expect(() => getTrackOptions({ after })).toThrow(
+        expect.objectContaining({ code: 'INVALID_CURSOR' })
+      );
+    }
+  );
+
+  it('accepts a positive decimal entity ID cursor', () => {
+    expect(getTrackOptions({ after: '18446744073709551615' }).after).toBe(
+      '18446744073709551615'
+    );
+  });
+
+  it.each([0, -1, 1.5, 1001, Number.POSITIVE_INFINITY])(
+    'rejects invalid page size %p',
+    (first) => {
+      expect(() => getTrackOptions({ first })).toThrow(
+        expect.objectContaining({ code: 'INVALID_PAGE_SIZE' })
+      );
+    }
+  );
+
+  it.each([1, 1000])('accepts page-size boundary %p', (first) => {
+    expect(getTrackOptions({ first }).first).toBe(first);
+  });
+
+  it('applies the same cursor and page-size validation to every entity', () => {
+    expect(() => getAlbumOptions({ after: 'bad' })).toThrow(
+      expect.objectContaining({ code: 'INVALID_CURSOR' })
+    );
+    expect(() => getArtistOptions({ first: 1001 })).toThrow(
+      expect.objectContaining({ code: 'INVALID_PAGE_SIZE' })
+    );
+  });
 });
 
 describe('getAllTracksAsync', () => {
@@ -159,6 +201,19 @@ describe('getAllTracksAsync', () => {
     await expect(getAllTracksAsync()).rejects.toThrow(
       'Pagination did not provide an end cursor.'
     );
+  });
+});
+
+describe('public pagination validation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('rejects malformed cursors with a stable error code before native query', async () => {
+    await expect(getAlbumsAsync({ after: 'bad' })).rejects.toMatchObject({
+      code: 'INVALID_CURSOR',
+    });
+    expect(mockMusicLibrary.getAlbumsAsync).not.toHaveBeenCalled();
   });
 });
 

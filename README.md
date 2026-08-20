@@ -94,12 +94,16 @@ getTracksAsync(options?: TrackOptions): Promise<PaginatedResult<Track>>
 
 | Property    | Type                                                     | Default     | Description                             |
 | ----------- | -------------------------------------------------------- | ----------- | --------------------------------------- |
-| `first`     | `number`                                                 | `20`        | Max number of items to return           |
+| `first`     | `number`                                                 | `20`        | Items to return (`1`–`1000`)            |
 | `after`     | `string`                                                 | —           | Cursor from previous page's `endCursor` |
 | `sortBy`    | `TrackSortByKey \| [TrackSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`   |
 | `directory` | `string`                                                 | —           | Filter by directory path (Android only) |
 
 **TrackSortByKey**: `'default' \| 'title' \| 'artist' \| 'album' \| 'duration' \| 'createdAt' \| 'modifiedAt' \| 'fileSize'`
+
+The default sort is title ascending. A bare sort key such as `sortBy: 'artist'`
+means descending; use `[key, true]` for ascending. Multiple descriptors are
+applied in order, with the entity ID used as a final ascending tie-breaker.
 
 ---
 
@@ -145,7 +149,7 @@ getAlbumsAsync(options?: AlbumOptions): Promise<PaginatedResult<Album>>
 
 | Property | Type                                                     | Default     | Description                             |
 | -------- | -------------------------------------------------------- | ----------- | --------------------------------------- |
-| `first`  | `number`                                                 | `20`        | Max number of items to return           |
+| `first`  | `number`                                                 | `20`        | Items to return (`1`–`1000`)            |
 | `after`  | `string`                                                 | —           | Cursor from previous page's `endCursor` |
 | `sortBy` | `AlbumSortByKey \| [AlbumSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`   |
 
@@ -175,7 +179,7 @@ getArtistsAsync(options?: ArtistOptions): Promise<PaginatedResult<Artist>>
 
 | Property | Type                                                       | Default     | Description                             |
 | -------- | ---------------------------------------------------------- | ----------- | --------------------------------------- |
-| `first`  | `number`                                                   | `20`        | Max number of items to return           |
+| `first`  | `number`                                                   | `20`        | Items to return (`1`–`1000`)            |
 | `after`  | `string`                                                   | —           | Cursor from previous page's `endCursor` |
 | `sortBy` | `ArtistSortByKey \| [ArtistSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`   |
 
@@ -187,18 +191,18 @@ getArtistsAsync(options?: ArtistOptions): Promise<PaginatedResult<Artist>>
 
 ### `Track`
 
-| Field        | Type      | Description                         |
-| ------------ | --------- | ----------------------------------- |
-| `id`         | `string`  | Unique identifier                   |
-| `title`      | `string`  | Track title                         |
-| `artist`     | `string`  | Artist name                         |
-| `artwork`    | `string?` | Artwork file URI (may be undefined) |
-| `album`      | `string`  | Album name                          |
-| `duration`   | `number`  | Duration in seconds                 |
-| `url`        | `string`  | File URI                            |
-| `createdAt`  | `number`  | Unix timestamp (seconds)            |
-| `modifiedAt` | `number`  | Unix timestamp (seconds)            |
-| `fileSize`   | `number`  | File size in bytes                  |
+| Field        | Type      | Description                                               |
+| ------------ | --------- | --------------------------------------------------------- |
+| `id`         | `string`  | Unique identifier                                         |
+| `title`      | `string`  | Track title                                               |
+| `artist`     | `string`  | Artist name                                               |
+| `artwork`    | `string?` | Artwork file URI (may be undefined)                       |
+| `album`      | `string`  | Album name                                                |
+| `duration`   | `number`  | Duration in seconds                                       |
+| `url`        | `string`  | File URI                                                  |
+| `createdAt`  | `number?` | Date added, Unix timestamp in seconds                     |
+| `modifiedAt` | `number?` | Resource modification time in Unix seconds; `null` on iOS |
+| `fileSize`   | `number`  | File size in bytes                                        |
 
 ### `TrackMetadata`
 
@@ -251,6 +255,12 @@ getArtistsAsync(options?: ArtistOptions): Promise<PaginatedResult<Artist>>
 | `hasNextPage` | `boolean` | Whether more items are available          |
 | `endCursor`   | `string?` | Pass to `after` to fetch next page        |
 | `totalCount`  | `number?` | Total count (may be expensive to compute) |
+
+`endCursor` is the ID of the last returned entity. Reuse it only with the same
+entity, filters, and sort options. A malformed cursor rejects with
+`INVALID_CURSOR`; a valid ID absent from the current result rejects with
+`CURSOR_NOT_FOUND`. A cursor at the final entity returns an empty terminal page
+without a new `endCursor`.
 
 ---
 

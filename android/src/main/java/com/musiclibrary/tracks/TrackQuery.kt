@@ -10,6 +10,8 @@ import com.musiclibrary.models.PaginatedResult
 import com.musiclibrary.models.SortOption
 import com.musiclibrary.models.Track
 import com.musiclibrary.models.TrackOptions
+import com.musiclibrary.utils.moveToPageStart
+import com.musiclibrary.utils.validatePageSize
 
 internal sealed class TrackQueryFilter {
   object All : TrackQueryFilter()
@@ -28,19 +30,26 @@ internal object TrackQuery {
     filter: TrackQueryFilter = TrackQueryFilter.All,
     options: TrackOptions,
   ): PaginatedResult<Track> {
+    validatePageSize(options.first)
+
     val cursor = queryTracks(
       contentResolver = contentResolver,
       filter = filter,
       directory = options.directory,
-      sortOrder = buildSortOrder(TrackSortPolicy.Options, options.sortBy)
+      sortOrder = buildTrackSortOrder(TrackSortPolicy.Options, options.sortBy)
     )
 
     cursor.use { c ->
       val columns = TrackColumns.from(c)
       val tracks = mutableListOf<Track>()
       var endCursor: String? = null
-      val canReadFirst = moveToPageStart(c, columns, options.after)
-      val maxItems = options.first.coerceAtMost(1000)
+      val canReadFirst = moveToPageStart(
+        after = options.after,
+        moveToFirst = c::moveToFirst,
+        currentId = { c.getLong(columns.id).toString() },
+        moveToNext = c::moveToNext,
+      )
+      val maxItems = options.first
       var count = 0
 
       while (canReadFirst && count < maxItems) {
@@ -73,7 +82,7 @@ internal object TrackQuery {
       contentResolver = contentResolver,
       filter = filter,
       directory = null,
-      sortOrder = buildSortOrder(sortPolicy, emptyList())
+      sortOrder = buildTrackSortOrder(sortPolicy, emptyList())
     )
 
     cursor.use { c ->
@@ -103,23 +112,6 @@ internal object TrackQuery {
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
   }
 
-  private fun moveToPageStart(cursor: Cursor, columns: TrackColumns, after: String?): Boolean {
-    if (after == null) {
-      return cursor.moveToFirst()
-    }
-
-    if (cursor.moveToFirst()) {
-      do {
-        val id = cursor.getLong(columns.id).toString()
-        if (id == after) {
-          return cursor.moveToNext()
-        }
-      } while (cursor.moveToNext())
-    }
-
-    return false
-  }
-
   private fun readTrack(cursor: Cursor, columns: TrackColumns): Track? {
     return try {
       val id = cursor.getLong(columns.id)
@@ -134,6 +126,7 @@ internal object TrackQuery {
       val album = cursor.getString(columns.album)
       val duration = cursor.getLong(columns.duration) / 1000.0
       val dateAdded = cursor.getLong(columns.dateAdded)
+      val dateModified = cursor.getLong(columns.dateModified)
       val fileSize = cursor.getLong(columns.size)
 
       Track(
@@ -144,8 +137,8 @@ internal object TrackQuery {
         album = album,
         duration = duration,
         url = "file://$data",
-        createdAt = dateAdded * 1000,
-        modifiedAt = dateAdded * 1000,
+        createdAt = dateAdded,
+        modifiedAt = dateModified,
         fileSize = fileSize
       )
     } catch (_: Exception) {
@@ -196,13 +189,13 @@ internal object TrackQuery {
     return if (args.isEmpty()) null else args.toTypedArray()
   }
 
-  private fun buildSortOrder(sortPolicy: TrackSortPolicy, sortBy: List<SortOption>): String {
+  internal fun buildTrackSortOrder(sortPolicy: TrackSortPolicy, sortBy: List<SortOption>): String {
     if (sortPolicy == TrackSortPolicy.AlbumTrackNumber) {
-      return "${MediaStore.Audio.Media.TRACK} ASC, ${MediaStore.Audio.Media.TITLE} ASC"
+      return "${MediaStore.Audio.Media.TRACK} ASC, ${MediaStore.Audio.Media.TITLE} ASC, ${MediaStore.Audio.Media._ID} ASC"
     }
 
     val options = sortBy.ifEmpty { listOf(SortOption("default", true)) }
-    return options.joinToString(", ") { sortOption ->
+    val descriptors = options.map { sortOption ->
       val column = when (sortOption.key.lowercase()) {
         "default" -> MediaStore.Audio.Media.TITLE
         "title" -> MediaStore.Audio.Media.TITLE
@@ -218,6 +211,8 @@ internal object TrackQuery {
       val order = if (sortOption.ascending) "ASC" else "DESC"
       "$column $order"
     }
+
+    return (descriptors + "${MediaStore.Audio.Media._ID} ASC").joinToString(", ")
   }
 
   private fun uriToFullPath(treeUri: Uri): String? {
@@ -246,6 +241,7 @@ internal object TrackQuery {
     val duration: Int,
     val data: Int,
     val dateAdded: Int,
+    val dateModified: Int,
     val size: Int,
   ) {
     companion object {
@@ -258,6 +254,7 @@ internal object TrackQuery {
           duration = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION),
           data = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA),
           dateAdded = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED),
+          dateModified = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED),
           size = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
         )
       }
@@ -272,6 +269,7 @@ internal object TrackQuery {
     MediaStore.Audio.Media.DURATION,
     MediaStore.Audio.Media.DATA,
     MediaStore.Audio.Media.DATE_ADDED,
+    MediaStore.Audio.Media.DATE_MODIFIED,
     MediaStore.Audio.Media.SIZE,
     MediaStore.Audio.Media.ALBUM_ID,
     MediaStore.Audio.Media.TRACK

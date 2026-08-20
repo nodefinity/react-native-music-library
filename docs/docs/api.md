@@ -199,8 +199,8 @@ const albums = await getAlbumsByArtistAsync('artist-id-123');
 
 ```typescript
 interface TrackOptions {
-  after?: string; // Cursor for pagination
-  first?: number; // Max items to return (default: 20)
+  after?: string; // Previous page's entity-ID cursor
+  first?: number; // 1–1000 items (default: 20)
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
   directory?: string; // Directory path to search
 }
@@ -210,8 +210,8 @@ interface TrackOptions {
 
 ```typescript
 interface AlbumOptions {
-  after?: string; // Cursor for pagination
-  first?: number; // Max items to return (default: 20)
+  after?: string; // Previous page's entity-ID cursor
+  first?: number; // 1–1000 items (default: 20)
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
 }
 ```
@@ -220,11 +220,17 @@ interface AlbumOptions {
 
 ```typescript
 interface ArtistOptions {
-  after?: string; // Cursor for pagination
-  first?: number; // Max items to return (default: 20)
+  after?: string; // Previous page's entity-ID cursor
+  first?: number; // 1–1000 items (default: 20)
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
 }
 ```
+
+The cursor is the ID of the last entity returned by the previous page and must
+be reused with the same entity, filters, and normalized sort. A malformed
+cursor rejects with `INVALID_CURSOR`. A valid ID absent from the current query
+rejects with `CURSOR_NOT_FOUND`. A cursor at the final entity returns an empty
+terminal page with no `endCursor`.
 
 ### `Track`
 
@@ -237,8 +243,8 @@ interface Track {
   album: string; // Album name
   duration: number; // Duration in seconds
   url: string; // File URL or path
-  createdAt: number; // Date added (Unix timestamp)
-  modifiedAt: number; // Date modified (Unix timestamp)
+  createdAt?: number | null; // Date added (Unix seconds)
+  modifiedAt?: number | null; // Resource modification time; null on iOS
   fileSize: number; // File size in bytes
 }
 ```
@@ -298,6 +304,11 @@ interface TrackMetadata {
 
 ## Sorting Options
 
+The default sort is title ascending. A bare key is descending. Multiple sort
+descriptors are evaluated in declaration order, then the entity ID is used as
+an ascending tie-breaker. Missing string or numeric values sort before populated
+values in ascending order where both platforms expose the field.
+
 ### Track Sorting Keys
 
 - `'default'` - Default sorting (title)
@@ -306,7 +317,7 @@ interface TrackMetadata {
 - `'album'` - Sort by album name
 - `'duration'` - Sort by duration
 - `'createdAt'` - Sort by creation date
-- `'modifiedAt'` - Sort by modification date
+- `'modifiedAt'` - Sort by resource modification date (Android; unavailable values on iOS tie and fall back to ID)
 - `'fileSize'` - Sort by file size
 
 ### Album Sorting Keys

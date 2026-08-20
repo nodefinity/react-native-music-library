@@ -7,11 +7,11 @@ internal class GetTracks {
     self.options = options
   }
 
-  func execute() -> PaginatedResult<Track> {
+  func execute() throws -> PaginatedResult<Track> {
     if let directory = options.directory, !directory.isEmpty {
       NSLog("🎵 [MusicLibrary] Directory filtering ('%@') is not supported on iOS, ignoring parameter", directory)
     }
 
-    return TrackQuery.getPaginatedTracks(options: options)
+    return try TrackQuery.getPaginatedTracks(options: options)
   }
 }

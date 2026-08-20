@@ -53,7 +53,7 @@ _Avoid_: offset, page number
 - A **Track** has **Library Metadata** and may have **Embedded Metadata**
 - **Track Metadata** may combine **Library Metadata** and **Embedded Metadata**
 - A **Track** or **Album** may have zero or one **Artwork Reference**
-- A **Cursor** points to one **Track**, **Album**, or **Artist** in a paginated list
+- A **Cursor** points to one **Track**, **Album**, or **Artist** in a paginated list and is valid only with the entity type, filters, and sort that produced it
 
 ## Example dialogue
 

@@ -69,6 +69,8 @@ export interface BaseOptions {
   /**
    * Maximum number of items to return
    * @default 20
+   * @minimum 1
+   * @maximum 1000
    */
   first?: number;
 }
@@ -80,7 +82,7 @@ export interface TrackOptions extends BaseOptions {
   /**
    * Sorting configuration for tracks
    * @example
-   * 'title' // Sort by title descending (default)
+   * 'title' // Sort by title descending
    * ['title', true] // Sort by title ascending
    */
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
@@ -99,7 +101,7 @@ export interface AlbumOptions extends BaseOptions {
   /**
    * Sorting configuration for albums
    * @example
-   * 'title' // Sort by title descending (default)
+   * 'title' // Sort by title descending
    * ['trackCount', true] // Sort by track count ascending
    */
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
@@ -112,7 +114,7 @@ export interface ArtistOptions extends BaseOptions {
   /**
    * Sorting configuration for artists
    * @example
-   * 'title' // Sort by name descending (default)
+   * 'title' // Sort by name descending
    * ['trackCount', true] // Sort by track count ascending
    */
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
@@ -187,10 +189,10 @@ export interface Track {
   /** File URI or path */
   url: string;
 
-  /** Date added to library (Unix timestamp, optional) */
+  /** Date added to the library as a Unix timestamp in seconds (optional) */
   createdAt?: number | null;
 
-  /** Date modified (Unix timestamp, optional) */
+  /** Resource modification time in Unix seconds; unavailable and null on iOS */
   modifiedAt?: number | null;
 
   /** File size in bytes */

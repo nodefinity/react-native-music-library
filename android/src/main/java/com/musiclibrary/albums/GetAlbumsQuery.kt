@@ -2,17 +2,18 @@ package com.musiclibrary.albums
 
 import android.content.ContentResolver
 import android.provider.MediaStore
-import android.net.Uri
-import android.provider.DocumentsContract
 import com.musiclibrary.models.*
+import com.musiclibrary.utils.moveToPageStart
 import com.musiclibrary.utils.readCursorPage
-import androidx.core.net.toUri
+import com.musiclibrary.utils.validatePageSize
 
 object GetAlbumsQuery {
   fun getAlbums(
     contentResolver: ContentResolver,
     options: AlbumOptions,
   ): PaginatedResult<Album> {
+    validatePageSize(options.first)
+
     val projection = arrayOf(
       MediaStore.Audio.Albums._ID,
       MediaStore.Audio.Albums.ALBUM,
@@ -23,7 +24,7 @@ object GetAlbumsQuery {
 
     val selection = buildSelection(options)
     val selectionArgs = buildSelectionArgs(options)
-    val sortOrder = buildSortOrder(options.sortBy)
+    val sortOrder = buildAlbumSortOrder(options.sortBy)
 
     val cursor = contentResolver.query(
       MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
@@ -42,29 +43,16 @@ object GetAlbumsQuery {
       val trackCountColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.NUMBER_OF_SONGS)
       val firstYearColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Albums.FIRST_YEAR)
 
-      // Jump to the specified start position
-      val foundAfter = if (options.after == null) {
-        cursor.moveToFirst() // Move to the first record
-        true
-      } else {
-        var found = false
-        if (cursor.moveToFirst()) {
-          do {
-            val id = cursor.getLong(idColumn).toString()
-            if (id == options.after) {
-              found = true
-              break
-            }
-          } while (cursor.moveToNext())
-        }
-        // Move to the next record after the specified after if found
-        found && cursor.moveToNext()
-      }
+      val foundAfter = moveToPageStart(
+        after = options.after,
+        moveToFirst = c::moveToFirst,
+        currentId = { c.getLong(idColumn).toString() },
+        moveToNext = c::moveToNext,
+      )
 
-      val maxItems = options.first.coerceAtMost(1000) // Limit the maximum number of queries
       val page = readCursorPage(
         canReadFirst = foundAfter,
-        maxItems = maxItems,
+        maxItems = options.first,
         readItem = {
           val id = c.getLong(idColumn)
           val albumTitle = c.getString(albumColumn) ?: ""
@@ -77,14 +65,12 @@ object GetAlbumsQuery {
             null
           } else {
             // Get artwork URI
-            val artworkUri: Uri = "content://media/external/audio/albumart/${id}".toUri()
-
             // Create an Album
             Album(
               id = id.toString(),
               title = albumTitle,
               artist = artist,
-              artwork = artworkUri.toString(),
+              artwork = "content://media/external/audio/albumart/$id",
               trackCount = trackCount,
               year = if (firstYear > 0) firstYear else null
             )
@@ -116,26 +102,9 @@ object GetAlbumsQuery {
     return null
   }
 
-  private fun uriToFullPath(treeUri: Uri): String? {
-    val docId = DocumentsContract.getTreeDocumentId(treeUri) // "primary:Music/abc"
-    val parts = docId.split(":")
-    if (parts.size < 2) return null
-
-    val type = parts[0]
-    val relativePath = parts[1]
-
-    return when (type) {
-      "primary" -> "/storage/emulated/0/$relativePath"
-      else -> "/storage/$type/$relativePath"
-    }
-  }
-
-  private fun buildSortOrder(sortBy: List<SortOption>): String {
-    if (sortBy.isEmpty()) {
-      return "${MediaStore.Audio.Albums.ALBUM} ASC"
-    }
-
-    return sortBy.joinToString(", ") { sortOption ->
+  internal fun buildAlbumSortOrder(sortBy: List<SortOption>): String {
+    val options = sortBy.ifEmpty { listOf(SortOption("default", true)) }
+    val descriptors = options.map { sortOption ->
       val column = when (sortOption.key.lowercase()) {
         "default" -> MediaStore.Audio.Albums.ALBUM
         "title" -> MediaStore.Audio.Albums.ALBUM
@@ -148,5 +117,7 @@ object GetAlbumsQuery {
       val order = if (sortOption.ascending) "ASC" else "DESC"
       "$column $order"
     }
+
+    return (descriptors + "${MediaStore.Audio.Albums._ID} ASC").joinToString(", ")
   }
 }

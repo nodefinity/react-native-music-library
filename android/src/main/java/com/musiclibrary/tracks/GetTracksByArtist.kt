@@ -4,6 +4,7 @@ import android.content.Context
 import com.facebook.react.bridge.Promise
 import com.musiclibrary.models.TrackOptions
 import com.musiclibrary.utils.DataConverter
+import com.musiclibrary.utils.rejectQueryError
 
 internal class GetTracksByArtist(
   private val context: Context,
@@ -24,7 +25,7 @@ internal class GetTracksByArtist(
 
       promise.resolve(resultMap)
     } catch (e: Exception) {
-      promise.reject("QUERY_ERROR", "Failed to query tracks by artist: ${e.message}", e)
+      promise.rejectQueryError(e, "Failed to query tracks by artist")
     }
   }
 }

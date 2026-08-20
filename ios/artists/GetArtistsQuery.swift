@@ -3,39 +3,28 @@ import MediaPlayer
 
 internal class GetArtistsQuery {
 
-  static func getArtists(options: ArtistOptions) -> PaginatedResult<Artist> {
+  static func getArtists(options: ArtistOptions) throws -> PaginatedResult<Artist> {
     guard MPMediaLibrary.authorizationStatus() == .authorized else {
       return PaginatedResult<Artist>(items: [], hasNextPage: false, totalCount: 0)
     }
 
     let artistQuery = MPMediaQuery.artists()
-    guard let artistCollections = artistQuery.collections else {
-      return PaginatedResult<Artist>(items: [], hasNextPage: false, totalCount: 0)
-    }
-
-    var artists = artistCollections.compactMap { buildArtist($0) }
+    var artists = (artistQuery.collections ?? []).compactMap { buildArtist($0) }
 
     applySortBy(options.sortBy, to: &artists)
 
-    let totalCount = artists.count
-    var startIndex = 0
-    if let after = options.after {
-      if let idx = artists.firstIndex(where: { $0.id == after }) {
-        startIndex = idx + 1
-      }
-    }
-
-    let endIndex = min(startIndex + options.first, artists.count)
-    let page = startIndex < artists.count ? Array(artists[startIndex..<endIndex]) : []
-
-    let hasNextPage = endIndex < artists.count
-    let endCursor = page.last?.id
+    let page = try paginateById(
+      artists,
+      first: options.first,
+      after: options.after,
+      id: { $0.id }
+    )
 
     return PaginatedResult<Artist>(
-      items: page,
-      hasNextPage: hasNextPage,
-      endCursor: endCursor,
-      totalCount: totalCount
+      items: page.items,
+      hasNextPage: page.hasNextPage,
+      endCursor: page.endCursor,
+      totalCount: artists.count
     )
   }
 
@@ -67,17 +56,36 @@ internal class GetArtistsQuery {
   }
 
   private static func applySortBy(_ sortBy: [SortOption], to artists: inout [Artist]) {
-    for sortOption in sortBy {
-      let ascending = sortOption.ascending
-      switch sortOption.key.lowercased() {
-      case "default", "title":
-        artists.sort { ascending ? $0.title < $1.title : $0.title > $1.title }
-      case "trackcount":
-        artists.sort { ascending ? $0.trackCount < $1.trackCount : $0.trackCount > $1.trackCount }
-      case "albumcount":
-        artists.sort { ascending ? $0.albumCount < $1.albumCount : $0.albumCount > $1.albumCount }
-      default: break
+    let options = sortBy.isEmpty ? [SortOption(key: "default", ascending: true)] : sortBy
+    artists.sort { lhs, rhs in
+      for option in options {
+        if let result = compare(lhs, rhs, by: option) {
+          return result
+        }
       }
+
+      return (UInt64(lhs.id) ?? 0) < (UInt64(rhs.id) ?? 0)
     }
+  }
+
+  private static func compare(_ lhs: Artist, _ rhs: Artist, by option: SortOption) -> Bool? {
+    switch option.key.lowercased() {
+    case "default", "title":
+      return compare(lhs.title, rhs.title, ascending: option.ascending)
+    case "trackcount":
+      return compare(lhs.trackCount, rhs.trackCount, ascending: option.ascending)
+    case "albumcount":
+      return compare(lhs.albumCount, rhs.albumCount, ascending: option.ascending)
+    default:
+      return nil
+    }
+  }
+
+  private static func compare<T: Comparable>(_ lhs: T, _ rhs: T, ascending: Bool) -> Bool? {
+    if lhs == rhs {
+      return nil
+    }
+
+    return ascending ? lhs < rhs : lhs > rhs
   }
 }

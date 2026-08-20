@@ -11,6 +11,9 @@ import MediaPlayer
 enum MusicLibraryError: LocalizedError {
   case permissionDenied
   case trackNotFound(String)
+  case invalidCursor(String)
+  case cursorNotFound(String)
+  case invalidPageSize(Int)
 
   var code: String {
     switch self {
@@ -18,6 +21,12 @@ enum MusicLibraryError: LocalizedError {
       return "PERMISSION_DENIED"
     case .trackNotFound:
       return "TRACK_NOT_FOUND"
+    case .invalidCursor:
+      return "INVALID_CURSOR"
+    case .cursorNotFound:
+      return "CURSOR_NOT_FOUND"
+    case .invalidPageSize:
+      return "INVALID_PAGE_SIZE"
     }
   }
 
@@ -27,6 +36,12 @@ enum MusicLibraryError: LocalizedError {
       return "Audio permission is required. Please grant media library permission first."
     case .trackNotFound(let trackId):
       return "Track with id \(trackId) not found"
+    case .invalidCursor(let cursor):
+      return "Cursor must be a positive decimal ID: \(cursor)"
+    case .cursorNotFound(let cursor):
+      return "Cursor is not present in the current query result: \(cursor)"
+    case .invalidPageSize(let first):
+      return "Page size must be between 1 and 1000: \(first)"
     }
   }
 }
@@ -41,7 +56,7 @@ public class MusicLibraryImpl: NSObject {
     do {
       try ensureAuthorized()
       let getTracks = GetTracks(options: options)
-      let result = getTracks.execute()
+      let result = try getTracks.execute()
       let resultDict = result.toDictionary()
 
       NSLog("🎵 [MusicLibrary] getTracksAsync returning: %@", resultDict)
@@ -91,7 +106,7 @@ public class MusicLibraryImpl: NSObject {
     do {
       try ensureAuthorized()
       let options = TrackOptions(after: after, first: first, sortBy: sortBy, directory: directory)
-      let result = GetTracksByArtistQuery.getTracksByArtist(artistId: artistId, options: options)
+      let result = try GetTracksByArtistQuery.getTracksByArtist(artistId: artistId, options: options)
       resolve(result.toDictionary())
     } catch {
       rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query tracks by artist", reject: reject)
@@ -102,7 +117,7 @@ public class MusicLibraryImpl: NSObject {
     do {
       try ensureAuthorized()
       let options = AlbumOptions(after: after, first: first, sortBy: sortBy)
-      let result = GetAlbumsQuery.getAlbums(options: options)
+      let result = try GetAlbumsQuery.getAlbums(options: options)
       resolve(result.toDictionary())
     } catch {
       rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query albums", reject: reject)
@@ -123,7 +138,7 @@ public class MusicLibraryImpl: NSObject {
     do {
       try ensureAuthorized()
       let options = ArtistOptions(after: after, first: first, sortBy: sortBy)
-      let result = GetArtistsQuery.getArtists(options: options)
+      let result = try GetArtistsQuery.getArtists(options: options)
       resolve(result.toDictionary())
     } catch {
       rejectError(error, fallbackCode: "QUERY_ERROR", fallbackMessage: "Failed to query artists", reject: reject)

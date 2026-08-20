@@ -199,8 +199,8 @@ const albums = await getAlbumsByArtistAsync('artist-id-123');
 
 ```typescript
 interface TrackOptions {
-  after?: string; // 分页游标
-  first?: number; // 最大返回项目数（默认：20）
+  after?: string; // 上一页返回的实体 ID 游标
+  first?: number; // 返回 1–1000 项（默认：20）
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
   directory?: string; // 搜索目录路径
 }
@@ -210,8 +210,8 @@ interface TrackOptions {
 
 ```typescript
 interface AlbumOptions {
-  after?: string; // 分页游标
-  first?: number; // 最大返回项目数（默认：20）
+  after?: string; // 上一页返回的实体 ID 游标
+  first?: number; // 返回 1–1000 项（默认：20）
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
 }
 ```
@@ -220,11 +220,16 @@ interface AlbumOptions {
 
 ```typescript
 interface ArtistOptions {
-  after?: string; // 分页游标
-  first?: number; // 最大返回项目数（默认：20）
+  after?: string; // 上一页返回的实体 ID 游标
+  first?: number; // 返回 1–1000 项（默认：20）
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
 }
 ```
+
+游标是上一页最后一个实体的 ID，必须与生成它时的实体类型、筛选条件和
+规范化排序一起复用。格式错误的游标会以 `INVALID_CURSOR` 拒绝；格式正确但
+不在当前查询结果中的 ID 会以 `CURSOR_NOT_FOUND` 拒绝。游标指向最后一个实体
+时，返回不含 `endCursor` 的正常空白终止页。
 
 ### `Track`
 
@@ -237,8 +242,8 @@ interface Track {
   album: string; // 专辑名称
   duration: number; // 时长（秒）
   url: string; // 文件 URL 或路径
-  createdAt: number; // 添加日期（Unix 时间戳）
-  modifiedAt: number; // 修改日期（Unix 时间戳）
+  createdAt?: number | null; // 添加日期（Unix 秒）
+  modifiedAt?: number | null; // 资源修改时间；iOS 上为 null
   fileSize: number; // 文件大小（字节）
 }
 ```
@@ -298,6 +303,10 @@ interface TrackMetadata {
 
 ## 排序选项
 
+默认按标题升序。单独传入排序键时表示降序。多个排序条件按声明顺序进行
+词典序比较，最后以实体 ID 升序打破平局。两个平台都提供对应字段时，缺失的
+字符串或数值在升序中排在已有值之前。
+
 ### 曲目排序键
 
 - `'default'` - 默认排序（标题）
@@ -306,7 +315,7 @@ interface TrackMetadata {
 - `'album'` - 按专辑名称排序
 - `'duration'` - 按时长排序
 - `'createdAt'` - 按创建日期排序
-- `'modifiedAt'` - 按修改日期排序
+- `'modifiedAt'` - 按资源修改日期排序（Android；iOS 缺失值相等并回退到 ID）
 - `'fileSize'` - 按文件大小排序
 
 ### 专辑排序键
