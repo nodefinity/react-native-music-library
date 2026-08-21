@@ -60,10 +60,12 @@ jobs:
       - name: Build Android example
         env:
           JAVA_OPTS: -XX:MaxHeapSize=6g
-          MUSIC_LIBRARY_EXAMPLE_VERSION_CODE: ${{ github.run_number }}
-          MUSIC_LIBRARY_EXAMPLE_VERSION_NAME: ${{ env.RELEASE_TAG }}
         run: |
-          MUSIC_LIBRARY_EXAMPLE_VERSION_NAME="${MUSIC_LIBRARY_EXAMPLE_VERSION_NAME#v}" \
+          version_name="${RELEASE_TAG#v}"
+          version_code="$((100000 + GITHUB_RUN_NUMBER))"
+
+          MUSIC_LIBRARY_EXAMPLE_VERSION_NAME="$version_name" \
+            MUSIC_LIBRARY_EXAMPLE_VERSION_CODE="$version_code" \
             yarn turbo run build:android --cache-dir="$TURBO_CACHE_DIR"
 
       - name: Prepare release assets
