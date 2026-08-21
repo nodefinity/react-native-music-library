@@ -2,7 +2,12 @@
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build:android": {
-      "env": ["ORG_GRADLE_PROJECT_newArchEnabled"],
+      "env": [
+        "MUSIC_LIBRARY_ANDROID_ARCHITECTURES",
+        "MUSIC_LIBRARY_EXAMPLE_VERSION_CODE",
+        "MUSIC_LIBRARY_EXAMPLE_VERSION_NAME",
+        "ORG_GRADLE_PROJECT_newArchEnabled"
+      ],
       "inputs": [
         "package.json",
         "android",
@@ -10,12 +15,13 @@
         "src/*.ts",
         "src/*.tsx",
         "example/package.json",
+        "example/scripts",
         "example/android",
         "!example/android/.gradle",
         "!example/android/build",
         "!example/android/app/build"
       ],
-      "outputs": []
+      "outputs": ["android/app/build/outputs/apk/**"]
     },
     "build:ios": {
       "env": ["RCT_NEW_ARCH_ENABLED"],

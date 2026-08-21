@@ -1,0 +1,80 @@
+name: Release Android example
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing GitHub release tag
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    name: Build and upload example APK
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      TURBO_CACHE_DIR: .turbo/android-release
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Install JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Finalize Android SDK
+        run: /bin/bash -c "yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/wrapper
+            ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('example/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Validate release tag
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?([+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Unsupported release tag: $RELEASE_TAG" >&2
+            exit 1
+          fi
+
+      - name: Build Android example
+        env:
+          JAVA_OPTS: -XX:MaxHeapSize=6g
+          MUSIC_LIBRARY_EXAMPLE_VERSION_CODE: ${{ github.run_number }}
+          MUSIC_LIBRARY_EXAMPLE_VERSION_NAME: ${{ env.RELEASE_TAG }}
+        run: |
+          MUSIC_LIBRARY_EXAMPLE_VERSION_NAME="${MUSIC_LIBRARY_EXAMPLE_VERSION_NAME#v}" \
+            yarn turbo run build:android --cache-dir="$TURBO_CACHE_DIR"
+
+      - name: Prepare release assets
+        run: |
+          asset="music-library-example-${RELEASE_TAG}-arm64.apk"
+          cp example/android/app/build/outputs/apk/release/app-release.apk "$asset"
+          sha256sum "$asset" > "$asset.sha256"
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          asset="music-library-example-${RELEASE_TAG}-arm64.apk"
+          gh release upload "$RELEASE_TAG" "$asset" "$asset.sha256" --clobber

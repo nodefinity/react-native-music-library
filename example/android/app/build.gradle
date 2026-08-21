@@ -82,8 +82,8 @@ android {
         applicationId "musiclibrary.example"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode providers.gradleProperty("musicLibraryExampleVersionCode").getOrElse("1").toInteger()
+        versionName providers.gradleProperty("musicLibraryExampleVersionName").getOrElse("0.0.0-dev")
     }
     signingConfigs {
         debug {
