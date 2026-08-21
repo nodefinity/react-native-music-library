@@ -18,14 +18,17 @@ internal enum TrackSortPolicy {
 }
 
 internal class TrackQuery {
-  static func getPaginatedTracks(filter: TrackQueryFilter = .all, options: TrackOptions) -> PaginatedResult<Track> {
-    guard var items = queryItems(filter: filter) else {
-      return PaginatedResult<Track>(items: [], hasNextPage: false, totalCount: 0)
-    }
+  static func getPaginatedTracks(filter: TrackQueryFilter = .all, options: TrackOptions) throws -> PaginatedResult<Track> {
+    var items = queryItems(filter: filter) ?? []
 
     applySort(.options(options.sortBy), to: &items)
 
-    let page = paginate(items, first: options.first, after: options.after)
+    let page = try paginateById(
+      items,
+      first: options.first,
+      after: options.after,
+      id: { "\($0.persistentID)" }
+    )
     let tracks = page.items.compactMap {
       buildTrack(from: $0, resourcePolicy: .allowLibraryFallback)
     }
@@ -94,7 +97,13 @@ internal class TrackQuery {
           return lhs.albumTrackNumber < rhs.albumTrackNumber
         }
 
-        return (lhs.title ?? "") < (rhs.title ?? "")
+        let lhsTitle = lhs.title ?? ""
+        let rhsTitle = rhs.title ?? ""
+        if lhsTitle != rhsTitle {
+          return lhsTitle < rhsTitle
+        }
+
+        return lhs.persistentID < rhs.persistentID
       }
     case .options(let sortBy):
       let options = sortBy.isEmpty ? [SortOption(key: "default", ascending: true)] : sortBy
@@ -126,8 +135,10 @@ internal class TrackQuery {
       return compare(lhs.albumTitle ?? "", rhs.albumTitle ?? "", ascending: ascending)
     case "duration":
       return compare(lhs.playbackDuration, rhs.playbackDuration, ascending: ascending)
-    case "createdat", "creationtime", "modifiedat", "modificationtime":
+    case "createdat", "creationtime":
       return compare(lhs.dateAdded, rhs.dateAdded, ascending: ascending)
+    case "modifiedat", "modificationtime":
+      return nil
     case "filesize":
       return compare(fileSize(for: lhs), fileSize(for: rhs), ascending: ascending)
     default:
@@ -141,25 +152,6 @@ internal class TrackQuery {
     }
 
     return ascending ? lhs < rhs : lhs > rhs
-  }
-
-  private static func paginate(_ items: [MPMediaItem], first: Int, after: String?) -> (items: [MPMediaItem], hasNextPage: Bool, endCursor: String?) {
-    var startIndex = 0
-
-    if let after = after, let afterId = UInt64(after),
-       let foundIndex = items.firstIndex(where: { $0.persistentID == afterId }) {
-      startIndex = foundIndex + 1
-    }
-
-    let endIndex = min(startIndex + first, items.count)
-    let page = startIndex < items.count ? Array(items[startIndex..<endIndex]) : []
-    let endCursor = page.last.map { "\($0.persistentID)" } ?? after
-
-    return (
-      items: page,
-      hasNextPage: endIndex < items.count,
-      endCursor: endCursor
-    )
   }
 
   private static func buildTrack(from item: MPMediaItem, resourcePolicy: TrackResourcePolicy) -> Track? {
@@ -176,7 +168,7 @@ internal class TrackQuery {
       duration: item.playbackDuration,
       url: urlString,
       createdAt: item.dateAdded.timeIntervalSince1970,
-      modifiedAt: item.dateAdded.timeIntervalSince1970,
+      modifiedAt: nil,
       fileSize: fileSize(for: item)
     )
   }

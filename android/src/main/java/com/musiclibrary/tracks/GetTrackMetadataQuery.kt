@@ -3,6 +3,7 @@ package com.musiclibrary.tracks
 import android.content.Context
 import com.facebook.react.bridge.Promise
 import com.musiclibrary.utils.DataConverter
+import com.musiclibrary.utils.rejectQueryError
 
 internal class GetTrackMetadataQuery(
   private val context: Context,
@@ -13,13 +14,13 @@ internal class GetTrackMetadataQuery(
     try {
       val source = TrackMetadataLookup.findTrack(context.contentResolver, trackId)
         ?: throw TrackNotFoundException(trackId)
-      val result = AudioMetadataExtractor.extract(source)
+      val result = AudioMetadataExtractor.extract(context, source)
       val writableMap = DataConverter.trackMetadataToWritableMap(result)
       promise.resolve(writableMap)
     } catch (e: TrackNotFoundException) {
       promise.reject("TRACK_NOT_FOUND", "Track with id $trackId not found", e)
     } catch (e: Exception) {
-      promise.reject("QUERY_ERROR", "Failed to get track metadata: ${e.message}", e)
+      promise.rejectQueryError(e, "Failed to get track metadata")
     }
   }
 }

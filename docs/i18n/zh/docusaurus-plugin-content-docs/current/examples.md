@@ -30,6 +30,22 @@ const nextPage = firstPage.hasNextPage
   : undefined;
 ```
 
+## 加载完整结果
+
+当业务需要当前完整列表时，使用高层 helper；增量加载页面仍可继续使用分页方法。
+
+```ts
+import {
+  getAllTracksAsync,
+  getAllAlbumsAsync,
+  getAllArtistsAsync,
+} from '@nodefinity/react-native-music-library';
+
+const tracks = await getAllTracksAsync({ first: 100 });
+const albums = await getAllAlbumsAsync({ first: 100 });
+const artists = await getAllArtistsAsync({ first: 100 });
+```
+
 ## 读取音频元数据和歌词
 
 当用户打开某个曲目时再加载详细的曲目元数据。返回值取决于平台和曲目本身能够提供的元数据。

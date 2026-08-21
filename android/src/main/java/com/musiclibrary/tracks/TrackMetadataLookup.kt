@@ -1,11 +1,15 @@
 package com.musiclibrary.tracks
 
 import android.content.ContentResolver
+import android.content.ContentUris
+import android.net.Uri
 import android.provider.MediaStore
 
 internal data class TrackMetadataSource(
   val trackId: String,
-  val filePath: String?,
+  val contentUri: Uri,
+  val displayName: String?,
+  val mimeType: String?,
 )
 
 internal object TrackMetadataLookup {
@@ -13,24 +17,33 @@ internal object TrackMetadataLookup {
     contentResolver: ContentResolver,
     trackId: String,
   ): TrackMetadataSource? {
-    val projection = arrayOf(MediaStore.Audio.Media.DATA)
-    val selection = "${MediaStore.Audio.Media._ID} = ?"
-    val selectionArgs = arrayOf(trackId)
+    val id = trackId.toLongOrNull() ?: return null
+    val contentUri = ContentUris.withAppendedId(
+      MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+      id,
+    )
+    val projection = arrayOf(
+      MediaStore.Audio.Media.DISPLAY_NAME,
+      MediaStore.Audio.Media.MIME_TYPE,
+    )
 
     val cursor = contentResolver.query(
-      MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+      contentUri,
       projection,
-      selection,
-      selectionArgs,
+      null,
+      null,
       null
     )
 
     cursor?.use { c ->
       if (c.moveToFirst()) {
-        val dataColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+        val displayNameColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+        val mimeTypeColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE)
         return TrackMetadataSource(
           trackId = trackId,
-          filePath = c.getString(dataColumn)
+          contentUri = contentUri,
+          displayName = c.getString(displayNameColumn),
+          mimeType = c.getString(mimeTypeColumn),
         )
       }
     }

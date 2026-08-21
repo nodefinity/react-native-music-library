@@ -199,10 +199,10 @@ const albums = await getAlbumsByArtistAsync('artist-id-123');
 
 ```typescript
 interface TrackOptions {
-  after?: string; // 分页游标
-  first?: number; // 最大返回项目数（默认：20）
+  after?: string; // 上一页返回的实体 ID 游标
+  first?: number; // 返回 1–1000 项（默认：20）
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
-  directory?: string; // 搜索目录路径
+  directory?: string; // 旧路径或受支持的 Android SAF 树 URI
 }
 ```
 
@@ -210,8 +210,8 @@ interface TrackOptions {
 
 ```typescript
 interface AlbumOptions {
-  after?: string; // 分页游标
-  first?: number; // 最大返回项目数（默认：20）
+  after?: string; // 上一页返回的实体 ID 游标
+  first?: number; // 返回 1–1000 项（默认：20）
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
 }
 ```
@@ -220,11 +220,16 @@ interface AlbumOptions {
 
 ```typescript
 interface ArtistOptions {
-  after?: string; // 分页游标
-  first?: number; // 最大返回项目数（默认：20）
+  after?: string; // 上一页返回的实体 ID 游标
+  first?: number; // 返回 1–1000 项（默认：20）
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
 }
 ```
+
+游标是上一页最后一个实体的 ID，必须与生成它时的实体类型、筛选条件和
+规范化排序一起复用。格式错误的游标会以 `INVALID_CURSOR` 拒绝；格式正确但
+不在当前查询结果中的 ID 会以 `CURSOR_NOT_FOUND` 拒绝。游标指向最后一个实体
+时，返回不含 `endCursor` 的正常空白终止页。
 
 ### `Track`
 
@@ -232,16 +237,29 @@ interface ArtistOptions {
 interface Track {
   id: string;
   title: string; // 曲目标题
-  artist: string; // 艺术家名称
-  artwork?: string; // 封面文件 URI（可能为空）
-  album: string; // 专辑名称
+  artist: string | null; // 艺术家名称，缺失时为 null
+  artwork: string | null; // 封面引用，缺失时为 null
+  album: string | null; // 专辑名称，缺失时为 null
   duration: number; // 时长（秒）
-  url: string; // 文件 URL 或路径
-  createdAt: number; // 添加日期（Unix 时间戳）
-  modifiedAt: number; // 修改日期（Unix 时间戳）
+  url: string; // 可播放的资源 URI
+  contentUri?: string | null; // Android MediaStore 规范 URI
+  createdAt: number | null; // 添加日期（Unix 秒），缺失时为 null
+  modifiedAt: number | null; // 资源修改时间；iOS 上为 null
   fileSize: number; // 文件大小（字节）
 }
 ```
+
+#### Android 曲目资源兼容策略
+
+Android 播放或资源访问应优先使用 `contentUri`。为保持兼容，MediaStore 能提供
+旧文件路径时，`url` 仍是 `file://` URI；不能提供时，`url` 回退为同一个
+`contentUri`。内嵌曲目元数据通过 `ContentResolver` 读取，并用临时文件适配
+只接受文件的标签解析器。
+
+绝对 `directory` 路径保留原有的 `DATA` 筛选。Android 10 及以上支持来自
+`com.android.externalstorage.documents` 的 SAF 树 URI，并按 MediaStore 卷和
+相对路径筛选，包括已挂载的可移动存储。其他 provider，或 Android 10 以前的
+SAF 树筛选，会以 `UNSUPPORTED_DIRECTORY_URI` 拒绝。
 
 ### `Album`
 
@@ -250,9 +268,9 @@ interface Album {
   id: string;
   title: string; // 专辑名称
   artist: string; // 主要艺术家
-  artwork?: string; // 专辑封面 URI
+  artwork: string | null; // 专辑封面引用，缺失时为 null
   trackCount: number; // 曲目数量
-  year?: number; // 发行年份
+  year: number | null; // 发行年份，缺失时为 null
 }
 ```
 
@@ -274,29 +292,52 @@ interface TrackMetadata {
   id: string; // 曲目 ID
 
   // 音频头信息
-  duration: number; // 时长（秒）
-  bitrate: number; // 比特率（kbps）
-  sampleRate: number; // 采样率（Hz）
-  channels: string; // 声道数（如 "2"）
-  format: string; // 音频格式
+  duration: number | null; // 时长（秒），缺失时为 null
+  bitrate: number | null; // 比特率（kbps），缺失时为 null
+  sampleRate: number | null; // 采样率（Hz），缺失时为 null
+  channels: string | null; // 声道数，缺失时为 null
+  format: string | null; // 音频格式，缺失时为 null
 
   // 标签信息
-  title: string; // 曲目标题
-  artist: string; // 艺术家名称
-  album: string; // 专辑名称
-  year: number; // 发行年份
-  genre: string; // 音乐流派
-  track: number; // 曲目编号
-  disc: number; // 碟片编号
-  composer: string; // 作曲家
-  lyricist: string; // 作词家
-  lyrics: string; // 歌词内容
-  albumArtist: string; // 专辑艺术家
-  comment: string; // 注释
+  title: string | null; // 曲目标题，缺失时为 null
+  artist: string | null; // 艺术家名称，缺失时为 null
+  album: string | null; // 专辑名称，缺失时为 null
+  year: number | null; // 发行年份，缺失时为 null
+  genre: string | null; // 音乐流派，缺失时为 null
+  track: number | null; // 曲目编号，缺失时为 null
+  disc: number | null; // 碟片编号，缺失时为 null
+  composer: string | null; // 作曲家，缺失时为 null
+  lyricist: string | null; // 作词家，缺失时为 null
+  lyrics: string | null; // 歌词内容，缺失时为 null
+  albumArtist: string | null; // 专辑艺术家，缺失时为 null
+  comment: string | null; // 注释，缺失时为 null
 }
 ```
 
+## 返回值与错误契约
+
+实体和曲目元数据中的可空字段始终存在；无可用值时返回 `null`。结构性的可选
+字段则会省略：`contentUri` 仅 Android 返回，分页终止页不含 `endCursor`。
+内嵌元数据不存在或无法读取时，`getTrackMetadataAsync` 仍会返回已有的音乐库
+元数据，其余字段为 `null`。
+
+原生失败会拒绝 Promise，并返回带稳定 `code` 的 `MusicLibraryError`：
+
+| Code                        | 含义                                         |
+| --------------------------- | -------------------------------------------- |
+| `PERMISSION_DENIED`         | 未获得本地音乐库访问权限                     |
+| `TRACK_NOT_FOUND`           | 请求的曲目已不存在                           |
+| `QUERY_ERROR`               | 原生查询或资源读取失败                       |
+| `INVALID_CURSOR`            | `after` 不是合法的实体 ID 游标               |
+| `CURSOR_NOT_FOUND`          | 游标格式合法，但不在当前查询结果中           |
+| `INVALID_PAGE_SIZE`         | `first` 不在 `1`–`1000` 范围内               |
+| `UNSUPPORTED_DIRECTORY_URI` | Android 无法将目录 URI 安全映射到 MediaStore |
+
 ## 排序选项
+
+默认按标题升序。单独传入排序键时表示降序。多个排序条件按声明顺序进行
+词典序比较，最后以实体 ID 升序打破平局。两个平台都提供对应字段时，缺失的
+字符串或数值在升序中排在已有值之前。
 
 ### 曲目排序键
 
@@ -306,7 +347,7 @@ interface TrackMetadata {
 - `'album'` - 按专辑名称排序
 - `'duration'` - 按时长排序
 - `'createdAt'` - 按创建日期排序
-- `'modifiedAt'` - 按修改日期排序
+- `'modifiedAt'` - 按资源修改日期排序（Android；iOS 缺失值相等并回退到 ID）
 - `'fileSize'` - 按文件大小排序
 
 ### 专辑排序键

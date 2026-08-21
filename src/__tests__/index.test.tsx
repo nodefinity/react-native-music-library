@@ -1,7 +1,18 @@
 import type { TrackSortByKey } from '../NativeMusicLibrary';
 import MusicLibrary from '../NativeMusicLibrary';
-import { getAllTracksAsync } from '../index';
-import { getTrackOptions, normalizeSortBy } from '../utils';
+import WebMusicLibrary from '../NativeMusicLibrary.web';
+import {
+  getAlbumsAsync,
+  getAllAlbumsAsync,
+  getAllArtistsAsync,
+  getAllTracksAsync,
+} from '../index';
+import {
+  getAlbumOptions,
+  getArtistOptions,
+  getTrackOptions,
+  normalizeSortBy,
+} from '../utils';
 
 // Mock the native module
 jest.mock('../NativeMusicLibrary', () => ({
@@ -106,6 +117,43 @@ describe('getTrackOptions', () => {
       { key: 'duration', ascending: false },
     ]);
   });
+
+  it.each(['', '0', '-1', '1.5', 'abc', '1abc', '18446744073709551616'])(
+    'rejects malformed cursor %p',
+    (after) => {
+      expect(() => getTrackOptions({ after })).toThrow(
+        expect.objectContaining({ code: 'INVALID_CURSOR' })
+      );
+    }
+  );
+
+  it('accepts a positive decimal entity ID cursor', () => {
+    expect(getTrackOptions({ after: '18446744073709551615' }).after).toBe(
+      '18446744073709551615'
+    );
+  });
+
+  it.each([0, -1, 1.5, 1001, Number.POSITIVE_INFINITY])(
+    'rejects invalid page size %p',
+    (first) => {
+      expect(() => getTrackOptions({ first })).toThrow(
+        expect.objectContaining({ code: 'INVALID_PAGE_SIZE' })
+      );
+    }
+  );
+
+  it.each([1, 1000])('accepts page-size boundary %p', (first) => {
+    expect(getTrackOptions({ first }).first).toBe(first);
+  });
+
+  it('applies the same cursor and page-size validation to every entity', () => {
+    expect(() => getAlbumOptions({ after: 'bad' })).toThrow(
+      expect.objectContaining({ code: 'INVALID_CURSOR' })
+    );
+    expect(() => getArtistOptions({ first: 1001 })).toThrow(
+      expect.objectContaining({ code: 'INVALID_PAGE_SIZE' })
+    );
+  });
 });
 
 describe('getAllTracksAsync', () => {
@@ -160,6 +208,133 @@ describe('getAllTracksAsync', () => {
       'Pagination did not provide an end cursor.'
     );
   });
+
+  it('returns an empty list for an empty library', async () => {
+    mockMusicLibrary.getTracksAsync.mockResolvedValueOnce({
+      items: [],
+      hasNextPage: false,
+      totalCount: 0,
+    });
+
+    await expect(getAllTracksAsync()).resolves.toEqual([]);
+  });
+
+  it('fails when a native cursor repeats instead of advancing', async () => {
+    mockMusicLibrary.getTracksAsync
+      .mockResolvedValueOnce({
+        items: [createTrack('1')],
+        hasNextPage: true,
+        endCursor: '1',
+      })
+      .mockResolvedValueOnce({
+        items: [createTrack('1')],
+        hasNextPage: true,
+        endCursor: '1',
+      });
+
+    await expect(getAllTracksAsync()).rejects.toThrow(
+      'Pagination cursor did not advance.'
+    );
+    expect(mockMusicLibrary.getTracksAsync).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('complete entity helpers', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('collects every album through the shared pagination loop', async () => {
+    const album = createAlbum('1');
+    mockMusicLibrary.getAlbumsAsync.mockResolvedValueOnce({
+      items: [album],
+      hasNextPage: false,
+      totalCount: 1,
+    });
+
+    await expect(getAllAlbumsAsync({ first: 50 })).resolves.toEqual([album]);
+    expect(mockMusicLibrary.getAlbumsAsync).toHaveBeenCalledWith({
+      after: undefined,
+      first: 50,
+      sortBy: [{ key: 'default', ascending: true }],
+    });
+  });
+
+  it('collects every artist through the shared pagination loop', async () => {
+    const artist = createArtist('1');
+    mockMusicLibrary.getArtistsAsync.mockResolvedValueOnce({
+      items: [artist],
+      hasNextPage: false,
+      totalCount: 1,
+    });
+
+    await expect(getAllArtistsAsync()).resolves.toEqual([artist]);
+    expect(mockMusicLibrary.getArtistsAsync).toHaveBeenCalledWith({
+      after: undefined,
+      first: 20,
+      sortBy: [{ key: 'default', ascending: true }],
+    });
+  });
+});
+
+describe('public pagination validation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('rejects malformed cursors with a stable error code before native query', async () => {
+    await expect(getAlbumsAsync({ after: 'bad' })).rejects.toMatchObject({
+      code: 'INVALID_CURSOR',
+    });
+    expect(mockMusicLibrary.getAlbumsAsync).not.toHaveBeenCalled();
+  });
+});
+
+describe('web result contract', () => {
+  beforeEach(() => {
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('omits an end cursor from an empty terminal page', async () => {
+    const result = await WebMusicLibrary.getTracksAsync({
+      first: 20,
+      sortBy: [],
+    });
+
+    expect(result).toEqual({
+      items: [],
+      hasNextPage: false,
+      totalCount: 0,
+    });
+    expect(result).not.toHaveProperty('endCursor');
+  });
+
+  it('returns every unavailable metadata field as null', async () => {
+    await expect(WebMusicLibrary.getTrackMetadataAsync('42')).resolves.toEqual({
+      id: '42',
+      duration: null,
+      bitrate: null,
+      sampleRate: null,
+      channels: null,
+      format: null,
+      title: null,
+      artist: null,
+      album: null,
+      year: null,
+      genre: null,
+      track: null,
+      disc: null,
+      composer: null,
+      lyricist: null,
+      lyrics: null,
+      albumArtist: null,
+      comment: null,
+    });
+  });
 });
 
 function createTrack(id: string) {
@@ -174,5 +349,25 @@ function createTrack(id: string) {
     createdAt: null,
     modifiedAt: null,
     fileSize: 1,
+  };
+}
+
+function createAlbum(id: string) {
+  return {
+    id,
+    title: `Album ${id}`,
+    artist: 'Artist',
+    artwork: null,
+    trackCount: 1,
+    year: null,
+  };
+}
+
+function createArtist(id: string) {
+  return {
+    id,
+    title: `Artist ${id}`,
+    albumCount: 1,
+    trackCount: 1,
   };
 }

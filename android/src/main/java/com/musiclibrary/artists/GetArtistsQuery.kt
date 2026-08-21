@@ -2,16 +2,18 @@ package com.musiclibrary.artists
 
 import android.content.ContentResolver
 import android.provider.MediaStore
-import android.net.Uri
-import android.provider.DocumentsContract
 import com.musiclibrary.models.*
-import androidx.core.net.toUri
+import com.musiclibrary.utils.moveToPageStart
+import com.musiclibrary.utils.readCursorPage
+import com.musiclibrary.utils.validatePageSize
 
 object GetArtistsQuery {
   fun getArtists(
     contentResolver: ContentResolver,
     options: ArtistOptions,
   ): PaginatedResult<Artist> {
+    validatePageSize(options.first)
+
     val projection = arrayOf(
       MediaStore.Audio.Artists._ID,
       MediaStore.Audio.Artists.ARTIST,
@@ -21,7 +23,7 @@ object GetArtistsQuery {
 
     val selection = buildSelection(options)
     val selectionArgs = buildSelectionArgs(options)
-    val sortOrder = buildSortOrder(options.sortBy)
+    val sortOrder = buildArtistSortOrder(options.sortBy)
 
     val cursor = contentResolver.query(
       MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
@@ -31,41 +33,25 @@ object GetArtistsQuery {
       sortOrder
     ) ?: throw RuntimeException("Failed to query MediaStore: cursor is null")
 
-    val artists = mutableListOf<Artist>()
-    var hasNextPage: Boolean
-    var endCursor: String? = null
     val totalCount = cursor.count
 
-    cursor.use { c ->
+    return cursor.use { c ->
       val idColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Artists._ID)
       val artistColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Artists.ARTIST)
       val albumCountColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Artists.NUMBER_OF_ALBUMS)
       val trackCountColumn = c.getColumnIndexOrThrow(MediaStore.Audio.Artists.NUMBER_OF_TRACKS)
 
-      // Jump to the specified start position
-      val foundAfter = if (options.after == null) {
-        cursor.moveToFirst() // Move to the first record
-        true
-      } else {
-        var found = false
-        if (cursor.moveToFirst()) {
-          do {
-            val id = cursor.getLong(idColumn).toString()
-            if (id == options.after) {
-              found = true
-              break
-            }
-          } while (cursor.moveToNext())
-        }
-        // Move to the next record after the specified after if found
-        found && cursor.moveToNext()
-      }
+      val foundAfter = moveToPageStart(
+        after = options.after,
+        moveToFirst = c::moveToFirst,
+        currentId = { c.getLong(idColumn).toString() },
+        moveToNext = c::moveToNext,
+      )
 
-      var count = 0
-      val maxItems = options.first.coerceAtMost(1000) // Limit the maximum number of queries
-
-      while (foundAfter && count < maxItems) {
-        try {
+      val page = readCursorPage(
+        canReadFirst = foundAfter,
+        maxItems = options.first,
+        readItem = {
           val id = c.getLong(idColumn)
           val artistName = c.getString(artistColumn) ?: ""
           val albumCount = c.getInt(albumCountColumn)
@@ -73,37 +59,28 @@ object GetArtistsQuery {
 
           // Skip invalid artists
           if (artistName.isEmpty() || trackCount == 0) {
-            continue
+            null
+          } else {
+            // Create an Artist
+            Artist(
+              id = id.toString(),
+              title = artistName,
+              albumCount = albumCount,
+              trackCount = trackCount
+            )
           }
+        },
+        moveToNext = c::moveToNext,
+        isAfterLast = { c.isAfterLast },
+      )
 
-          // Create an Artist
-          val artist = Artist(
-            id = id.toString(),
-            title = artistName,
-            albumCount = albumCount,
-            trackCount = trackCount
-          )
-
-          artists.add(artist)
-          endCursor = id.toString()
-          count++
-        } catch (e: Exception) {
-          continue
-        }
-
-        if (!cursor.moveToNext()) break
-      }
-
-      // Check if there are more data
-      hasNextPage = !c.isAfterLast
+      PaginatedResult(
+        items = page.items,
+        hasNextPage = page.hasNextPage,
+        endCursor = page.items.lastOrNull()?.id,
+        totalCount = totalCount
+      )
     }
-
-    return PaginatedResult(
-      items = artists,
-      hasNextPage = hasNextPage,
-      endCursor = endCursor,
-      totalCount = totalCount
-    )
   }
 
   private fun buildSelection(options: ArtistOptions): String {
@@ -119,12 +96,9 @@ object GetArtistsQuery {
     return null
   }
 
-  private fun buildSortOrder(sortBy: List<SortOption>): String {
-    if (sortBy.isEmpty()) {
-      return "${MediaStore.Audio.Artists.ARTIST} ASC"
-    }
-
-    return sortBy.joinToString(", ") { sortOption ->
+  internal fun buildArtistSortOrder(sortBy: List<SortOption>): String {
+    val options = sortBy.ifEmpty { listOf(SortOption("default", true)) }
+    val descriptors = options.map { sortOption ->
       val column = when (sortOption.key.lowercase()) {
         "default" -> MediaStore.Audio.Artists.ARTIST
         "title" -> MediaStore.Audio.Artists.ARTIST
@@ -136,5 +110,7 @@ object GetArtistsQuery {
       val order = if (sortOption.ascending) "ASC" else "DESC"
       "$column $order"
     }
+
+    return (descriptors + "${MediaStore.Audio.Artists._ID} ASC").joinToString(", ")
   }
 }

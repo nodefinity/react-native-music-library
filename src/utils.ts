@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import {
   TrackSortByObject,
   AlbumSortByObject,
@@ -14,6 +13,7 @@ import {
 } from './NativeMusicLibrary';
 
 type SortByType = 'track' | 'album' | 'artist';
+const MAX_CURSOR_ID = '18446744073709551615';
 
 export function arrayize<T>(item: T | T[]): T[] {
   if (Array.isArray(item)) {
@@ -166,14 +166,33 @@ function validateOptions(options: any): void {
   if (options.directory != null && typeof options.directory !== 'string') {
     throw new Error('Option "directory" must be a string!');
   }
+  if (options.after != null && !isValidCursor(options.after)) {
+    throw createOptionError(
+      'INVALID_CURSOR',
+      'Option "after" must be a positive decimal ID!'
+    );
+  }
   if (
-    options.after != null &&
-    Platform.OS === 'android' &&
-    isNaN(parseInt(getId(options.after) as string, 10))
+    options.first != null &&
+    (!Number.isInteger(options.first) ||
+      options.first < 1 ||
+      options.first > 1000)
   ) {
-    throw new Error('Option "after" must be a valid ID!');
+    throw createOptionError(
+      'INVALID_PAGE_SIZE',
+      'Option "first" must be an integer between 1 and 1000!'
+    );
   }
-  if (options.first != null && options.first < 0) {
-    throw new Error('Option "first" must be a positive integer!');
-  }
+}
+
+function isValidCursor(cursor: string): boolean {
+  return (
+    /^[1-9]\d*$/.test(cursor) &&
+    (cursor.length < MAX_CURSOR_ID.length ||
+      (cursor.length === MAX_CURSOR_ID.length && cursor <= MAX_CURSOR_ID))
+  );
+}
+
+function createOptionError(code: string, message: string): Error {
+  return Object.assign(new Error(message), { code });
 }

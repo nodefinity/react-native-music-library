@@ -30,6 +30,19 @@ export interface InternalSortByValue {
   ascending: boolean;
 }
 
+export type MusicLibraryErrorCode =
+  | 'PERMISSION_DENIED'
+  | 'TRACK_NOT_FOUND'
+  | 'QUERY_ERROR'
+  | 'INVALID_CURSOR'
+  | 'CURSOR_NOT_FOUND'
+  | 'INVALID_PAGE_SIZE'
+  | 'UNSUPPORTED_DIRECTORY_URI';
+
+export interface MusicLibraryError extends Error {
+  code: MusicLibraryErrorCode;
+}
+
 export const TrackSortByObject = {
   default: 'default',
   title: 'title',
@@ -69,6 +82,8 @@ export interface BaseOptions {
   /**
    * Maximum number of items to return
    * @default 20
+   * @minimum 1
+   * @maximum 1000
    */
   first?: number;
 }
@@ -80,7 +95,7 @@ export interface TrackOptions extends BaseOptions {
   /**
    * Sorting configuration for tracks
    * @example
-   * 'title' // Sort by title descending (default)
+   * 'title' // Sort by title descending
    * ['title', true] // Sort by title ascending
    */
   sortBy?: SortByValue<TrackSortByKey> | SortByValue<TrackSortByKey>[];
@@ -99,7 +114,7 @@ export interface AlbumOptions extends BaseOptions {
   /**
    * Sorting configuration for albums
    * @example
-   * 'title' // Sort by title descending (default)
+   * 'title' // Sort by title descending
    * ['trackCount', true] // Sort by track count ascending
    */
   sortBy?: SortByValue<AlbumSortByKey> | SortByValue<AlbumSortByKey>[];
@@ -112,7 +127,7 @@ export interface ArtistOptions extends BaseOptions {
   /**
    * Sorting configuration for artists
    * @example
-   * 'title' // Sort by name descending (default)
+   * 'title' // Sort by name descending
    * ['trackCount', true] // Sort by track count ascending
    */
   sortBy?: SortByValue<ArtistSortByKey> | SortByValue<ArtistSortByKey>[];
@@ -173,25 +188,28 @@ export interface Track {
   title: string;
 
   /** Artist name */
-  artist?: string | null;
+  artist: string | null;
 
-  /** Track artwork (file URI, optional) */
-  artwork?: string | null;
+  /** Track artwork reference, or null when unavailable */
+  artwork: string | null;
 
   /** Album name */
-  album?: string | null;
+  album: string | null;
 
   /** Duration in seconds */
   duration: number;
 
-  /** File URI or path */
+  /** Playable resource URI. May use file, content, or platform-library schemes. */
   url: string;
 
-  /** Date added to library (Unix timestamp, optional) */
-  createdAt?: number | null;
+  /** Canonical Android MediaStore content URI (Android only) */
+  contentUri?: string | null;
 
-  /** Date modified (Unix timestamp, optional) */
-  modifiedAt?: number | null;
+  /** Date added to the library as a Unix timestamp in seconds, or null */
+  createdAt: number | null;
+
+  /** Resource modification time in Unix seconds; unavailable and null on iOS */
+  modifiedAt: number | null;
 
   /** File size in bytes */
   fileSize: number;
@@ -202,25 +220,25 @@ export interface TrackMetadata {
   id: string;
 
   /** Audio header */
-  duration?: number | null; // in seconds
-  bitrate?: number | null; // in kbps
-  sampleRate?: number | null; // in Hz
-  channels?: string | null;
-  format?: string | null;
+  duration: number | null; // in seconds
+  bitrate: number | null; // in kbps
+  sampleRate: number | null; // in Hz
+  channels: string | null;
+  format: string | null;
 
   /** Tag info */
-  title?: string | null;
-  artist?: string | null;
-  album?: string | null;
-  year?: number | null;
-  genre?: string | null;
-  track?: number | null;
-  disc?: number | null;
-  composer?: string | null;
-  lyricist?: string | null;
-  lyrics?: string | null;
-  albumArtist?: string | null;
-  comment?: string | null;
+  title: string | null;
+  artist: string | null;
+  album: string | null;
+  year: number | null;
+  genre: string | null;
+  track: number | null;
+  disc: number | null;
+  composer: string | null;
+  lyricist: string | null;
+  lyrics: string | null;
+  albumArtist: string | null;
+  comment: string | null;
 }
 
 export interface Album {
@@ -236,10 +254,9 @@ export interface Album {
   artist: string;
 
   /**
-   * Album artwork (base64 encoded image or URL, optional)
-   * @default undefined
+   * Album artwork reference, or null when unavailable
    */
-  artwork?: string | null;
+  artwork: string | null;
 
   /**
    * Number of tracks in album
@@ -248,10 +265,9 @@ export interface Album {
   trackCount: number;
 
   /**
-   * Release year (optional)
-   * @default undefined
+   * Release year, or null when unavailable
    */
-  year?: number | null;
+  year: number | null;
 }
 
 export interface Artist {

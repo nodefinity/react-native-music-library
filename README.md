@@ -92,14 +92,18 @@ getTracksAsync(options?: TrackOptions): Promise<PaginatedResult<Track>>
 
 **TrackOptions**
 
-| Property    | Type                                                     | Default     | Description                             |
-| ----------- | -------------------------------------------------------- | ----------- | --------------------------------------- |
-| `first`     | `number`                                                 | `20`        | Max number of items to return           |
-| `after`     | `string`                                                 | —           | Cursor from previous page's `endCursor` |
-| `sortBy`    | `TrackSortByKey \| [TrackSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`   |
-| `directory` | `string`                                                 | —           | Filter by directory path (Android only) |
+| Property    | Type                                                     | Default     | Description                                          |
+| ----------- | -------------------------------------------------------- | ----------- | ---------------------------------------------------- |
+| `first`     | `number`                                                 | `20`        | Items to return (`1`–`1000`)                         |
+| `after`     | `string`                                                 | —           | Cursor from previous page's `endCursor`              |
+| `sortBy`    | `TrackSortByKey \| [TrackSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`                |
+| `directory` | `string`                                                 | —           | Legacy path or supported SAF tree URI (Android only) |
 
 **TrackSortByKey**: `'default' \| 'title' \| 'artist' \| 'album' \| 'duration' \| 'createdAt' \| 'modifiedAt' \| 'fileSize'`
+
+The default sort is title ascending. A bare sort key such as `sortBy: 'artist'`
+means descending; use `[key, true]` for ascending. Multiple descriptors are
+applied in order, with the entity ID used as a final ascending tie-breaker.
 
 ---
 
@@ -145,7 +149,7 @@ getAlbumsAsync(options?: AlbumOptions): Promise<PaginatedResult<Album>>
 
 | Property | Type                                                     | Default     | Description                             |
 | -------- | -------------------------------------------------------- | ----------- | --------------------------------------- |
-| `first`  | `number`                                                 | `20`        | Max number of items to return           |
+| `first`  | `number`                                                 | `20`        | Items to return (`1`–`1000`)            |
 | `after`  | `string`                                                 | —           | Cursor from previous page's `endCursor` |
 | `sortBy` | `AlbumSortByKey \| [AlbumSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`   |
 
@@ -175,7 +179,7 @@ getArtistsAsync(options?: ArtistOptions): Promise<PaginatedResult<Artist>>
 
 | Property | Type                                                       | Default     | Description                             |
 | -------- | ---------------------------------------------------------- | ----------- | --------------------------------------- |
-| `first`  | `number`                                                   | `20`        | Max number of items to return           |
+| `first`  | `number`                                                   | `20`        | Items to return (`1`–`1000`)            |
 | `after`  | `string`                                                   | —           | Cursor from previous page's `endCursor` |
 | `sortBy` | `ArtistSortByKey \| [ArtistSortByKey, boolean] \| (...)[]` | `'default'` | Sort key, or tuple `[key, ascending]`   |
 
@@ -187,52 +191,68 @@ getArtistsAsync(options?: ArtistOptions): Promise<PaginatedResult<Artist>>
 
 ### `Track`
 
-| Field        | Type      | Description                         |
-| ------------ | --------- | ----------------------------------- |
-| `id`         | `string`  | Unique identifier                   |
-| `title`      | `string`  | Track title                         |
-| `artist`     | `string`  | Artist name                         |
-| `artwork`    | `string?` | Artwork file URI (may be undefined) |
-| `album`      | `string`  | Album name                          |
-| `duration`   | `number`  | Duration in seconds                 |
-| `url`        | `string`  | File URI                            |
-| `createdAt`  | `number`  | Unix timestamp (seconds)            |
-| `modifiedAt` | `number`  | Unix timestamp (seconds)            |
-| `fileSize`   | `number`  | File size in bytes                  |
+| Field        | Type             | Description                                                 |
+| ------------ | ---------------- | ----------------------------------------------------------- |
+| `id`         | `string`         | Unique identifier                                           |
+| `title`      | `string`         | Track title                                                 |
+| `artist`     | `string \| null` | Artist name, or `null`                                      |
+| `artwork`    | `string \| null` | Artwork reference, or `null`                                |
+| `album`      | `string \| null` | Album name, or `null`                                       |
+| `duration`   | `number`         | Duration in seconds                                         |
+| `url`        | `string`         | Playable URI; preserves `file://` when available on Android |
+| `contentUri` | `string?`        | Canonical Android MediaStore URI                            |
+| `createdAt`  | `number \| null` | Date added, Unix timestamp in seconds, or `null`            |
+| `modifiedAt` | `number \| null` | Resource modification time in Unix seconds; `null` on iOS   |
+| `fileSize`   | `number`         | File size in bytes                                          |
+
+### Android Track resources
+
+Use `contentUri` as the canonical Android Track resource. `url` remains
+backward compatible: it is a `file://` URI when MediaStore exposes a legacy
+path, and otherwise falls back to the same playable `content://` URI. Track
+Metadata is opened through `ContentResolver`, so a Track no longer requires a
+`DATA` path.
+
+`directory` still accepts an absolute path for existing callers. On Android 10+
+it also accepts a Storage Access Framework tree URI from the system external
+storage provider, including mounted removable volumes; filtering uses the
+MediaStore volume and relative path. Other document providers and SAF tree URIs
+on older Android versions reject with `UNSUPPORTED_DIRECTORY_URI` instead of
+guessing a `/storage/...` path.
 
 ### `TrackMetadata`
 
-| Field         | Type     | Description                          |
-| ------------- | -------- | ------------------------------------ |
-| `id`          | `string` | Track ID                             |
-| `duration`    | `number` | Duration in seconds                  |
-| `bitrate`     | `number` | Bitrate in kbps                      |
-| `sampleRate`  | `number` | Sample rate in Hz                    |
-| `channels`    | `string` | Number of audio channels             |
-| `format`      | `string` | Audio format (e.g. `"AAC"`, `"MP3"`) |
-| `title`       | `string` | Title tag                            |
-| `artist`      | `string` | Artist tag                           |
-| `album`       | `string` | Album tag                            |
-| `year`        | `number` | Release year                         |
-| `genre`       | `string` | Genre tag                            |
-| `track`       | `number` | Track number                         |
-| `disc`        | `number` | Disc number                          |
-| `composer`    | `string` | Composer tag                         |
-| `lyricist`    | `string` | Lyricist tag                         |
-| `lyrics`      | `string` | Embedded lyrics                      |
-| `albumArtist` | `string` | Album artist tag                     |
-| `comment`     | `string` | Comment tag                          |
+| Field         | Type             | Description                         |
+| ------------- | ---------------- | ----------------------------------- |
+| `id`          | `string`         | Track ID                            |
+| `duration`    | `number \| null` | Duration in seconds, or `null`      |
+| `bitrate`     | `number \| null` | Bitrate in kbps, or `null`          |
+| `sampleRate`  | `number \| null` | Sample rate in Hz, or `null`        |
+| `channels`    | `string \| null` | Number of audio channels, or `null` |
+| `format`      | `string \| null` | Audio format, or `null`             |
+| `title`       | `string \| null` | Title tag, or `null`                |
+| `artist`      | `string \| null` | Artist tag, or `null`               |
+| `album`       | `string \| null` | Album tag, or `null`                |
+| `year`        | `number \| null` | Release year, or `null`             |
+| `genre`       | `string \| null` | Genre tag, or `null`                |
+| `track`       | `number \| null` | Track number, or `null`             |
+| `disc`        | `number \| null` | Disc number, or `null`              |
+| `composer`    | `string \| null` | Composer tag, or `null`             |
+| `lyricist`    | `string \| null` | Lyricist tag, or `null`             |
+| `lyrics`      | `string \| null` | Embedded lyrics, or `null`          |
+| `albumArtist` | `string \| null` | Album artist tag, or `null`         |
+| `comment`     | `string \| null` | Comment tag, or `null`              |
 
 ### `Album`
 
-| Field        | Type      | Description                    |
-| ------------ | --------- | ------------------------------ |
-| `id`         | `string`  | Unique identifier              |
-| `title`      | `string`  | Album name                     |
-| `artist`     | `string`  | Primary artist                 |
-| `artwork`    | `string?` | Artwork URI (may be undefined) |
-| `trackCount` | `number`  | Number of tracks               |
-| `year`       | `number?` | Release year                   |
+| Field        | Type             | Description                  |
+| ------------ | ---------------- | ---------------------------- |
+| `id`         | `string`         | Unique identifier            |
+| `title`      | `string`         | Album name                   |
+| `artist`     | `string`         | Primary artist               |
+| `artwork`    | `string \| null` | Artwork reference, or `null` |
+| `trackCount` | `number`         | Number of tracks             |
+| `year`       | `number \| null` | Release year, or `null`      |
 
 ### `Artist`
 
@@ -252,6 +272,12 @@ getArtistsAsync(options?: ArtistOptions): Promise<PaginatedResult<Artist>>
 | `endCursor`   | `string?` | Pass to `after` to fetch next page        |
 | `totalCount`  | `number?` | Total count (may be expensive to compute) |
 
+`endCursor` is the ID of the last returned entity. Reuse it only with the same
+entity, filters, and sort options. A malformed cursor rejects with
+`INVALID_CURSOR`; a valid ID absent from the current result rejects with
+`CURSOR_NOT_FOUND`. A cursor at the final entity returns an empty terminal page
+without a new `endCursor`.
+
 ---
 
 ## 🔄 Pagination Example
@@ -270,6 +296,32 @@ async function fetchAllTracks() {
   return allTracks;
 }
 ```
+
+For workflows that need the complete current result, use
+`getAllTracksAsync`, `getAllTracksByArtistAsync`, `getAllAlbumsAsync`, or
+`getAllArtistsAsync`. These helpers follow `endCursor`, preserve the low-level
+query options, and reject malformed or non-advancing native pagination.
+
+## Result and error contract
+
+Nullable `Track`, `Album`, and `TrackMetadata` fields are always present and
+use `null` when the Local Music Library does not provide a value. Structural
+optional fields are omitted: `contentUri` is Android-only, and a terminal page
+does not contain `endCursor`. Missing or unreadable Embedded Metadata resolves
+with the available Library Metadata and `null` values.
+
+Native failures reject the Promise with a `MusicLibraryError` and one of these
+stable codes:
+
+| Code                        | Meaning                                                   |
+| --------------------------- | --------------------------------------------------------- |
+| `PERMISSION_DENIED`         | Local Music Library access is not authorized              |
+| `TRACK_NOT_FOUND`           | The requested Track no longer exists                      |
+| `QUERY_ERROR`               | The platform library query or resource read failed        |
+| `INVALID_CURSOR`            | `after` is not a valid entity-ID cursor                   |
+| `CURSOR_NOT_FOUND`          | The cursor is valid but absent from this query            |
+| `INVALID_PAGE_SIZE`         | `first` is outside `1`–`1000`                             |
+| `UNSUPPORTED_DIRECTORY_URI` | Android cannot safely map the directory URI to MediaStore |
 
 ## 🤝 Contributing
 

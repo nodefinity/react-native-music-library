@@ -95,7 +95,7 @@ const loadTracks = async () => {
       console.log(
         `Duration: ${Math.floor(track.duration / 60)}:${track.duration % 60}`
       );
-      console.log(`File: ${track.url}`);
+      console.log(`Resource: ${track.contentUri ?? track.url}`);
     });
   } catch (error) {
     console.error('Failed to load tracks:', error);

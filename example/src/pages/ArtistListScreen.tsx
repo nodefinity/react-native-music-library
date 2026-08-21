@@ -8,11 +8,8 @@ import {
   Alert,
   Button,
 } from 'react-native';
-import { getArtistsAsync } from '@nodefinity/react-native-music-library';
-import type {
-  Artist,
-  ArtistOptions,
-} from '@nodefinity/react-native-music-library';
+import { getAllArtistsAsync } from '@nodefinity/react-native-music-library';
+import type { Artist } from '@nodefinity/react-native-music-library';
 import { usePermission } from '../hooks/usePermission';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -25,7 +22,7 @@ export default function ArtistListScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const { permissionStatus, requestPermissions } = usePermission();
 
-  const getAllArtists = async () => {
+  const handleGetAllArtists = async () => {
     try {
       if (!permissionStatus?.granted) {
         const result = await requestPermissions();
@@ -40,7 +37,10 @@ export default function ArtistListScreen({ navigation }: Props) {
 
       setLoading(true);
       const startTime = Date.now();
-      const results = await loadAllArtists();
+      const results = await getAllArtistsAsync({
+        first: 100,
+        sortBy: ['title', true],
+      });
       const endTime = Date.now();
 
       setArtists(results);
@@ -54,27 +54,6 @@ export default function ArtistListScreen({ navigation }: Props) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadAllArtists = async (options: ArtistOptions = {}) => {
-    let allArtists: Artist[] = [];
-    let hasMore = true;
-    let cursor;
-
-    while (hasMore) {
-      const result = await getArtistsAsync({
-        first: 100,
-        ...options,
-        after: cursor,
-        sortBy: ['title', true],
-      });
-
-      allArtists = [...allArtists, ...result.items];
-      hasMore = result.hasNextPage;
-      cursor = result.endCursor;
-    }
-
-    return allArtists;
   };
 
   const handleArtistPress = async (artist: Artist) => {
@@ -118,7 +97,7 @@ export default function ArtistListScreen({ navigation }: Props) {
       <View style={styles.buttonContainer}>
         <Button
           title={`${loading ? 'loading...' : ''} get all artists`}
-          onPress={getAllArtists}
+          onPress={handleGetAllArtists}
           disabled={loading}
         />
       </View>

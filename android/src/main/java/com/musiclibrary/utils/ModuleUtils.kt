@@ -29,7 +29,7 @@ object ModuleUtils {
     } catch (e: SecurityException) {
       promise.reject("PERMISSION_DENIED", e.message, e)
     } catch (e: Exception) {
-      promise.reject("MODULE_ERROR", "Operation failed: ${e.message}", e)
+      promise.reject("QUERY_ERROR", "Operation failed: ${e.message}", e)
     }
   }
 
@@ -44,4 +44,4 @@ object ModuleUtils {
       ) == PackageManager.PERMISSION_GRANTED
     }
   }
-} 
+}

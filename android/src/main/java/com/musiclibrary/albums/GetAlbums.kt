@@ -4,6 +4,7 @@ import android.content.Context
 import com.facebook.react.bridge.Promise
 import com.musiclibrary.models.AlbumOptions
 import com.musiclibrary.utils.DataConverter
+import com.musiclibrary.utils.rejectQueryError
 
 internal class GetAlbums(
   private val context: Context,
@@ -22,7 +23,7 @@ internal class GetAlbums(
 
       promise.resolve(writableMap)
     } catch (e: Exception) {
-      promise.reject("QUERY_ERROR", "Failed to query albums: ${e.message}", e)
+      promise.rejectQueryError(e, "Failed to query albums")
     }
   }
 }

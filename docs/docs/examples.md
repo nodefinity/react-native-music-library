@@ -32,6 +32,23 @@ const nextPage = firstPage.hasNextPage
   : undefined;
 ```
 
+## Load a complete result
+
+Use the high-level helpers when the workflow needs the complete current list.
+The paginated methods remain available for incremental screens.
+
+```ts
+import {
+  getAllTracksAsync,
+  getAllAlbumsAsync,
+  getAllArtistsAsync,
+} from '@nodefinity/react-native-music-library';
+
+const tracks = await getAllTracksAsync({ first: 100 });
+const albums = await getAllAlbumsAsync({ first: 100 });
+const artists = await getAllArtistsAsync({ first: 100 });
+```
+
 ## Read audio metadata and lyrics
 
 Load detailed Track Metadata when a user opens a track. The returned values

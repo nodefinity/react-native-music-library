@@ -8,6 +8,47 @@ import Foundation
 
 // MARK: - Result Models
 
+internal struct CursorPage<T> {
+  let items: [T]
+  let hasNextPage: Bool
+  let endCursor: String?
+}
+
+internal func paginateById<T>(
+  _ items: [T],
+  first: Int,
+  after: String?,
+  id: (T) -> String
+) throws -> CursorPage<T> {
+  guard (1...1000).contains(first) else {
+    throw MusicLibraryError.invalidPageSize(first)
+  }
+
+  var startIndex = 0
+  if let after {
+    let validRange = after.range(
+      of: "^[1-9][0-9]*$",
+      options: .regularExpression
+    )
+    guard validRange != nil, UInt64(after) != nil else {
+      throw MusicLibraryError.invalidCursor(after)
+    }
+    guard let foundIndex = items.firstIndex(where: { id($0) == after }) else {
+      throw MusicLibraryError.cursorNotFound(after)
+    }
+    startIndex = foundIndex + 1
+  }
+
+  let endIndex = min(startIndex + first, items.count)
+  let page = startIndex < items.count ? Array(items[startIndex..<endIndex]) : []
+
+  return CursorPage(
+    items: page,
+    hasNextPage: endIndex < items.count,
+    endCursor: page.last.map(id)
+  )
+}
+
 public class PaginatedResult<T: NSObject>: NSObject {
   public let items: [T]
   public let hasNextPage: Bool
@@ -34,12 +75,19 @@ public class PaginatedResult<T: NSObject>: NSObject {
       return nil
     }
     
-    return [
+    var dictionary: [String: Any] = [
       "items": itemDictionaries,
-      "hasNextPage": hasNextPage,
-      "endCursor": endCursor ?? NSNull(),
-      "totalCount": totalCount ?? NSNull()
+      "hasNextPage": hasNextPage
     ]
+
+    if let endCursor {
+      dictionary["endCursor"] = endCursor
+    }
+    if let totalCount {
+      dictionary["totalCount"] = totalCount
+    }
+
+    return dictionary
   }
 }
 
@@ -83,4 +131,3 @@ public class PaginatedResultArtist: NSObject {
     return inner.toDictionary()
   }
 }
-

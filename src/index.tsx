@@ -62,7 +62,7 @@ export function getTracksByAlbumAsync(albumId: string): Promise<Track[]> {
  * @param trackOptions - The options for the query (pagination, etc.).
  * @returns A promise that resolves to a paginated result of tracks by the artist.
  */
-export function getTracksByArtistAsync(
+export async function getTracksByArtistAsync(
   artistId: string,
   trackOptions: TrackOptions = {}
 ): Promise<TrackResult> {
@@ -93,7 +93,7 @@ export async function getAllTracksByArtistAsync(
  * @param albumOptions - The options for the query.
  * @returns A promise that resolves to an array of album info.
  */
-export function getAlbumsAsync(
+export async function getAlbumsAsync(
   albumOptions: AlbumOptions = {}
 ): Promise<AlbumResult> {
   return MusicLibrary.getAlbumsAsync(getAlbumOptions(albumOptions));
@@ -124,7 +124,7 @@ export function getAlbumsByArtistAsync(artistId: string): Promise<Album[]> {
  * @param artistOptions - The options for the query.
  * @returns A promise that resolves to an array of artist info.
  */
-export function getArtistsAsync(
+export async function getArtistsAsync(
   artistOptions: ArtistOptions = {}
 ): Promise<ArtistResult> {
   return MusicLibrary.getArtistsAsync(getArtistOptions(artistOptions));

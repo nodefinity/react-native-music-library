@@ -1,10 +1,7 @@
 import { Alert, Button, View, FlatList, Text, StyleSheet } from 'react-native';
-import { getTracksAsync } from '@nodefinity/react-native-music-library';
+import { getAllTracksAsync } from '@nodefinity/react-native-music-library';
 import { useState } from 'react';
-import type {
-  TrackOptions,
-  Track,
-} from '@nodefinity/react-native-music-library';
+import type { Track } from '@nodefinity/react-native-music-library';
 import { usePermission } from '../hooks/usePermission';
 import { pickDirectory } from '@react-native-documents/picker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -22,7 +19,7 @@ export default function TrackListScreen({ navigation }: Props) {
   const { permissionStatus, requestPermissions } = usePermission();
   const { setPlaylist } = usePlayer();
 
-  const getAllTracks = async () => {
+  const handleGetAllTracks = async () => {
     try {
       if (!permissionStatus?.granted) {
         const result = await requestPermissions();
@@ -37,7 +34,10 @@ export default function TrackListScreen({ navigation }: Props) {
 
       setLoading(true);
       const startTime = Date.now();
-      const results = await loadAllTracks();
+      const results = await getAllTracksAsync({
+        first: 100,
+        sortBy: ['title', true],
+      });
       const endTime = Date.now();
 
       setTracks(results);
@@ -53,28 +53,6 @@ export default function TrackListScreen({ navigation }: Props) {
     }
   };
 
-  const loadAllTracks = async (options: TrackOptions = {}) => {
-    let allTracks: Track[] = [];
-    let hasMore = true;
-    let cursor;
-
-    while (hasMore) {
-      const result = await getTracksAsync({
-        first: 100,
-        ...options,
-        after: cursor,
-        sortBy: ['title', true],
-      });
-
-      console.log('getTracksAsync result:', JSON.stringify(result, null, 2));
-      allTracks = [...allTracks, ...result.items];
-      hasMore = result.hasNextPage;
-      cursor = result.endCursor;
-    }
-
-    return allTracks;
-  };
-
   const getTracksFromPickedDirectory = async () => {
     try {
       const { uri } = await pickDirectory({
@@ -83,7 +61,11 @@ export default function TrackListScreen({ navigation }: Props) {
 
       if (!uri) return;
 
-      const results = await loadAllTracks({ directory: uri });
+      const results = await getAllTracksAsync({
+        first: 100,
+        sortBy: ['title', true],
+        directory: uri,
+      });
 
       setTracks(results);
 
@@ -113,7 +95,7 @@ export default function TrackListScreen({ navigation }: Props) {
       <View style={styles.buttonContainer}>
         <Button
           title={`${loading ? 'loading...' : ''} get all tracks`}
-          onPress={getAllTracks}
+          onPress={handleGetAllTracks}
           disabled={loading}
         />
 
